@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="AIProg4_StrategicAIRemaster/AIProg4_StrategicAIRemaster.vcxproj" Id="7cf0444b-14ab-4861-88ff-db583a293471" />
+</Solution>
