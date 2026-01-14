@@ -26,10 +26,10 @@ World::World(const char* path)
 World::~World()
 {
     // Clear map
-    for (size_t y = 0; y < height; y++)
+    for (size_t x = 0; x < width; x++)
     {
-        delete[] mapTerrain[y];
-        delete[] discovered[y];
+        delete[] mapTerrain[x];
+        delete[] discovered[x];
     }
 
     delete[] mapTerrain;
@@ -87,85 +87,87 @@ bool World::LoadMap(const char* path)
 	file.clear();
 	file.seekg(0);
 
-	// Read file
-	if (file.is_open())
-	{
-		std::string line;
+	// Fail to read?
+    if (!file.is_open())
+        return false;
 
-        // Read all the lines
-		while (std::getline(file, line))
-		{
-			char* cstr = new char[line.size()];
-			for (size_t i = 0; i < line.size(); ++i)
-			{
-				cstr[i] = line[i];
-			}
+    // Read file
+    std::string line;
 
-		    map[currentLine] = cstr;
-
-			currentLine++;
-            if (this->width == 0)
-			    this->width = line.size();
-		}
-
-        // Define resources
-        worldSize = width * height;
-        mapTerrain = new ETerrainType*[height];
-        discovered = new bool* [height];
-
-        GameDB::Database* db = GameDB::Database::Instance();
-
-        for (int y = 0; y < height; y++)
+    // Read all the lines
+    while (std::getline(file, line))
+    {
+        char* cstr = new char[line.size()];
+        for (size_t i = 0; i < line.size(); ++i)
         {
-            mapTerrain[y] = new ETerrainType[width];
-            discovered[y] = new bool[width];
+            cstr[i] = line[i];
+        }
 
-            for (int x = 0; x < width; x++)
+        map[currentLine] = cstr;
+
+        currentLine++;
+        if (this->width == 0)
+            this->width = line.size();
+    }
+
+    // Define resources
+    worldSize = width * height;
+    mapTerrain = new ETerrainType*[width];
+    discovered = new bool* [width];
+
+    GameDB::Database* db = GameDB::Database::Instance();
+
+    for (size_t x = 0; x < height; x++)
+    {
+        mapTerrain[x] = new ETerrainType[height];
+        discovered[x] = new bool[height];
+
+        for (size_t y = 0; y < height; y++)
+        {
+            // NOTE: map[y][x]
+            // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
+            // This is fixed for actual map data, which can be naturaly accessed as [x][y]
+
+            // Terrain types
+            if (map[y][x] == db->terrains[ETerrainType::Grass].charIdentifier)
+                mapTerrain[x][y] = ETerrainType::Grass;
+
+            if (map[y][x] == db->terrains[ETerrainType::Swamp].charIdentifier)
+                mapTerrain[x][y] = ETerrainType::Swamp;
+
+            if (map[y][x] == db->terrains[ETerrainType::Water].charIdentifier)
+                mapTerrain[x][y] = ETerrainType::Water;
+
+            if (map[y][x] == db->terrains[ETerrainType::Rock].charIdentifier)
+                mapTerrain[x][y] = ETerrainType::Rock;
+
+            // Trees
+            if (map[y][x] == db->terrains[ETerrainType::Trees].charIdentifier)
             {
-                // Terrain types
-                if (map[y][x] == db->terrains[ETerrainType::Grass].charIdentifier)
-                    mapTerrain[y][x] = ETerrainType::Grass;
-
-                if (map[y][x] == db->terrains[ETerrainType::Swamp].charIdentifier)
-                    mapTerrain[y][x] = ETerrainType::Swamp;
-
-                if (map[y][x] == db->terrains[ETerrainType::Water].charIdentifier)
-                    mapTerrain[y][x] = ETerrainType::Water;
-
-                if (map[y][x] == db->terrains[ETerrainType::Rock].charIdentifier)
-                    mapTerrain[y][x] = ETerrainType::Rock;
-
-                // Trees
-                if (map[y][x] == db->terrains[ETerrainType::Trees].charIdentifier)
-                {
-                    mapTerrain[y][x] = ETerrainType::Grass;
-                    treeTiles.push_back(TreesTile(x, y, 5, GlobalVars::TILE_HALF_SIZE));
-                }
+                mapTerrain[x][y] = ETerrainType::Grass;
+                treeTiles.push_back(TreesTile(x, y, 5, GlobalVars::TILE_HALF_SIZE));
             }
         }
+    }
 
-        // Clearup
-        for (int y = 0; y < height; y++)
-        {
-            delete[] map[y];
-        }
+    // Clearup
+    for (int y = 0; y < height; y++)
+    {
+        delete[] map[y];
+    }
 
-        delete[] map;
+    delete[] map;
 
-        // Stop reading
-		file.close();
-		return true;
-	}
-
-	// Fail to read
-	return false;
+    // Stop reading
+	file.close();
+    return true;
 }
 
 void World::Draw()
 {
-    for (int y = 0; y < height; y++)
+    for (size_t x = 0; x < height; x++)
     {
-        for (int x = 0; x < width; x++)
+        for (size_t y = 0; y < height; y++)
         {
             // Show fog 
             /*
@@ -179,7 +181,7 @@ void World::Draw()
             // Show terrain
             Color col = cGrass;
 
-            switch (mapTerrain[y][x])
+            switch (mapTerrain[x][y])
             {
             case ETerrainType::Grass: col = cGrass; break;
             case ETerrainType::Swamp: col = cSwamp; break;
