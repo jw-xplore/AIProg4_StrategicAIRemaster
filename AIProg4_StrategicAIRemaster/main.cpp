@@ -1,6 +1,8 @@
 #include <raylib.h>
 #include <string>
 #include "Constants.h"
+#include "World.h"
+#include "Database.h"
 
 extern float TIME_SCALE = 1;
 
@@ -21,33 +23,43 @@ void AdjustTimeScale()
 }
 
 // Game functionality
-int main()
+void RunGame()
 {
-    constexpr int screenWidth = GlobalVars::SCREEN_WIDTH;
-    constexpr int screenHeight = GlobalVars::SCREEN_HEIGHT;
-
-    // Window setup
-    InitWindow(screenWidth, screenHeight, "My first RAYLIB program!");
-    SetTargetFPS(60);
+    // Init
+    World world = World("resources/WorldMap.txt");
 
     // Gameloop
     while (!WindowShouldClose())
     {
         // Update entities
         float dt = GetFrameTime() * TIME_SCALE;
+        world.Update(dt);
 
         // Rendering
         BeginDrawing();
         ClearBackground(BLACK);
+        world.Draw();
 
         AdjustTimeScale();
 
         EndDrawing();
     }
 
+    // Cleanup
+    delete GameDB::Database::Instance();
+}
+
+int main()
+{
+    // Window setup
+    InitWindow(GlobalVars::SCREEN_WIDTH, GlobalVars::SCREEN_HEIGHT, "My first RAYLIB program!");
+    SetTargetFPS(60);
+
+    RunGame();
+
     // End
     CloseWindow();
 
-    //_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
-    //_CrtDumpMemoryLeaks();
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
+    _CrtDumpMemoryLeaks();
 }
