@@ -1,29 +1,29 @@
 {
     "terrain" : [
         {
-            "name" : "Grass",
-            "char" : "M",
-            "cost" : 1
+            "name": "Grass",
+            "char": "M",
+            "travelSpeed": 1
         },
         {
             "name" : "Swamp",
             "char" : "G",
-            "cost" : 0.5
+            "travelSpeed" : 0.5
         },
         {
-            "name" : "Rock",
-            "char" : "B",
-            "cost" : -1
+            "name": "Rock",
+            "char": "B",
+            "travelSpeed": -1
         },
         {
-            "name" : "Water",
-            "char" : "V",
-            "cost" : -1
+            "name": "Water",
+            "char": "V",
+            "travelSpeed": -1
         },
         {
-            "name" : "Trees",
-            "char" : "T",
-            "cost" : 1
+            "name": "Trees",
+            "char": "T",
+            "travelSpeed": 1
         }
     ],
 

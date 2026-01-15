@@ -20,21 +20,16 @@ Database::Database()
 
 	// Terrains
 	terrains = new Terrain[ETerrainType::ETerrainTypeCount];
+	for (size_t i = 0; i < ETerrainType::ETerrainTypeCount; i++)
+	{
+		terrains[i].charIdentifier = jsonRes["terrain"][i]["char"].get<std::string>()[0];
+		float travelSpeed = jsonRes["terrain"][i]["travelSpeed"];
 
-	terrains[ETerrainType::Grass].charIdentifier = jsonRes["terrain"][0]["char"].get<std::string>()[0];
-	terrains[ETerrainType::Grass].cost = jsonRes["terrain"][0]["cost"];
-
-	terrains[ETerrainType::Swamp].charIdentifier = jsonRes["terrain"][1]["char"].get<std::string>()[0];
-	terrains[ETerrainType::Swamp].cost = jsonRes["terrain"][1]["cost"];
-
-	terrains[ETerrainType::Rock].charIdentifier = jsonRes["terrain"][2]["char"].get<std::string>()[0];
-	terrains[ETerrainType::Rock].cost = jsonRes["terrain"][2]["cost"];
-
-	terrains[ETerrainType::Water].charIdentifier = jsonRes["terrain"][3]["char"].get<std::string>()[0];
-	terrains[ETerrainType::Water].cost = jsonRes["terrain"][3]["cost"];
-
-	terrains[ETerrainType::Trees].charIdentifier = jsonRes["terrain"][4]["char"].get<std::string>()[0];
-	terrains[ETerrainType::Trees].cost = jsonRes["terrain"][4]["cost"];
+		if (travelSpeed > 0)
+			terrains[i].cost = 1 / travelSpeed;
+		else
+			terrains[i].cost = travelSpeed;
+	}
 
 	// Costs
 	actionCostsResources = DefineActionCosts(jsonRes, "resourceActionCost", EActionResource::EActionResourceCount);

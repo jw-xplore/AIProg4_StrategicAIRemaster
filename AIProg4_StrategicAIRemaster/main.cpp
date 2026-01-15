@@ -3,12 +3,23 @@
 #include "Constants.h"
 #include "World.h"
 #include "Database.h"
+#include "PathFinding.h"
 
 extern float TIME_SCALE = 1;
 
 /*
 Debug
 */
+void DrawPath(std::vector<Node>* path)
+{
+    int halfSize = GlobalVars::TILE_SIZE / 2;
+
+    for (int i = 0; i < path->size(); i++)
+    {
+        DrawCircle((*path)[i].x * GlobalVars::TILE_SIZE, (*path)[i].y * GlobalVars::TILE_SIZE, 8, BLUE);
+    }
+}
+
 void AdjustTimeScale()
 {
     if (IsKeyDown(KEY_RIGHT))
@@ -19,7 +30,12 @@ void AdjustTimeScale()
     // Show time
     std::string strTime = "Time scale: " + std::to_string(TIME_SCALE);
     char const* cTime = strTime.c_str();
-    DrawText(cTime, 50, 20, 24, YELLOW);
+    DrawText(cTime, 50, 10, 16, YELLOW);
+
+    // Show FPS
+    std::string strFPS = "FPS: " + std::to_string(1 / GetFrameTime());
+    char const* cFPS = strFPS.c_str();
+    DrawText(cFPS, 50, 30, 16, YELLOW);
 }
 
 // Game functionality
@@ -27,6 +43,9 @@ void RunGame()
 {
     // Init
     World world = World("resources/WorldMap.txt");
+    PathFinding pathfinding = PathFinding(world);
+    std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
+    return;
 
     // Gameloop
     while (!WindowShouldClose())
@@ -34,11 +53,15 @@ void RunGame()
         // Update entities
         float dt = GetFrameTime() * TIME_SCALE;
         world.Update(dt);
+        //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
 
         // Rendering
         BeginDrawing();
         ClearBackground(BLACK);
         world.Draw();
+
+        //pathfinding.DrawGraph();
+        //DrawPath(path);
 
         AdjustTimeScale();
 
