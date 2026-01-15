@@ -1,4 +1,8 @@
 {
+    "worldData" : {
+        "tileMeterSize" : "10",
+        "population" : "50"
+    },
     "terrain" : [
         {
             "name": "Grass",

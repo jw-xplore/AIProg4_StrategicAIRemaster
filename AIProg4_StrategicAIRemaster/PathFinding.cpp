@@ -199,7 +199,8 @@ void PathFinding::DrawGraph()
 
 std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 {
-	lastSearch.clear();
+	//lastSearch.clear();
+	int visitsCounter = 0;
 
 	// Find start and end
 	int sx = (int)start.x / GlobalVars::TILE_SIZE;
@@ -220,16 +221,18 @@ std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 
 	// Setup open and closed list
 	std::vector<NodeRecordAs> open;
-	open.insert(open.end(), startRecord);
+	open.push_back(startRecord);
+	//std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
 
 	std::vector<NodeRecordAs> closed;
 	NodeRecordAs current;
 	
-	int counter = 0;
+	//int counter = 0;
 
 	while (open.size() != 0)
 	{
-		counter++;
+		visitsCounter++;
+		//counter++;
 
 		// Find smallest record - smallest estimated cost
 		current = SmallestAsRecord(open);
@@ -251,10 +254,9 @@ std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 			float currentNodeHeuristics;
 
 			// Check node in closed list
-			if (ContainsAsRecord(closed, currentNode))
+			if (ContainsAsRecord(closed, currentNode, currentNodeRecord))
 			{
 				// Check if there is shorter route
-				currentNodeRecord = *FindAsRecordFromNode(closed, currentNode);
 				if (currentNodeRecord.costSoFar <= currentNodeCost)
 					continue;
 
@@ -263,10 +265,8 @@ std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 
 				currentNodeHeuristics = currentNodeRecord.costEstimated - currentNodeRecord.costSoFar;
 			}
-			else if (ContainsAsRecord(open, currentNode)) // Skip if the node is open and we ve not found a better route
+			else if (ContainsAsRecord(open, currentNode, currentNodeRecord)) // Skip if the node is open and we ve not found a better route
 			{
-				currentNodeRecord = *FindAsRecordFromNode(open, currentNode);
-
 				// Skip if route is not better
 				if (currentNodeRecord.costSoFar <= currentNodeCost)
 					continue;
@@ -286,9 +286,9 @@ std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 			currentNodeRecord.costEstimated = currentNodeCost + currentNodeHeuristics;
 
 			// Add to open list 
-			if (!ContainsAsRecord(open, currentNode))
+			if (!ContainsAsRecord(open, currentNode, currentNodeRecord))
 			{
-				open.insert(open.end(), currentNodeRecord);
+				open.push_back(currentNodeRecord);
 			}
 		}
 
@@ -316,7 +316,14 @@ std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 
 inline int PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
 {
-	return std::abs(end->x - start->x) + std::abs(end->y - start->y);
+	//return std::abs(end->x - start->x) + std::abs(end->y - start->y);
+	return std::sqrt((end->x - start->x) ^ 2 + (end->y - start->y) ^ 2);
+	//int x = end->x - start->x;
+	//int y = end->y - start->y;
+
+	//return (end->x - start->x) ^ 2 + (end->y - start->y) ^ 2;
+
+	//return std::pow(end->x - start->x, 2) + std::pow(end->y - start->y, 2);
 }
 
 NodeRecordAs PathFinding::SmallestAsRecord(std::vector<NodeRecordAs>& list)
@@ -333,22 +340,15 @@ NodeRecordAs PathFinding::SmallestAsRecord(std::vector<NodeRecordAs>& list)
 	return record;
 }
 
-bool PathFinding::ContainsAsRecord(const std::vector<NodeRecordAs>& list, Node* node)
+bool PathFinding::ContainsAsRecord(const std::vector<NodeRecordAs>& list, Node* node, NodeRecordAs& outRecord)
 {
-	/*
-	int size = list.size();
-
-	for (int i = 0; i < size; i++)
-	{
-		if (list[i].node == node)
-			return true;
-	}
-	*/
-
 	for (auto& record : list)
 	{
 		if (record.node == node)
+		{
+			outRecord = record;
 			return true;
+		}
 	}
 
 	return false;

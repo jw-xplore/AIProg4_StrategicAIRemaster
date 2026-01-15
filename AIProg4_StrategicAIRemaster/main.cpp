@@ -44,8 +44,8 @@ void RunGame()
     // Init
     World world = World("resources/WorldMap.txt");
     PathFinding pathfinding = PathFinding(world);
-    std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
-    return;
+    //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
+    //return;
 
     // Gameloop
     while (!WindowShouldClose())
@@ -60,7 +60,7 @@ void RunGame()
         ClearBackground(BLACK);
         world.Draw();
 
-        //pathfinding.DrawGraph();
+        pathfinding.DrawGraph();
         //DrawPath(path);
 
         AdjustTimeScale();

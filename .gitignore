@@ -58,6 +58,8 @@ packages/
 *.h.pch
 ./*.obj
 
+*AIProg4_StrategicAIRemaster/x64*
+
 # Ignore SDL libs for testing
 src/external/SDL2
 src/external/SDL3

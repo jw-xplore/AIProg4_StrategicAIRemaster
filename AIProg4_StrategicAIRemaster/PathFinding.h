@@ -5,9 +5,7 @@
 #include <algorithm>
 
 struct Vector2;
-
 struct Node;
-
 class World;
 
 struct Connection
@@ -27,16 +25,37 @@ struct Node
 	~Node() {};
 };
 
+enum ENodeRecordState
+{
+	Closed,
+	Open,
+	Unvisited
+};
+
 struct NodeRecordAs
 {
 	Node* node;
 	Connection* connection;
 	float costSoFar;
 	float costEstimated;
+	//ENodeRecordState state;
 
 	bool operator==(const NodeRecordAs& other) const {
 		return node == other.node && costSoFar == other.costSoFar && costEstimated == other.costEstimated;
 	}
+
+	/*
+	NodeRecordAs(Node* n)
+	{
+		node = n;
+		state = ENodeRecordState::Unvisited;
+	}
+	*/
+};
+
+struct NodeRecordAsCompare
+{
+	bool operator() (const NodeRecordAs& l, const NodeRecordAs& r) const { return l.costEstimated > r.costEstimated; }
 };
 
 class PathFinding
@@ -47,6 +66,7 @@ public:
 	std::vector<Node> lastSearch;
 	Node** nodes;
 	int width, height;
+	int visitsPerFrame = 100;
 
 	PathFinding(World& world);
 	~PathFinding();
@@ -60,7 +80,7 @@ public:
 
 	inline int ManhattanHeuristic(const Node* start, const Node* end);
 	NodeRecordAs SmallestAsRecord(std::vector<NodeRecordAs>& list);
-	bool ContainsAsRecord(const std::vector<NodeRecordAs>& list, Node* node);
+	bool ContainsAsRecord(const std::vector<NodeRecordAs>& list, Node* node, NodeRecordAs& outRecord);
 	NodeRecordAs* FindAsRecordFromNode(std::vector<NodeRecordAs>& list, Node* node);
 
 };
