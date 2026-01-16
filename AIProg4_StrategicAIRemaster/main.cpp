@@ -4,6 +4,8 @@
 #include "World.h"
 #include "Database.h"
 #include "PathFinding.h"
+#include <map>
+#include <iostream>
 
 extern float TIME_SCALE = 1;
 
@@ -47,6 +49,12 @@ void RunGame()
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
 
+    std::map<Node*, NodeRecordAs> searchResult;
+    std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
+    //std::vector<Node>* path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult);
+    std::vector<Node>* path = {};
+    int frameCount = 0;
+
     // Gameloop
     while (!WindowShouldClose())
     {
@@ -55,13 +63,26 @@ void RunGame()
         world.Update(dt);
         //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
 
+        if (!path || path->empty())
+        {
+            //path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
+            path = pathfinding.AStarDivided({ 64, 64 }, { 128, 128 }, searchResult, open);
+            std::cout << "Size: " << searchResult.size() << "\n";
+            frameCount++;
+        }
+        else
+        {
+            std::cout << frameCount << "\n";
+        }
+
         // Rendering
         BeginDrawing();
         ClearBackground(BLACK);
         world.Draw();
 
-        pathfinding.DrawGraph();
-        //DrawPath(path);
+        //pathfinding.DrawGraph();
+        if (path)
+            DrawPath(path);
 
         AdjustTimeScale();
 

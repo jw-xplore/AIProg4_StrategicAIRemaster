@@ -2,6 +2,7 @@
 #include <vector>
 #include <utility>
 #include <queue>
+#include <map>
 #include <algorithm>
 
 struct Vector2;
@@ -38,7 +39,7 @@ struct NodeRecordAs
 	Connection* connection;
 	float costSoFar;
 	float costEstimated;
-	//ENodeRecordState state;
+	ENodeRecordState state;
 
 	bool operator==(const NodeRecordAs& other) const {
 		return node == other.node && costSoFar == other.costSoFar && costEstimated == other.costEstimated;
@@ -76,6 +77,7 @@ public:
 	void AddConnectionsToNode(Node* node, int x, int y);
 	void DrawGraph();
 
+	std::vector<Node>* AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open);
 	std::vector<Node>* AStar(Vector2 start, Vector2 end);
 
 	inline int ManhattanHeuristic(const Node* start, const Node* end);

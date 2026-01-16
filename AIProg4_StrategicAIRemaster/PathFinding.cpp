@@ -197,6 +197,143 @@ void PathFinding::DrawGraph()
 	}
 }
 
+std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open)
+{
+	int visitsCounter = 0;
+
+	// Find start and end
+	Node* startNode = nullptr;
+
+	int ex = (int)end.x / GlobalVars::TILE_SIZE;
+	int ey = (int)end.y / GlobalVars::TILE_SIZE;
+	Node* endNode = &nodes[ey][ex];;
+
+	if (searchResult.empty())
+	{
+		// Find start
+		int sx = (int)start.x / GlobalVars::TILE_SIZE;
+		int sy = (int)start.y / GlobalVars::TILE_SIZE;
+		startNode = &nodes[sy][sx];
+	}
+	else
+	{
+		// Use last searched node
+		startNode = searchResult.rend()->first;
+	}
+
+	// Initialize start node
+	NodeRecordAs startRecord;
+	startRecord.node = startNode;
+	startRecord.costSoFar = 0;
+	startRecord.costEstimated = ManhattanHeuristic(startNode, endNode);
+	startRecord.state = ENodeRecordState::Open;
+
+	if (searchResult.empty())
+		open.push(startRecord);
+
+	//std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
+	//open.push(startRecord);
+	NodeRecordAs current;
+
+	// Visit nodes
+	while (open.size() != 0)
+	{
+		visitsCounter++;
+		if (visitsCounter > 200)
+			break;
+
+		// Find smallest record - smallest estimated cost
+		current = open.top();
+		//searchResult.push_back(current);
+
+
+		// Is at the end?
+		if (current.node == endNode)
+			break;
+
+		// Loop through connections
+		for (auto& connection : current.node->connections)
+		{
+			Node* connectionNode = connection.node;
+			NodeRecordAs connectionRecord;
+			connectionRecord.state = ENodeRecordState::Unvisited;
+
+			if (searchResult.find(connectionNode) != searchResult.end())
+				connectionRecord = searchResult[connectionNode];
+
+			float connectionCost = current.costSoFar + connection.weight;
+			float connectionHeuristics;
+
+			// Setup based on visited state
+			if (connectionRecord.state == ENodeRecordState::Unvisited)
+			{
+				connectionRecord = NodeRecordAs();
+				connectionRecord.node = connectionNode;
+
+				connectionHeuristics = ManhattanHeuristic(startNode, endNode);
+			}
+			else if (connectionRecord.state == ENodeRecordState::Closed)
+			{
+				// Check if there is shorter route
+				if (connectionRecord.costSoFar <= connectionCost)
+					continue;
+
+				// Remove from closed list if it is shortest path
+				//closed.erase(std::remove(closed.begin(), closed.end(), currentNodeRecord), closed.end());
+				connectionRecord.state = ENodeRecordState::Open;
+
+				connectionHeuristics = connectionRecord.costEstimated - connectionRecord.costSoFar;
+			}
+			else if (connectionRecord.state == ENodeRecordState::Open)
+			{
+				// Skip if route is not better
+				if (connectionRecord.costSoFar <= connectionCost)
+					continue;
+
+				connectionHeuristics = connection.weight - connectionRecord.costSoFar;
+			}
+
+			// Update node cost, estimate and connection
+			connectionRecord.connection = &connection;
+			connectionRecord.costEstimated = connectionCost + connectionHeuristics;
+
+			// Add to open list 
+			if (connectionRecord.state != ENodeRecordState::Open)
+			{
+				connectionRecord.state = ENodeRecordState::Open;
+				open.push(connectionRecord);
+			}
+		}
+
+		// Release current node when done with iterating through connections
+		open.pop();
+		current.state = ENodeRecordState::Closed;
+		searchResult[current.node] = current;
+	}
+
+	// Return empty path if search wasn't finished
+	if (current.node != endNode)
+		return {};
+
+	// Format path
+	std::vector<Node>* path = new std::vector<Node>;
+
+	// Failed to find end?
+	if (current.node != endNode)
+		return path; // Empty path
+
+	// Track path
+	while (current.node != startNode)
+	{
+		path->push_back(*current.node);
+		current = searchResult[current.connection->fromNode];
+		//current = *FindAsRecordFromNode(closed, current.connection->fromNode);
+	}
+
+	searchResult.clear();
+	return path;
+}
+
 std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 {
 	//lastSearch.clear();
