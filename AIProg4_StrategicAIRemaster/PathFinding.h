@@ -44,14 +44,6 @@ struct NodeRecordAs
 	bool operator==(const NodeRecordAs& other) const {
 		return node == other.node && costSoFar == other.costSoFar && costEstimated == other.costEstimated;
 	}
-
-	/*
-	NodeRecordAs(Node* n)
-	{
-		node = n;
-		state = ENodeRecordState::Unvisited;
-	}
-	*/
 };
 
 struct NodeRecordAsCompare
@@ -78,7 +70,6 @@ public:
 	void DrawGraph();
 
 	std::vector<Node>* AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open);
-	std::vector<Node>* AStar(Vector2 start, Vector2 end);
 
 	inline float ManhattanHeuristic(const Node* start, const Node* end);
 	NodeRecordAs SmallestAsRecord(std::vector<NodeRecordAs>& list);

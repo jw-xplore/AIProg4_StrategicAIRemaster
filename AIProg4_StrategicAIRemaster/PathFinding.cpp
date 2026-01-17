@@ -225,8 +225,6 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		open.push(startRecord);
 	}
 
-	//std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-	//open.push(startRecord);
 	NodeRecordAs current;
 
 	// Visit nodes
@@ -236,11 +234,9 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		if (visitsCounter > 1000)
 			break;
 
-		// Find smallest record - smallest estimated cost
+		// Pick node with smallest estimate cost
 		current = open.top();
 		open.pop();
-		//searchResult.push_back(current);
-
 
 		// Is at the end?
 		if (current.node == endNode)
@@ -276,8 +272,7 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 				if (connectionRecord.costSoFar <= connectionCost)
 					continue;
 
-				// Remove from closed list if it is shortest path
-				//closed.erase(std::remove(closed.begin(), closed.end(), currentNodeRecord), closed.end());
+				// Reopen if leads to shorter path
 				connectionRecord.state = ENodeRecordState::Open;
 
 				connectionHeuristics = connectionRecord.costEstimated - connectionRecord.costSoFar;
@@ -304,8 +299,7 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 			}
 		}
 
-		// Release current node when done with iterating through connections
-		//open.pop();
+		// Close current node
 		current.state = ENodeRecordState::Closed;
 		searchResult[current.node] = current;
 	}
@@ -332,9 +326,7 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	while (current.node != startNode)
 	{
 		path->push_back(*current.node);
-		//std::cout << "Current: " << current.node->x << ", " << current.node->y << "\n";
 		current = searchResult[current.connection->fromNode];
-		//current = *FindAsRecordFromNode(closed, current.connection->fromNode);
 	}
 
 	// Cleanup
@@ -345,134 +337,10 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	return path;
 }
 
-std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
-{
-	//lastSearch.clear();
-	int visitsCounter = 0;
-
-	// Find start and end
-	int sx = (int)start.x / GlobalVars::TILE_SIZE;
-	int sy = (int)start.y / GlobalVars::TILE_SIZE;
-	Node* startNode = &nodes[sy][sx];
-
-	int ex = (int)end.x / GlobalVars::TILE_SIZE;
-	int ey = (int)end.y / GlobalVars::TILE_SIZE;
-	Node* endNode = &nodes[ey][ex];
-
-	std::cout << "start: " << sx << ", " << sy << " | end: " << ex << ", " << ey << "\n";
-
-	// Initialize start node
-	NodeRecordAs startRecord;
-	startRecord.node = startNode;
-	startRecord.costSoFar = 0;
-	startRecord.costEstimated = ManhattanHeuristic(startNode, endNode);
-
-	// Setup open and closed list
-	std::vector<NodeRecordAs> open;
-	open.push_back(startRecord);
-	//std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-
-	std::vector<NodeRecordAs> closed;
-	NodeRecordAs current;
-	
-	//int counter = 0;
-
-	while (open.size() != 0)
-	{
-		visitsCounter++;
-		//counter++;
-
-		// Find smallest record - smallest estimated cost
-		current = SmallestAsRecord(open);
-		lastSearch.push_back(*current.node);
-
-		// Is at the end?
-		if (current.node == endNode)
-			break;
-
-		// Loop through connections
-		for (int i = 0; i < current.node->connections.size(); i++)
-		{
-			Connection* connection = &current.node->connections[i];
-
-			Node* currentNode = connection->node;
-			NodeRecordAs currentNodeRecord;
-			float currentNodeCost = current.costSoFar + connection->weight;
-
-			float currentNodeHeuristics;
-
-			// Check node in closed list
-			if (ContainsAsRecord(closed, currentNode, currentNodeRecord))
-			{
-				// Check if there is shorter route
-				if (currentNodeRecord.costSoFar <= currentNodeCost)
-					continue;
-
-				// Remove from closed list if it is shortest path
-				closed.erase(std::remove(closed.begin(), closed.end(), currentNodeRecord), closed.end());
-
-				currentNodeHeuristics = currentNodeRecord.costEstimated - currentNodeRecord.costSoFar;
-			}
-			else if (ContainsAsRecord(open, currentNode, currentNodeRecord)) // Skip if the node is open and we ve not found a better route
-			{
-				// Skip if route is not better
-				if (currentNodeRecord.costSoFar <= currentNodeCost)
-					continue;
-
-				currentNodeHeuristics = connection->weight - currentNodeRecord.costSoFar;
-			}
-			else // Record unvisited node
-			{
-				currentNodeRecord = NodeRecordAs();
-				currentNodeRecord.node = currentNode;
-
-				currentNodeHeuristics = ManhattanHeuristic(startNode, endNode);
-			}
-
-			// Update node cost, estimate and connection
-			currentNodeRecord.connection = connection;
-			currentNodeRecord.costEstimated = currentNodeCost + currentNodeHeuristics;
-
-			// Add to open list 
-			if (!ContainsAsRecord(open, currentNode, currentNodeRecord))
-			{
-				open.push_back(currentNodeRecord);
-			}
-		}
-
-		// Release current node when done with iterating through connections
-		open.erase(std::remove(open.begin(), open.end(), current), open.end());
-		closed.push_back(current);
-	}
-
-	// Format path
-	std::vector<Node>* path = new std::vector<Node>;
-
-	// Failed to find end?
-	if (current.node != endNode)
-		return path; // Empty path
-
-	// Track path
-	while (current.node != startNode)
-	{
-		path->push_back(*current.node);
-		current = *FindAsRecordFromNode(closed, current.connection->fromNode);
-	}
-
-	return path;
-}
-
 inline float PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
 {
-	//return std::abs(end->x - start->x) + std::abs(end->y - start->y);
 	float noSq = std::powf(end->x - start->x, 2) + std::powf(end->y - start->y, 2);
 	return std::sqrt(noSq);
-	//int x = end->x - start->x;
-	//int y = end->y - start->y;
-
-	//return (end->x - start->x) ^ 2 + (end->y - start->y) ^ 2;
-
-	//return std::pow(end->x - start->x, 2) + std::pow(end->y - start->y, 2);
 }
 
 NodeRecordAs PathFinding::SmallestAsRecord(std::vector<NodeRecordAs>& list)

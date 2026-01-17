@@ -52,9 +52,8 @@ void RunGame()
 
     std::map<Node*, NodeRecordAs> searchResult;
     std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-    std::vector<Node>* path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
-    return;
-    //std::vector<Node>* path = {};
+    //std::vector<Node>* path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
+    std::vector<Node>* path = {};
     int frameCount = 0;
 
     // Gameloop
@@ -68,7 +67,7 @@ void RunGame()
         if (!path || path->empty())
         {
             //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
-            //path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
+            path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
             //path = pathfinding.AStarDivided({ 1, 1 }, { 16, 16 }, searchResult, open);
             //path = pathfinding.AStar({ 0, 0 }, { 24, 24 });
             //std::cout << "Size: " << searchResult.size() << "\n";
