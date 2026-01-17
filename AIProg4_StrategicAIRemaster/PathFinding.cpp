@@ -214,22 +214,16 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		int sx = (int)start.x / GlobalVars::TILE_SIZE;
 		int sy = (int)start.y / GlobalVars::TILE_SIZE;
 		startNode = &nodes[sy][sx];
-	}
-	else
-	{
-		// Use last searched node
-		startNode = searchResult.rend()->first;
-	}
 
-	// Initialize start node
-	NodeRecordAs startRecord;
-	startRecord.node = startNode;
-	startRecord.costSoFar = 0;
-	startRecord.costEstimated = ManhattanHeuristic(startNode, endNode);
-	startRecord.state = ENodeRecordState::Open;
+		// Initialize start node
+		NodeRecordAs startRecord;
+		startRecord.node = startNode;
+		startRecord.costSoFar = 0;
+		startRecord.costEstimated = ManhattanHeuristic(startNode, endNode);
+		startRecord.state = ENodeRecordState::Open;
 
-	if (searchResult.empty())
 		open.push(startRecord);
+	}
 
 	//std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
 	//open.push(startRecord);
@@ -239,11 +233,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	while (open.size() != 0)
 	{
 		visitsCounter++;
-		if (visitsCounter > 200)
+		if (visitsCounter > 1000)
 			break;
 
 		// Find smallest record - smallest estimated cost
 		current = open.top();
+		open.pop();
 		//searchResult.push_back(current);
 
 
@@ -251,9 +246,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		if (current.node == endNode)
 			break;
 
+		int connectionsCounter = 0;
+
 		// Loop through connections
 		for (auto& connection : current.node->connections)
 		{
+			connectionsCounter++;
 			Node* connectionNode = connection.node;
 			NodeRecordAs connectionRecord;
 			connectionRecord.state = ENodeRecordState::Unvisited;
@@ -270,7 +268,7 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 				connectionRecord = NodeRecordAs();
 				connectionRecord.node = connectionNode;
 
-				connectionHeuristics = ManhattanHeuristic(startNode, endNode);
+				connectionHeuristics = ManhattanHeuristic(connectionNode, endNode);
 			}
 			else if (connectionRecord.state == ENodeRecordState::Closed)
 			{
@@ -302,11 +300,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 			{
 				connectionRecord.state = ENodeRecordState::Open;
 				open.push(connectionRecord);
+				searchResult[connectionRecord.node] = connectionRecord;
 			}
 		}
 
 		// Release current node when done with iterating through connections
-		open.pop();
+		//open.pop();
 		current.state = ENodeRecordState::Closed;
 		searchResult[current.node] = current;
 	}
@@ -322,15 +321,27 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	if (current.node != endNode)
 		return path; // Empty path
 
+	if (!startNode)
+	{
+		int sx = (int)start.x / GlobalVars::TILE_SIZE;
+		int sy = (int)start.y / GlobalVars::TILE_SIZE;
+		startNode = &nodes[sy][sx];
+	}
+
 	// Track path
 	while (current.node != startNode)
 	{
 		path->push_back(*current.node);
+		//std::cout << "Current: " << current.node->x << ", " << current.node->y << "\n";
 		current = searchResult[current.connection->fromNode];
 		//current = *FindAsRecordFromNode(closed, current.connection->fromNode);
 	}
 
+	// Cleanup
 	searchResult.clear();
+	while (!open.empty())
+		open.pop();
+
 	return path;
 }
 
@@ -451,10 +462,11 @@ std::vector<Node>* PathFinding::AStar(Vector2 start, Vector2 end)
 	return path;
 }
 
-inline int PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
+inline float PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
 {
 	//return std::abs(end->x - start->x) + std::abs(end->y - start->y);
-	return std::sqrt((end->x - start->x) ^ 2 + (end->y - start->y) ^ 2);
+	float noSq = std::powf(end->x - start->x, 2) + std::powf(end->y - start->y, 2);
+	return std::sqrt(noSq);
 	//int x = end->x - start->x;
 	//int y = end->y - start->y;
 

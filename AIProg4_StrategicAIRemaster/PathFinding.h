@@ -80,7 +80,7 @@ public:
 	std::vector<Node>* AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open);
 	std::vector<Node>* AStar(Vector2 start, Vector2 end);
 
-	inline int ManhattanHeuristic(const Node* start, const Node* end);
+	inline float ManhattanHeuristic(const Node* start, const Node* end);
 	NodeRecordAs SmallestAsRecord(std::vector<NodeRecordAs>& list);
 	bool ContainsAsRecord(const std::vector<NodeRecordAs>& list, Node* node, NodeRecordAs& outRecord);
 	NodeRecordAs* FindAsRecordFromNode(std::vector<NodeRecordAs>& list, Node* node);

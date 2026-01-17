@@ -18,7 +18,7 @@ void DrawPath(std::vector<Node>* path)
 
     for (int i = 0; i < path->size(); i++)
     {
-        DrawCircle((*path)[i].x * GlobalVars::TILE_SIZE, (*path)[i].y * GlobalVars::TILE_SIZE, 8, BLUE);
+        DrawCircle((*path)[i].x * GlobalVars::TILE_SIZE, (*path)[i].y * GlobalVars::TILE_SIZE, GlobalVars::TILE_HALF_SIZE, BLUE);
     }
 }
 
@@ -44,6 +44,7 @@ void AdjustTimeScale()
 void RunGame()
 {
     // Init
+    //World world = World("resources/testMap.txt");
     World world = World("resources/WorldMap.txt");
     PathFinding pathfinding = PathFinding(world);
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
@@ -51,8 +52,9 @@ void RunGame()
 
     std::map<Node*, NodeRecordAs> searchResult;
     std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-    //std::vector<Node>* path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult);
-    std::vector<Node>* path = {};
+    std::vector<Node>* path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
+    return;
+    //std::vector<Node>* path = {};
     int frameCount = 0;
 
     // Gameloop
@@ -65,14 +67,19 @@ void RunGame()
 
         if (!path || path->empty())
         {
+            //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
             //path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
-            path = pathfinding.AStarDivided({ 64, 64 }, { 128, 128 }, searchResult, open);
-            std::cout << "Size: " << searchResult.size() << "\n";
+            //path = pathfinding.AStarDivided({ 1, 1 }, { 16, 16 }, searchResult, open);
+            //path = pathfinding.AStar({ 0, 0 }, { 24, 24 });
+            //std::cout << "Size: " << searchResult.size() << "\n";
+            //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
             frameCount++;
         }
         else
         {
-            std::cout << frameCount << "\n";
+            std::cout << "Frame count: " << frameCount << "\n";
+            frameCount = 0;
+            path->clear();
         }
 
         // Rendering
@@ -85,6 +92,7 @@ void RunGame()
             DrawPath(path);
 
         AdjustTimeScale();
+        std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
 
         EndDrawing();
     }
