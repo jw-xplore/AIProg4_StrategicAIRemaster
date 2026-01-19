@@ -76,9 +76,9 @@ void RunGame()
         }
         else
         {
-            std::cout << "Frame count: " << frameCount << "\n";
-            frameCount = 0;
-            path->clear();
+            //std::cout << "Frame count: " << frameCount << "\n";
+            //frameCount = 0;
+            //path->clear();
         }
 
         // Rendering

@@ -19,7 +19,7 @@ Database::Database()
 	// Store data--------------------------------
 
 	// Terrains
-	terrains = new Terrain[ETerrainType::ETerrainTypeCount];
+	terrains = new TerrainData[ETerrainType::ETerrainTypeCount];
 	for (size_t i = 0; i < ETerrainType::ETerrainTypeCount; i++)
 	{
 		terrains[i].charIdentifier = jsonRes["terrain"][i]["char"].get<std::string>()[0];
@@ -45,18 +45,20 @@ Database::~Database()
 	delete[] actionCostsBuilding;
 }
 
-ActionCost* Database::DefineActionCosts(nlohmann::ordered_json& j, const char* section, int size)
+Capital::ActionCost* Database::DefineActionCosts(nlohmann::ordered_json& j, const char* section, int size)
 {
+	using namespace Capital;
+
 	ActionCost* costs = new ActionCost[size];
 	
 	for (size_t i = 0; i < size; i++)
 	{
 		costs[i].time = j[section][i].at("time");
-		costs[i].wood = j[section][i].at("trees");
-		costs[i].coal = j[section][i].at("coal");
-		costs[i].ironOre = j[section][i].at("ironOre");
-		costs[i].ironBar = j[section][i].at("ironBar");
-		costs[i].sword = j[section][i].at("swords");
+		costs[i].capital.amounts[ECapitalType::Tree] = j[section][i].at("trees");
+		costs[i].capital.amounts[ECapitalType::Coal] = j[section][i].at("coal");
+		costs[i].capital.amounts[ECapitalType::IronOre] = j[section][i].at("ironOre");
+		costs[i].capital.amounts[ECapitalType::IronBar] = j[section][i].at("ironBar");
+		costs[i].capital.amounts[ECapitalType::Sword] = j[section][i].at("swords");
 	}
 
 	return costs;

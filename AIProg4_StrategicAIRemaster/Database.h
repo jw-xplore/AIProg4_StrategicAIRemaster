@@ -1,5 +1,6 @@
 #pragma once
 #include "Json.hpp"
+#include "Capital.h"
 
 namespace GameDB
 {
@@ -37,18 +38,7 @@ namespace GameDB
 	// Database structures
 	//--------------------------------------------------
 
-	struct ActionCost
-	{
-		float time = 0;
-		// TODO: change this into resource struct
-		int wood = 0;
-		int coal = 0;
-		int ironOre = 0;
-		int ironBar = 0;
-		int sword = 0;
-	};
-
-	struct Terrain
+	struct TerrainData
 	{
 		//ETerrainType type;
 		//const char* name;
@@ -65,10 +55,10 @@ namespace GameDB
 		static Database* instance;
 
 	public:
-		Terrain* terrains;
-		ActionCost* actionCostsResources;
-		ActionCost* actionCostsTraining;
-		ActionCost* actionCostsBuilding;
+		TerrainData* terrains;
+		Capital::ActionCost* actionCostsResources;
+		Capital::ActionCost* actionCostsTraining;
+		Capital::ActionCost* actionCostsBuilding;
 
 		Database();
 		~Database();
@@ -81,7 +71,7 @@ namespace GameDB
 			return instance;
 		}
 
-		ActionCost* DefineActionCosts(nlohmann::ordered_json& j, const char* section, int size);
+		Capital::ActionCost* DefineActionCosts(nlohmann::ordered_json& j, const char* section, int size);
 	};
 }
 
