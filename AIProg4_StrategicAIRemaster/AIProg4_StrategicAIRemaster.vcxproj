@@ -136,6 +136,7 @@
   <ItemGroup>
     <ClCompile Include="Capital.cpp" />
     <ClCompile Include="Database.cpp" />
+    <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathFinding.cpp" />
     <ClCompile Include="SteeringBehavior.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="Capital.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Database.h" />
+    <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Json.hpp" />
     <ClInclude Include="PathFinding.h" />
     <ClInclude Include="SteeringBehavior.h" />

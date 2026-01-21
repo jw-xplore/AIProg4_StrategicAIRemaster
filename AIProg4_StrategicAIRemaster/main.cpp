@@ -4,8 +4,11 @@
 #include "World.h"
 #include "Database.h"
 #include "PathFinding.h"
+#include "EntityManager.h"
+#include "Worker.h"
 #include <map>
 #include <iostream>
+#include "raymath.h"
 
 extern float TIME_SCALE = 1;
 
@@ -47,6 +50,7 @@ void RunGame()
     //World world = World("resources/testMap.txt");
     World world = World("resources/WorldMap.txt");
     PathFinding pathfinding = PathFinding(world);
+    EntityManager entityManager = EntityManager();
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
 
@@ -67,11 +71,29 @@ void RunGame()
         if (!path || path->empty())
         {
             //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
-            path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
+            //path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
             //path = pathfinding.AStarDivided({ 1, 1 }, { 16, 16 }, searchResult, open);
             //path = pathfinding.AStar({ 0, 0 }, { 24, 24 });
             //std::cout << "Size: " << searchResult.size() << "\n";
             //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
+            /*
+            if (!path->empty())
+            {
+                for (size_t i = 0; i < entityManager.workers->size(); i++)
+                {
+                    for (size_t p = 0; p < path->size(); p++)
+                    {
+                        //entityManager.workers->at(i).path->push_back(path->at(p));
+                        float x = path->at(p).x * GlobalVars::TILE_SIZE;
+                        float y = path->at(p).y * GlobalVars::TILE_SIZE;
+                        entityManager.workers->at(i).path.push_back( { x, y});
+                    }
+
+                    entityManager.workers->at(i).currentPathNode = path->size() - 1;
+                }
+            }
+            */
+
             frameCount++;
         }
         else
@@ -90,13 +112,17 @@ void RunGame()
         if (path)
             DrawPath(path);
 
+        entityManager.Update();
+
         AdjustTimeScale();
-        std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
+        //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
 
         EndDrawing();
+        //return;
     }
 
     // Cleanup
+    delete path;
     delete GameDB::Database::Instance();
 }
 

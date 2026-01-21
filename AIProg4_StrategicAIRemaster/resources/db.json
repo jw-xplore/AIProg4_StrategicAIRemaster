@@ -1,7 +1,7 @@
 {
     "worldData" : {
-        "tileMeterSize" : "10",
-        "population" : "50"
+        "tileMeterSize" : 10,
+        "population" : 50
     },
     "terrain" : [
         {

@@ -55,6 +55,8 @@ namespace GameDB
 		static Database* instance;
 
 	public:
+		int startingPopulation;
+
 		TerrainData* terrains;
 		Capital::ActionCost* actionCostsResources;
 		Capital::ActionCost* actionCostsTraining;

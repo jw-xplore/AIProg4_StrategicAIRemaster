@@ -3,43 +3,46 @@
 #include <vector>
 #include "raylib.h"
 
-struct Node;
 class PathFinding;
 
-namespace Worker
+enum EWorkerRole
 {
-	enum EWorkerRole
-	{
-		General,
-		Scout,
-		CoalMiner,
-		ArmsSmith,
-		Smelter,
-		Builder,
-		Soldier,
-		EWorkerRoleCount
-	};
+	General,
+	Scout,
+	CoalMiner,
+	ArmsSmith,
+	Smelter,
+	Builder,
+	Soldier,
+	EWorkerRoleCount
+};
 
-	struct TransformComponent
-	{
-		Vector2 position;
-		Vector2 target;
-		float speed;
-	};
+class Worker
+{
+public:
+	const int WORKER_SIZE = 2;
+	const Color WORKER_COLOR = RED;
 
-	struct WorkerComponent
-	{
-		EWorkerRole role = EWorkerRole::General;
-		Capital::ECapitalType carriedMaterial = Capital::ECapitalType::None;
+	EWorkerRole role = EWorkerRole::General;
+	Capital::ECapitalType carriedMaterial = Capital::ECapitalType::None;
 
-		// Path
-		PathFinding* pathfinding;
-		std::vector<Node>* path;
-		int currentPathNode = 0;
-		float pathNodeDistance = 10;
-	};
+	// Transform
+	Vector2 position;
+	Vector2 target;
+	float speed;
 
-	void Update(float dTime, WorkerComponent entity);
+	// Path
+	PathFinding* pathfinding;
+	std::vector<Vector2> path;
+	int currentPathNode = 0;
+	float pathNodeDistance = 10;
+
+	Worker(){}
+	Worker(Vector2 starPos);
+	~Worker();
+
+	void Update(float dTime);
 	void Render();
-}
+	bool FollowPath();
+};
 

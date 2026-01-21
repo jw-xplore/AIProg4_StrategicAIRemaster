@@ -18,6 +18,9 @@ Database::Database()
 
 	// Store data--------------------------------
 
+	// Basic data
+	startingPopulation = jsonRes["worldData"]["population"];
+
 	// Terrains
 	terrains = new TerrainData[ETerrainType::ETerrainTypeCount];
 	for (size_t i = 0; i < ETerrainType::ETerrainTypeCount; i++)
