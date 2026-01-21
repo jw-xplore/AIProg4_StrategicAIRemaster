@@ -56,6 +56,7 @@ namespace GameDB
 
 	public:
 		int startingPopulation;
+		int ironOreAmount;
 
 		TerrainData* terrains;
 		Capital::ActionCost* actionCostsResources;

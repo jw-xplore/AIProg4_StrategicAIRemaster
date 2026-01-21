@@ -1,6 +1,7 @@
 {
     "worldData" : {
-        "tileMeterSize" : 10,
+        "tileMeterSize": 10,
+        "ironOreAmount" : 60,
         "population" : 50
     },
     "terrain" : [

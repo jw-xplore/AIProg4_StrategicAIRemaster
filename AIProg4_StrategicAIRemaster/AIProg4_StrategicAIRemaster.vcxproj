@@ -134,22 +134,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Building.cpp" />
     <ClCompile Include="Capital.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathFinding.cpp" />
+    <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="SteeringBehavior.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Building.h" />
     <ClInclude Include="Capital.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Json.hpp" />
     <ClInclude Include="PathFinding.h" />
+    <ClInclude Include="Pickup.h" />
     <ClInclude Include="SteeringBehavior.h" />
     <ClInclude Include="Worker.h" />
     <ClInclude Include="World.h" />

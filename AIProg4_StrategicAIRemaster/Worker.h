@@ -11,7 +11,7 @@ enum EWorkerRole
 	Scout,
 	CoalMiner,
 	ArmsSmith,
-	Smelter,
+	SmelterOperator,
 	Builder,
 	Soldier,
 	EWorkerRoleCount

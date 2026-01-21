@@ -20,6 +20,7 @@ Database::Database()
 
 	// Basic data
 	startingPopulation = jsonRes["worldData"]["population"];
+	ironOreAmount = jsonRes["worldData"]["ironOreAmount"];
 
 	// Terrains
 	terrains = new TerrainData[ETerrainType::ETerrainTypeCount];
