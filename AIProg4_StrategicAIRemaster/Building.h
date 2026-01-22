@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include "Capital.h"
 
+class Worker;
+
 namespace Capital
 {
 	struct CapitalAmounts;
@@ -15,11 +17,18 @@ enum EBuildingType
 	TrainingCamp,
 };
 
+struct CapitalReservation
+{
+	Worker* owner;
+	Capital::CapitalAmounts reserved;
+};
+
 class Building
 {
 public:
 	EBuildingType type;
 	Capital::CapitalAmounts storedCapital;
+	std::vector<CapitalReservation> capitalReservations;
 
 	Vector2 position;
 	Color color;
@@ -27,5 +36,7 @@ public:
 	Building() {}
 	Building(EBuildingType type, Vector2 startPos);
 	~Building() {}
+
+	Capital::CapitalAmounts GetAvailbleCapital();
 };
 

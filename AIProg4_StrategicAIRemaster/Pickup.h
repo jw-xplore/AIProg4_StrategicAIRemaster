@@ -1,6 +1,8 @@
 #pragma once
 #include "raylib.h"
 
+class Worker;
+
 namespace Capital
 {
 	enum ECapitalType;
@@ -13,6 +15,7 @@ public:
 	Vector2 position;
 	Vector2 size;
 	Color color;
+	Worker* reservedBy;
 
 	Pickup() {}
 	Pickup(Capital::ECapitalType type, Vector2 startPos);

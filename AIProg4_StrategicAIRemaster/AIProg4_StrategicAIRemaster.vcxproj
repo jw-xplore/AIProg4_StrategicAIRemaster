@@ -142,6 +142,8 @@
     <ClCompile Include="PathFinding.cpp" />
     <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="SteeringBehavior.cpp" />
+    <ClCompile Include="SubtaskDefinitions.cpp" />
+    <ClCompile Include="Task.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -155,6 +157,8 @@
     <ClInclude Include="PathFinding.h" />
     <ClInclude Include="Pickup.h" />
     <ClInclude Include="SteeringBehavior.h" />
+    <ClInclude Include="SubtaskDefinitions.h" />
+    <ClInclude Include="Task.h" />
     <ClInclude Include="Worker.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
