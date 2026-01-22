@@ -63,10 +63,6 @@ void EntityManager::Update()
 	{
 		workers->at(i).Update(dTime);
 		workers->at(i).Render();
-
-		//workers->at(i).FollowPath();
-		//moveComps[i].target = workers->at(i).target;
-		//moveComps[i].position += SteeringBehavior::Seek(moveComps[i].position, moveComps[i].target, workers->at(i).speed);
 	}
 
 	// Render pickups
@@ -80,20 +76,4 @@ void EntityManager::Update()
 	{
 		DrawRectangle(building.position.x, building.position.y, GlobalVars::TILE_HALF_SIZE, GlobalVars::TILE_HALF_SIZE, building.color);
 	}
-
-	/*
-	for (auto& worker : *workers)
-	{
-		Worker::Update(worker, dTime);
-		Worker::Render(worker);
-	}
-	*/
-
-	/*
-	for (size_t i = 0; i < workers->size(); i++)
-	{
-		Worker::Update(workers->at(i), dTime);
-		Worker::Render(workers->at(i));
-	}
-	*/
 }

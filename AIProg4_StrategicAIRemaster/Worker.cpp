@@ -28,6 +28,12 @@ void Worker::Render()
 	DrawCircle(pos.x, pos.y, Worker::WORKER_SIZE, Worker::WORKER_COLOR);
 }
 
+void Worker::SetNewPath(std::vector<Vector2> newPath)
+{
+	path = newPath;
+	currentPathNode = path.size() - 1;
+}
+
 bool Worker::FollowPath()
 {
 	// Path finished?
@@ -39,8 +45,6 @@ bool Worker::FollowPath()
 	}
 
 	// Follow next path point
-	//int x = path->at(currentPathNode).x * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
-	//int y = path->at(currentPathNode).y * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
 	int x = path[currentPathNode].x;
 	int y = path[currentPathNode].y;
 

@@ -32,7 +32,6 @@ public:
 	float speed;
 
 	// Path
-	PathFinding* pathfinding;
 	std::vector<Vector2> path;
 	int currentPathNode = 0;
 	float pathNodeDistance = 10;
@@ -43,6 +42,8 @@ public:
 
 	void Update(float dTime);
 	void Render();
+
+	void SetNewPath(std::vector<Vector2> newPath);
 	bool FollowPath();
 };
 

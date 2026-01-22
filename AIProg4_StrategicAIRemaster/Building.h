@@ -1,5 +1,11 @@
 #pragma once
 #include "raylib.h"
+#include "Capital.h"
+
+namespace Capital
+{
+	struct CapitalAmounts;
+}
 
 enum EBuildingType
 {
@@ -13,6 +19,8 @@ class Building
 {
 public:
 	EBuildingType type;
+	Capital::CapitalAmounts storedCapital;
+
 	Vector2 position;
 	Color color;
 
