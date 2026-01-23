@@ -9,6 +9,7 @@
 #include <map>
 #include <iostream>
 #include "raymath.h"
+#include "ComponentsHandlers.h"
 
 extern float TIME_SCALE = 1;
 
@@ -51,6 +52,9 @@ void RunGame()
     World world = World("resources/WorldMap.txt");
     PathFinding pathfinding = PathFinding(world);
     EntityManager entityManager = EntityManager();
+    ComponentsHandlers::GetInstance()->Init(&world, &entityManager, &pathfinding);
+
+
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
 

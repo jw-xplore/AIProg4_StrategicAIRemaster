@@ -1,6 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "Capital.h"
+#include <vector>
 
 class Worker;
 
@@ -17,18 +18,20 @@ enum EBuildingType
 	TrainingCamp,
 };
 
+/*
 struct CapitalReservation
 {
 	Worker* owner;
 	Capital::CapitalAmounts reserved;
 };
+*/
 
 class Building
 {
 public:
 	EBuildingType type;
 	Capital::CapitalAmounts storedCapital;
-	std::vector<CapitalReservation> capitalReservations;
+	//std::vector<CapitalReservation> capitalReservations;
 
 	Vector2 position;
 	Color color;
@@ -37,6 +40,6 @@ public:
 	Building(EBuildingType type, Vector2 startPos);
 	~Building() {}
 
-	Capital::CapitalAmounts GetAvailbleCapital();
+	Capital::CapitalAmounts GetAvailableCapital();
 };
 

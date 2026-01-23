@@ -15,7 +15,7 @@ public:
 	Vector2 position;
 	Vector2 size;
 	Color color;
-	Worker* reservedBy;
+	//Worker* reservedBy;
 
 	Pickup() {}
 	Pickup(Capital::ECapitalType type, Vector2 startPos);
