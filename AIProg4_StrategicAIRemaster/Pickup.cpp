@@ -8,7 +8,7 @@ Pickup::Pickup(Capital::ECapitalType type, Vector2 startPos)
 	// Setup style
 	switch (type)
 	{
-	case ECapitalType::Tree: size = { 8, 4 }; color = BROWN; break;
+	case ECapitalType::Tree: size = { 8, 4 }; color = RED; break;
 	case ECapitalType::Coal: size = { 2, 2 }; color = BLACK; break;
 	case ECapitalType::IronOre: size = { 4, 4 }; color = GRAY; break;
 	case ECapitalType::IronBar: size = { 4, 2 }; color = GRAY; break;

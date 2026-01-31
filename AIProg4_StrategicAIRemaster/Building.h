@@ -16,6 +16,7 @@ enum EBuildingType
 	ArsmithsForge,
 	Smelter,
 	TrainingCamp,
+	EBuildingTypeCount
 };
 
 /*

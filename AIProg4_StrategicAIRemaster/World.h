@@ -43,6 +43,15 @@ struct TreesTile
             treePositions[i].y = GetRandomValue(-range, range);
         }
     }
+
+    bool FellTree()
+    {
+        if (amount <= 0)
+            return false;
+
+        amount--;
+        return true;
+    }
 };
 
 //-----------------------------------------------

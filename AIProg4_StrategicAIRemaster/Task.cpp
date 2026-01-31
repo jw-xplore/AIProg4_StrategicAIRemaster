@@ -1,11 +1,12 @@
 #include "Task.h"
 
-Task::Task(std::initializer_list<SubTaskFn> subtasks)
+Task::Task(std::initializer_list<Subtask*> subtasks)
 {
 	running = true;
 	currentSubTask = 0;
-	this->subtasks = subtasks;
 	repeat = false;
+
+	this->subtasks = subtasks;
 }
 
 Task::~Task()
@@ -29,7 +30,8 @@ void Task::Update(float dTime)
 	}
 
 	// Run and progress subtask
-	ESubtaskState state = subtasks[currentSubTask](*assignee, dTime);
+	//ESubtaskState state = subtasks[currentSubTask](*assignee, dTime);
+	ESubtaskState state = subtasks[currentSubTask]->Execute(*assignee, dTime);
 
 	if (state == ESubtaskState::Canceled)
 	{

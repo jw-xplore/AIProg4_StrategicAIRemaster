@@ -9,7 +9,8 @@
 #include <map>
 #include <iostream>
 #include "raymath.h"
-#include "ComponentsHandlers.h"
+#include "SystemsHolder.h"
+#include "Commander.h"
 
 extern float TIME_SCALE = 1;
 
@@ -52,8 +53,8 @@ void RunGame()
     World world = World("resources/WorldMap.txt");
     PathFinding pathfinding = PathFinding(world);
     EntityManager entityManager = EntityManager();
-    ComponentsHandlers::GetInstance()->Init(&world, &entityManager, &pathfinding);
-
+    SystemsHolder::GetInstance()->Init(&world, &entityManager, &pathfinding);
+    Commander commander = Commander();
 
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
@@ -70,42 +71,7 @@ void RunGame()
         // Update entities
         float dt = GetFrameTime() * TIME_SCALE;
         world.Update(dt);
-        //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
-
-        if (!path || path->empty())
-        {
-            //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
-            //path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
-            //path = pathfinding.AStarDivided({ 1, 1 }, { 16, 16 }, searchResult, open);
-            //path = pathfinding.AStar({ 0, 0 }, { 24, 24 });
-            //std::cout << "Size: " << searchResult.size() << "\n";
-            //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
-            /*
-            if (!path->empty())
-            {
-                for (size_t i = 0; i < entityManager.workers->size(); i++)
-                {
-                    for (size_t p = 0; p < path->size(); p++)
-                    {
-                        //entityManager.workers->at(i).path->push_back(path->at(p));
-                        float x = path->at(p).x * GlobalVars::TILE_SIZE;
-                        float y = path->at(p).y * GlobalVars::TILE_SIZE;
-                        entityManager.workers->at(i).path.push_back( { x, y});
-                    }
-
-                    entityManager.workers->at(i).currentPathNode = path->size() - 1;
-                }
-            }
-            */
-
-            frameCount++;
-        }
-        else
-        {
-            //std::cout << "Frame count: " << frameCount << "\n";
-            //frameCount = 0;
-            //path->clear();
-        }
+        commander.Update(dt);
 
         // Rendering
         BeginDrawing();
@@ -116,7 +82,7 @@ void RunGame()
         if (path)
             DrawPath(path);
 
-        entityManager.Update();
+        entityManager.Update(dt);
 
         AdjustTimeScale();
         //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";

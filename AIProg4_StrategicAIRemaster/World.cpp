@@ -94,6 +94,10 @@ bool World::LoadMap(const char* path)
     // Read file
     std::string line;
 
+    int treeTilesCount = 0;
+    GameDB::Database* db = GameDB::Database::Instance();
+    char treeChar = db->terrains[ETerrainType::Trees].charIdentifier;
+
     // Read all the lines
     while (std::getline(file, line))
     {
@@ -101,6 +105,9 @@ bool World::LoadMap(const char* path)
         for (size_t i = 0; i < line.size(); ++i)
         {
             cstr[i] = line[i];
+
+            if (line[i] == treeChar)
+                treeTilesCount++;
         }
 
         map[currentLine] = cstr;
@@ -114,8 +121,7 @@ bool World::LoadMap(const char* path)
     worldSize = width * height;
     mapTerrain = new ETerrainType*[width];
     discovered = new bool* [width];
-
-    GameDB::Database* db = GameDB::Database::Instance();
+    treeTiles.reserve(treeTilesCount);
 
     for (size_t x = 0; x < height; x++)
     {

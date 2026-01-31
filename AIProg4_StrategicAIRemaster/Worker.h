@@ -17,6 +17,19 @@ enum EWorkerRole
 	EWorkerRoleCount
 };
 
+/*
+enum EWorkerSubtask
+{
+	Idle = -1,
+	MoveTo,
+	Pickup,
+	Build,
+	BuildingInteraction,
+	FellTree,
+	EWorkerSubtaskCount
+};
+*/
+
 class Worker
 {
 public:
@@ -32,7 +45,7 @@ public:
 	float speed;
 
 	// Path
-	std::vector<Vector2> path;
+	std::vector<Vector2> path = {};
 	int currentPathNode = 0;
 	float pathNodeDistance = 10;
 

@@ -16,6 +16,6 @@ public:
 	EntityManager();
 	~EntityManager();
 
-	void Update();
+	void Update(float dTime);
 };
 

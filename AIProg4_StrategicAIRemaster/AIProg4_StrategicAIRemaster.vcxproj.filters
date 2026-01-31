@@ -51,7 +51,10 @@
     <ClCompile Include="SubtaskDefinitions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ComponentsHandlers.cpp">
+    <ClCompile Include="SystemsHolder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commander.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,7 +98,13 @@
     <ClInclude Include="SubtaskDefinitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ComponentsHandlers.h">
+    <ClInclude Include="SystemsHolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DecisionTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Commander.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

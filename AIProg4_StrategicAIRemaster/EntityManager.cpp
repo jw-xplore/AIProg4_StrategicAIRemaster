@@ -54,10 +54,8 @@ EntityManager::~EntityManager()
 	delete pickups;
 }
 
-void EntityManager::Update()
+void EntityManager::Update(float dTime)
 {
-	float dTime = GetFrameTime();
-
 	// Workers
 	for (size_t i = 0; i < workers->size(); i++)
 	{
