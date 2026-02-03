@@ -9,6 +9,11 @@ Task::Task(std::initializer_list<Subtask*> subtasks)
 	this->subtasks = subtasks;
 }
 
+Task::Task(const Task& rhs)
+{
+
+}
+
 Task::~Task()
 {
 	subtasks.clear();

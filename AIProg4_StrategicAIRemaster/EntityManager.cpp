@@ -75,3 +75,14 @@ void EntityManager::Update(float dTime)
 		DrawRectangle(building.position.x, building.position.y, GlobalVars::TILE_HALF_SIZE, GlobalVars::TILE_HALF_SIZE, building.color);
 	}
 }
+
+void EntityManager::AddPickup(Pickup* pickup)
+{
+	pickups->push_back(*pickup);
+}
+
+void EntityManager::RemovePickup(Pickup* pickup)
+{
+	//pickups->erase(find(pickups->begin(), pickups->end(), pickup));
+}
+

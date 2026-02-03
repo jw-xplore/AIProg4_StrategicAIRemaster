@@ -39,6 +39,8 @@ Commander::Commander()
 	neededBuildings.push(EBuildingType::TrainingCamp);
 	*/
 
+
+
 	// Test assign task
 	TreesTile* treesTile = &systemsHolder->world->treeTiles[0];
 	Vector2 treeTilePos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
@@ -52,6 +54,9 @@ Commander::Commander()
 	task->assignee = testWorker;
 	activeTasks.push_back(task);
 
+	// Test building
+	Building* testBuilding = new Building(neededBuildings.front(), { 10 * GlobalVars::TILE_SIZE, 10 * GlobalVars::TILE_SIZE });
+	SystemsHolder::GetInstance()->entityMananger->buildings->push_back(*testBuilding);
 }
 
 Commander::~Commander()
@@ -62,6 +67,13 @@ Commander::~Commander()
 void Commander::Update(float dTime)
 {
 	// Assigne new tasks
+	replanTimer += dTime;
+
+	if (replanTimer >= replanDelay)
+	{
+		UpdatePlan();
+		replanTimer = 0;
+	}
 
 	// Handle pending tasks
 	//pendingTasks.front();
@@ -72,4 +84,29 @@ void Commander::Update(float dTime)
 	{
 		activeTasks[i]->Update(dTime);
 	}
+}
+
+void Commander::UpdatePlan()
+{
+	// Run current goal decision tree
+
+	// Add to pending tasks
+
+	// Distribute pending tasks to active if workers are available
+}
+
+//--------------------------------------------------------------
+// Commander goals
+//--------------------------------------------------------------
+
+void CommanderGoals::WarmupGoal::Setup()
+{
+	// Create scouts and builder
+
+	// Send others for wood
+}
+
+bool CommanderGoals::WarmupGoal::Complete()
+{
+	
 }

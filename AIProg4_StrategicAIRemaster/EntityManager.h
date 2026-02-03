@@ -17,5 +17,8 @@ public:
 	~EntityManager();
 
 	void Update(float dTime);
+
+	void AddPickup(Pickup* pickup);
+	void RemovePickup(Pickup* pickup);
 };
 

@@ -6,7 +6,9 @@ enum ESubtaskState;
 enum EBuildingType;
 
 class Worker;
+enum EWorkerRole;
 struct TreesTile;
+class Pickup;
 
 namespace Capital
 {
@@ -46,9 +48,31 @@ namespace SubtaskDefinitions
 	public:
 		TreesTile* treesTile;
 		float timer = 0;
-		float time;
+		float delay;
 
-		FellTreeSubtask(TreesTile* tile, float t) : treesTile(tile), time(t) {}
+		FellTreeSubtask(TreesTile* tile, float t) : treesTile(tile), delay(t) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
+	class PickupSubtask : public Subtask
+	{
+	public:
+		Pickup* pickup;
+		float timer = 0;
+		float delay;
+
+		PickupSubtask(Pickup* pickup) : pickup(pickup) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
+	class TrainWorker : public Subtask
+	{
+	public:
+		EWorkerRole role;
+		float timer = 0;
+		float delay;
+
+		TrainWorker(TreesTile* tile, float t)) : pickup(pickup) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 };

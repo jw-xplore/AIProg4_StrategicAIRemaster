@@ -15,6 +15,7 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 {
 	// DEBUG teleport
 	worker.position = position;
+	worker.target = position;
 	return ESubtaskState::Finnished;
 
 	// Find path
@@ -53,7 +54,7 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 
 ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 {
-	if (timer >= time)
+	if (timer >= delay)
 	{
 		Vector2 pos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
 
@@ -65,6 +66,16 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 	}
 
 	// Run 
-	timer++;
+	timer += dTime;
 	return ESubtaskState::Running;
+}
+
+ESubtaskState PickupSubtask::Execute(Worker& worker, float dTime)
+{
+	if (worker.carriedMaterial != Capital::ECapitalType::None)
+		return ESubtaskState::Canceled;
+
+	worker.carriedMaterial = pickup->type;
+	SystemsHolder::GetInstance()->entityMananger->RemovePickup(pickup);
+	return ESubtaskState::Finnished;
 }

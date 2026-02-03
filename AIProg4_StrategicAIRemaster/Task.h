@@ -37,6 +37,7 @@ public:
 	std::vector<Subtask*> subtasks;
 
 	Task(std::initializer_list<Subtask*> subtasks);
+	Task(const Task& rhs);
 	~Task();
 
 	void Update(float dTime);

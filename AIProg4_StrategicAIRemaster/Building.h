@@ -32,6 +32,7 @@ class Building
 public:
 	EBuildingType type;
 	Capital::CapitalAmounts storedCapital;
+	bool standing = false; // Building which is not standing is yet to be build
 	//std::vector<CapitalReservation> capitalReservations;
 
 	Vector2 position;
