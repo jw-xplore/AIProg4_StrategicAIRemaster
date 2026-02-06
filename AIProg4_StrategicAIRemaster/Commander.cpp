@@ -16,19 +16,14 @@ Commander::Commander()
 
 	SystemsHolder* systemsHolder = SystemsHolder::GetInstance();
 	systemsHolder->commander = this;
+	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
-	// Worker type queues
-	freeWorkers.reserve(EWorkerRole::EWorkerRoleCount);
-	int workerCount = systemsHolder->entityMananger->workers->size();
-
-	for (size_t i = 0; i < EWorkerRole::EWorkerRoleCount; i++)
+	// Active tasks list setup
+	int workersCount = entityManager->workers->size();
+	activeTasks.reserve(workersCount);
+	for (size_t i = 0; i < workersCount; i++)
 	{
-		freeWorkers.push_back({});
-	}
-
-	for (Worker& worker : *systemsHolder->entityMananger->workers)
-	{
-		freeWorkers[worker.role].push(&worker);
+		activeTasks.push_back(nullptr);
 	}
 
 	// Pre-assign starting buildings
@@ -39,8 +34,6 @@ Commander::Commander()
 	neededBuildings.push(EBuildingType::TrainingCamp);
 	*/
 
-
-
 	// Test assign task
 	TreesTile* treesTile = &systemsHolder->world->treeTiles[0];
 	Vector2 treeTilePos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
@@ -50,13 +43,14 @@ Commander::Commander()
 		new SubtaskDefinitions::FellTreeSubtask(treesTile, 10),
 		});
 
-	Worker* testWorker = freeWorkers[EWorkerRole::General].front();
+	//Worker w = (*entityManager->workers)[0];
+	Worker* testWorker = &(*entityManager->workers)[0];
 	task->assignee = testWorker;
 	activeTasks.push_back(task);
 
 	// Test building
 	Building* testBuilding = new Building(neededBuildings.front(), { 10 * GlobalVars::TILE_SIZE, 10 * GlobalVars::TILE_SIZE });
-	SystemsHolder::GetInstance()->entityMananger->buildings->push_back(*testBuilding);
+	entityManager->buildings->push_back(*testBuilding);
 }
 
 Commander::~Commander()
@@ -75,20 +69,23 @@ void Commander::Update(float dTime)
 		replanTimer = 0;
 	}
 
-	// Handle pending tasks
-	//pendingTasks.front();
-	//pendingTasks.pop();
-
 	// Update tasks
 	for (size_t i = 0; i < activeTasks.size(); i++)
 	{
-		activeTasks[i]->Update(dTime);
+		if (activeTasks[i])
+			activeTasks[i]->Update(dTime);
 	}
 }
 
 void Commander::UpdatePlan()
 {
 	// Run current goal decision tree
+	size_t workersSize = entityManager->workers->size();
+
+	for (size_t i = 0; i < workersSize; i++)
+	{
+		
+	}
 
 	// Add to pending tasks
 
@@ -99,14 +96,18 @@ void Commander::UpdatePlan()
 // Commander goals
 //--------------------------------------------------------------
 
-void CommanderGoals::WarmupGoal::Setup()
+namespace CommanderGoals
 {
-	// Create scouts and builder
+	void WarmupGoal::Setup()
+	{
+		// Create scouts and builder
+		//commander->activeTasks
 
-	// Send others for wood
-}
+		// Send others for wood
+	}
 
-bool CommanderGoals::WarmupGoal::Complete()
-{
-	
+	bool WarmupGoal::Complete()
+	{
+		return true;
+	}
 }

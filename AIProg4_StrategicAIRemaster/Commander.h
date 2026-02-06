@@ -18,34 +18,10 @@ struct NodeRecordAs;
 struct NodeRecordAsCompare;
 class PathFinding;
 
+class EntityManager;
 class DecisionTreeNode;
-class CommanderGoal;
 
-class Commander
-{
-public:
-	std::vector<CommanderGoal> goals;
-	int currentGoal = 0;
-
-	std::vector<std::queue<Worker*>> freeWorkers; // Queue of free workers divided by roles
-	std::queue<Task*> pendingTasks;
-	std::vector<Task*> activeTasks;
-	std::queue<EBuildingType> neededBuildings;
-
-	std::map<Node*, NodeRecordAs>* searchResult;
-	std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>* open;
-
-	float replanTimer = 0;
-	const float replanDelay = 1;
-
-	Commander();
-	~Commander();
-
-	void Update(float dTime);
-	void UpdatePlan();
-
-	void RegisterFreeWorker(Worker* worker);
-};
+class Commander;
 
 //--------------------------------------------------------------
 // Commander goals
@@ -59,11 +35,11 @@ namespace CommanderGoals
 		Commander* commander;
 		DecisionTreeNode* decisionTree;
 
-		CommanderGoal() {}
+		CommanderGoal(Commander* commander) : commander(commander) {}
 		~CommanderGoal() {}
 
 		virtual void Setup() {}
-		virtual bool Complete() {}
+		virtual bool Complete() { return true; }
 	};
 
 	// Do basic setup
@@ -103,3 +79,36 @@ namespace CommanderGoals
 		void Setup() override;
 	};
 }
+
+//--------------------------------------------------------------
+// Commander
+//--------------------------------------------------------------s
+
+class Commander
+{
+public:
+	std::vector<CommanderGoals::CommanderGoal> goals;
+	int currentGoal = 0;
+
+	std::vector<Task*> activeTasks;
+	int activeTasksCount = 0;
+	std::queue<EBuildingType> neededBuildings;
+
+	EntityManager* entityManager;
+
+	// Path finding
+	std::map<Node*, NodeRecordAs>* searchResult;
+	std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>* open;
+
+
+	float replanTimer = 0;
+	const float replanDelay = 1;
+
+	Commander();
+	~Commander();
+
+	void Update(float dTime);
+	void UpdatePlan();
+
+	void RegisterFreeWorker(Worker* worker);
+};

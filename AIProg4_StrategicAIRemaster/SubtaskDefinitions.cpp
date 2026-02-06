@@ -79,3 +79,22 @@ ESubtaskState PickupSubtask::Execute(Worker& worker, float dTime)
 	SystemsHolder::GetInstance()->entityMananger->RemovePickup(pickup);
 	return ESubtaskState::Finnished;
 }
+
+ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
+{
+	if (timer >= delay)
+	{
+		// Done
+		worker.role = role;
+
+		EntityManager* entMngr = SystemsHolder::GetInstance()->entityMananger;
+		entMngr->workersRoleFilter[EWorkerRole::General].erase(std::remove(entMngr->workersRoleFilter->begin(), entMngr->workersRoleFilter->end(), &worker));
+		entMngr->workersRoleFilter[role].push_back(&worker);
+
+		return ESubtaskState::Finnished;
+	}
+
+	// Run 
+	timer += dTime;
+	return ESubtaskState::Running;
+}

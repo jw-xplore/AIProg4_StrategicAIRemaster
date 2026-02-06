@@ -58,8 +58,6 @@ namespace SubtaskDefinitions
 	{
 	public:
 		Pickup* pickup;
-		float timer = 0;
-		float delay;
 
 		PickupSubtask(Pickup* pickup) : pickup(pickup) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
@@ -72,7 +70,7 @@ namespace SubtaskDefinitions
 		float timer = 0;
 		float delay;
 
-		TrainWorker(TreesTile* tile, float t)) : pickup(pickup) {}
+		TrainWorker(EWorkerRole role, float t) : role(role), timer(0), delay(t) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 };

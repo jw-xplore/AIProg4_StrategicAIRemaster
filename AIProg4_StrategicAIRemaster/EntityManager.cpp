@@ -14,9 +14,14 @@ EntityManager::EntityManager()
 	Vector2 startX = { 10 * GlobalVars::TILE_SIZE, 13 * GlobalVars::TILE_SIZE };
 	Vector2 startY = { 10 * GlobalVars::TILE_SIZE, 13 * GlobalVars::TILE_SIZE };
 
+	// Setup worker role filter
+	for (size_t i = 0; i < EWorkerRole::EWorkerRoleCount; i++)
+	{
+		workersRoleFilter = new std::vector<Worker*>[EWorkerRole::EWorkerRoleCount];
+	}
+
 	// Setup workers
 	int population = db->startingPopulation;
-	//population = 0;
 
 	workers = new std::vector<Worker>();
 	workers->reserve(population);
@@ -24,7 +29,10 @@ EntityManager::EntityManager()
 	for (size_t i = 0; i < population; i++)
 	{
 		Vector2 randPos = { GetRandomValue(startX.x, startX.y), GetRandomValue(startY.x, startY.y) };
-		workers->push_back(Worker(randPos));
+		Worker worker = Worker(randPos);
+		workers->push_back(worker);
+
+		workersRoleFilter[EWorkerRole::General].push_back(&worker);
 	}
 
 	// Setup pickups
