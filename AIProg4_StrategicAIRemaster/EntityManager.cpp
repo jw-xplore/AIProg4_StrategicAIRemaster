@@ -91,6 +91,6 @@ void EntityManager::AddPickup(Pickup* pickup)
 
 void EntityManager::RemovePickup(Pickup* pickup)
 {
-	//pickups->erase(find(pickups->begin(), pickups->end(), pickup));
+	pickups->erase(find(pickups->begin(), pickups->end(), pickup));
 }
 

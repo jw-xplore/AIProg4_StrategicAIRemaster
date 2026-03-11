@@ -4,6 +4,9 @@
 #include "raylib.h"
 
 class PathFinding;
+class Pickup;
+class Building;
+struct TreesTile;
 
 enum EWorkerRole
 {
@@ -17,18 +20,28 @@ enum EWorkerRole
 	EWorkerRoleCount
 };
 
-/*
-enum EWorkerSubtask
+enum EWorkerActions
 {
 	Idle = -1,
 	MoveTo,
-	Pickup,
+	PickupItem,
+	Deliver,
 	Build,
-	BuildingInteraction,
 	FellTree,
-	EWorkerSubtaskCount
+	Train,
+	BuildingAction, //? Like this
+	EWorkerActionsCount
 };
-*/
+
+struct WorkerActionData
+{
+	float x, y;
+	Pickup* targetItem;
+	Building* targetBuilding;
+	TreesTile* targetTreeTile;
+	Capital::ActionCost cost;
+	EWorkerRole targetRole;
+};
 
 class Worker
 {
@@ -38,6 +51,9 @@ public:
 
 	EWorkerRole role = EWorkerRole::General;
 	Capital::ECapitalType carriedMaterial = Capital::ECapitalType::None;
+	EWorkerActions currentAction = EWorkerActions::Idle;
+	WorkerActionData actionData;
+	float actionTimer = 0;
 
 	// Transform
 	Vector2 position;
@@ -58,5 +74,14 @@ public:
 
 	void SetNewPath(std::vector<Vector2> newPath);
 	bool FollowPath();
+
+	// Actions
+	void PickupItem();
+	void DeliverItemTo();
+	void Build(float dt);
+	void FellTree(float dt);
+	void TrainInto(float dt);
+
+	bool TileReached(Vector2 targetPos);
 };
 

@@ -82,4 +82,19 @@ public:
     bool LoadMap(const char* path);
     void Update(float dTime);
     void Draw();
+
+    // Coordination
+    Vector2Int PositionToTile(Vector2 position) inline
+    {
+        int x = position.x / GlobalVars::TILE_SIZE;
+        int y = position.y / GlobalVars::TILE_SIZE;
+        return { x,y };
+    }
+
+    Vector2 TileToCenterPosition(Vector2Int tile) inline
+    {
+        float x = tile.x * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
+        float y = tile.y * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
+        return { x,y };
+    }
 };

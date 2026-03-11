@@ -84,6 +84,13 @@ namespace CommanderGoals
 // Commander
 //--------------------------------------------------------------s
 
+struct CommnaderStatictics
+{
+	// Tracks game state from commnader perspective
+	int scoutsAmount;
+	
+};
+
 class Commander
 {
 public:
