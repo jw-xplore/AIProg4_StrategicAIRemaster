@@ -13,8 +13,8 @@ public:
 	std::vector<Worker>* workers;
 	std::vector<Worker*>* workersRoleFilter;
 
-	std::vector<Pickup>* pickups;
-	std::vector<Building>* buildings;
+	std::vector<Pickup*> pickups;
+	std::vector<Building*> buildings;
 
 	EntityManager();
 	~EntityManager();
@@ -24,4 +24,3 @@ public:
 	void AddPickup(Pickup* pickup);
 	void RemovePickup(Pickup* pickup);
 };
-

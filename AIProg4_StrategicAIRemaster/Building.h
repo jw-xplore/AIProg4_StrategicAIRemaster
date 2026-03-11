@@ -44,6 +44,8 @@ public:
 	Building(EBuildingType type, Vector2 startPos);
 	~Building() {}
 
+	void FinishBuilding();
+	void ProgressBuilding(float progress);
 	Capital::CapitalAmounts GetAvailableCapital();
 };
 

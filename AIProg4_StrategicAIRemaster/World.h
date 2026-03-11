@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <vector>
+#include "Constants.h"
 
 class ComponentsManager;
 class EntityManager;
@@ -84,14 +85,14 @@ public:
     void Draw();
 
     // Coordination
-    Vector2Int PositionToTile(Vector2 position) inline
+    inline Vector2Int PositionToTile(Vector2 position)
     {
         int x = position.x / GlobalVars::TILE_SIZE;
         int y = position.y / GlobalVars::TILE_SIZE;
         return { x,y };
     }
 
-    Vector2 TileToCenterPosition(Vector2Int tile) inline
+    inline Vector2 TileToCenterPosition(Vector2Int tile)
     {
         float x = tile.x * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
         float y = tile.y * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;

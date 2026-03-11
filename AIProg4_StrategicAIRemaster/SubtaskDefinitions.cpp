@@ -60,8 +60,8 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 
 		// Done
 		treesTile->FellTree();
-		Pickup felledTree = Pickup(Capital::ECapitalType::Tree, pos);
-		SystemsHolder::GetInstance()->entityMananger->pickups->push_back(felledTree);
+		Pickup* felledTree = new Pickup(Capital::ECapitalType::Tree, pos);
+		SystemsHolder::GetInstance()->entityMananger->pickups.push_back(felledTree);
 		return ESubtaskState::Finnished;
 	}
 

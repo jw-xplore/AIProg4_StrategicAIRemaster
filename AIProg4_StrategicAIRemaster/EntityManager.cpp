@@ -39,18 +39,16 @@ EntityManager::EntityManager()
 	int ironAmount = db->ironOreAmount;
 	//ironAmount = 100000;
 
-	pickups = new std::vector<Pickup>();
-	pickups->reserve(ironAmount * 2);
+	pickups.reserve(ironAmount * 2);
 
 	for (size_t i = 0; i < ironAmount; i++)
 	{
 		Vector2 randPos = { GetRandomValue(24, 100 * GlobalVars::TILE_SIZE - 24), GetRandomValue(24, 100 * GlobalVars::TILE_SIZE - 24) };
-		pickups->push_back(Pickup(Capital::ECapitalType::IronOre, randPos));
+		pickups.push_back(new Pickup(Capital::ECapitalType::IronOre, randPos));
 	}
 
 	// Setup buildings
-	buildings = new std::vector<Building>();
-	buildings->reserve(10);
+	buildings.reserve(10);
 }
 
 EntityManager::~EntityManager()
@@ -58,8 +56,8 @@ EntityManager::~EntityManager()
 	workers->clear();
 	delete workers;
 
-	pickups->clear();
-	delete pickups;
+	pickups.clear();
+	//delete pickups;
 }
 
 void EntityManager::Update(float dTime)
@@ -72,25 +70,26 @@ void EntityManager::Update(float dTime)
 	}
 
 	// Render pickups
-	for (auto& pickup : *pickups)
+	for (auto& pickup : pickups)
 	{
-		DrawRectangle(pickup.position.x, pickup.position.y, pickup.size.x, pickup.size.y, pickup.color);
+		DrawRectangle(pickup->position.x, pickup->position.y, pickup->size.x, pickup->size.y, pickup->color);
 	}
 
 	// Render buildings
-	for (auto& building : *buildings)
+	for (auto& building : buildings)
 	{
-		DrawRectangle(building.position.x, building.position.y, GlobalVars::TILE_HALF_SIZE, GlobalVars::TILE_HALF_SIZE, building.color);
+		DrawRectangle(building->position.x, building->position.y, GlobalVars::TILE_HALF_SIZE, GlobalVars::TILE_HALF_SIZE, building->color);
 	}
 }
 
 void EntityManager::AddPickup(Pickup* pickup)
 {
-	pickups->push_back(*pickup);
+	pickups.push_back(pickup);
 }
 
 void EntityManager::RemovePickup(Pickup* pickup)
 {
-	pickups->erase(find(pickups->begin(), pickups->end(), pickup));
+	//pickups.erase(find(pickups.begin(), pickups.end(), *pickup));
+	pickups.erase(std::remove(pickups.begin(), pickups.end(), pickup), pickups.end());
 }
 

@@ -18,39 +18,10 @@ Commander::Commander()
 	systemsHolder->commander = this;
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
-	// Active tasks list setup
-	int workersCount = entityManager->workers->size();
-	activeTasks.reserve(workersCount);
-	for (size_t i = 0; i < workersCount; i++)
-	{
-		activeTasks.push_back(nullptr);
-	}
-
-	// Pre-assign starting buildings
-	neededBuildings.push(EBuildingType::CoalMile);
-	/*
-	neededBuildings.push(EBuildingType::Smelter);
-	neededBuildings.push(EBuildingType::ArsmithsForge);
-	neededBuildings.push(EBuildingType::TrainingCamp);
-	*/
-
-	// Test assign task
-	TreesTile* treesTile = &systemsHolder->world->treeTiles[0];
-	Vector2 treeTilePos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
-
-	Task* task = new Task({
-		new SubtaskDefinitions::MoveToSubtask(treeTilePos),
-		new SubtaskDefinitions::FellTreeSubtask(treesTile, 10),
-		});
-
-	//Worker w = (*entityManager->workers)[0];
-	Worker* testWorker = &(*entityManager->workers)[0];
-	task->assignee = testWorker;
-	activeTasks.push_back(task);
-
 	// Test building
-	Building* testBuilding = new Building(neededBuildings.front(), { 10 * GlobalVars::TILE_SIZE, 10 * GlobalVars::TILE_SIZE });
-	entityManager->buildings->push_back(*testBuilding);
+	Vector2 testBuildingPosition = { 15 * GlobalVars::TILE_SIZE, 14 * GlobalVars::TILE_SIZE };
+	Building* coalMile = new Building(EBuildingType::CoalMile, testBuildingPosition);
+	entityManager->buildings.push_back(coalMile);
 }
 
 Commander::~Commander()
