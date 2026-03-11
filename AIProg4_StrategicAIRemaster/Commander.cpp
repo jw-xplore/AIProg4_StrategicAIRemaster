@@ -22,6 +22,9 @@ Commander::Commander()
 	Vector2 testBuildingPosition = { 15 * GlobalVars::TILE_SIZE, 14 * GlobalVars::TILE_SIZE };
 	Building* coalMile = new Building(EBuildingType::CoalMile, testBuildingPosition);
 	entityManager->buildings.push_back(coalMile);
+
+	// Test worker action
+
 }
 
 Commander::~Commander()
