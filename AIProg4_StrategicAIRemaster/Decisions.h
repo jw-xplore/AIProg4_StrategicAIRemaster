@@ -36,6 +36,9 @@ namespace CommanderDecisions
 		DecisionTreeNode* makeDecision() override;
 	};
 
+	/// <summary>
+	/// Checks if building is standing
+	/// </summary>
 	class BuildingIsPreplaced : Decision
 	{
 	public:
