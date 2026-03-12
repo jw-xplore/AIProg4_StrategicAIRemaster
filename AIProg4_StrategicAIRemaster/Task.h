@@ -36,7 +36,7 @@ public:
 	Worker* assignee;
 	std::vector<Subtask*> subtasks;
 
-	Task(std::initializer_list<Subtask*> subtasks);
+	Task(Worker* worker, std::initializer_list<Subtask*> subtasks);
 	Task(const Task& rhs);
 	~Task();
 

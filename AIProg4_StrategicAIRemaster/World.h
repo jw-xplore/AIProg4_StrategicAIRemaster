@@ -84,15 +84,17 @@ public:
     void Update(float dTime);
     void Draw();
 
+    TreesTile* ClosestTreeTile(Vector2Int currentTile);
+
     // Coordination
-    inline Vector2Int PositionToTile(Vector2 position)
+    static inline Vector2Int PositionToTile(Vector2 position)
     {
         int x = position.x / GlobalVars::TILE_SIZE;
         int y = position.y / GlobalVars::TILE_SIZE;
         return { x,y };
     }
 
-    inline Vector2 TileToCenterPosition(Vector2Int tile)
+    static inline Vector2 TileToCenterPosition(Vector2Int tile)
     {
         float x = tile.x * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
         float y = tile.y * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;

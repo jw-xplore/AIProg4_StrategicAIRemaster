@@ -19,12 +19,12 @@ Commander::Commander()
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
 	// Test building
-	Vector2 testBuildingPosition = { 15 * GlobalVars::TILE_SIZE, 14 * GlobalVars::TILE_SIZE };
-	Building* coalMile = new Building(EBuildingType::CoalMile, testBuildingPosition);
+	Building* coalMile = new Building(EBuildingType::CoalMile, World::TileToCenterPosition({ 15, 14 }));
 	entityManager->buildings.push_back(coalMile);
 
 	// Test worker action
-
+	//activeTasks.push_back(WorkerTasks::FellTreeTask(&entityManager->workers[0]));
+	activeTasks.push_back(WorkerTasks::DeliverItemTask(&entityManager->workers[0], Capital::ECapitalType::IronOre, coalMile));
 }
 
 Commander::~Commander()
@@ -54,7 +54,7 @@ void Commander::Update(float dTime)
 void Commander::UpdatePlan()
 {
 	// Run current goal decision tree
-	size_t workersSize = entityManager->workers->size();
+	size_t workersSize = entityManager->workers.size();
 
 	for (size_t i = 0; i < workersSize; i++)
 	{

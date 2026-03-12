@@ -10,7 +10,7 @@ class Building;
 class EntityManager
 {
 public:
-	std::vector<Worker>* workers;
+	std::vector<Worker> workers;
 	std::vector<Worker*>* workersRoleFilter;
 
 	std::vector<Pickup*> pickups;
@@ -23,4 +23,5 @@ public:
 
 	void AddPickup(Pickup* pickup);
 	void RemovePickup(Pickup* pickup);
+	Pickup* FindClosestPickup(Vector2 position);
 };

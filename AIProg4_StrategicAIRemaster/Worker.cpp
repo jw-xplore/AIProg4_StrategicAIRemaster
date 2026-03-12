@@ -8,6 +8,9 @@
 #include "Pickup.h"
 #include "Building.h"
 #include "Capital.h"
+#include "Task.h"
+#include "SubtaskDefinitions.h"
+#include "Database.h"
 
 Worker::Worker(Vector2 starPos)
 {
@@ -27,16 +30,6 @@ void Worker::Update(float dTime)
 	// Move
 	if (path.empty() || FollowPath())
 		position += SteeringBehavior::Seek(position, target, speed * dTime);
-
-	// Execute actions
-	switch (currentAction)
-	{
-	case EWorkerActions::PickupItem: PickupItem();
-	case EWorkerActions::Deliver: DeliverItemTo();
-	case EWorkerActions::Build: Build(dTime);
-	case EWorkerActions::FellTree: FellTree(dTime);
-	case EWorkerActions::Train: TrainInto(dTime);
-	}
 }
 
 void Worker::Render()
@@ -82,117 +75,64 @@ bool Worker::FollowPath()
 	return true;
 }
 
-//-----------------------------------------------
-// Worker actions
-//-----------------------------------------------
 
-void Worker::PickupItem()
+//--------------------------------------------------------------
+// Worker task definitions
+//--------------------------------------------------------------
+
+namespace WorkerTasks
 {
-	if (!actionData.targetItem)
-		return;
-
-	// Is at position
-	if (!TileReached(actionData.targetItem->position))
-		return;
-
-	// Do action
-	SystemsHolder* systems = SystemsHolder::GetInstance();
-	systems->entityMananger->RemovePickup(actionData.targetItem);
-}
-
-void Worker::DeliverItemTo()
-{
-	if (!actionData.targetBuilding || carriedMaterial == Capital::ECapitalType::None)
-		return;
-
-	// Is at position
-	if (!TileReached(actionData.targetBuilding->position))
-		return;
-
-	// Deliver
-	actionData.targetBuilding->storedCapital.amounts[carriedMaterial] += 1;
-	carriedMaterial = Capital::ECapitalType::None;
-}
-
-void Worker::Build(float dt)
-{
-	if (role != EWorkerRole::Builder)
-		return;
-
-	Building* building = actionData.targetBuilding;
-
-	if (!building)
-		return;
-
-	if (!TileReached(building->position))
-		return;
-
-	// Progress
-	if (actionData.cost.time > 0)
+	Task* FellTreeTask(Worker* worker)
 	{
-		actionData.cost.time -= dt;
-		return;
+		SystemsHolder* systems = SystemsHolder::GetInstance();
+
+		// Find closest tree
+		Vector2Int workerPos = World::PositionToTile(worker->position);
+		TreesTile* treesTile = systems->world->ClosestTreeTile(workerPos);
+		Vector2 treeTilePos = World::TileToCenterPosition({ treesTile->x, treesTile->y });
+		float time = GameDB::Database::Instance()->actionCostsResources[GameDB::EActionResource::FellTree].time;
+
+		// Setup subtasks
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::MoveToSubtask(treeTilePos),
+			new SubtaskDefinitions::FellTreeSubtask(treesTile, time)
+			}
+		);
+
+		return task;
 	}
 
-	// Create building
-	building->standing = true;
-}
-
-void Worker::FellTree(float dt)
-{
-	TreesTile* tTile = actionData.targetTreeTile;
-
-	if (!tTile)
-		return;
-
-	// Is at position
-	SystemsHolder* systems = SystemsHolder::GetInstance();
-	Vector2Int workerTile = systems->world->PositionToTile(this->position);
-
-	if (workerTile.x != tTile->x || workerTile.y != tTile->y)
-		return;
-
-	// Progress
-	if (actionData.cost.time > 0)
+	Task* DeliverItemTask(Worker* worker, Capital::ECapitalType itemType, Building* target)
 	{
-		actionData.cost.time -= dt;
-		return;
+		SystemsHolder* systems = SystemsHolder::GetInstance();
+
+		// Find closest item
+		Pickup* item = systems->entityMananger->FindClosestPickup(worker->position);
+
+		// Setup subtasks
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::MoveToSubtask(item->position),
+			new SubtaskDefinitions::PickupSubtask(item),
+			new SubtaskDefinitions::MoveToSubtask(target->position),
+			new SubtaskDefinitions::DropItemSubtask(target)
+			//new SubtaskDefinitions::FellTreeSubtask(treesTile, time)
+			}
+		);
+
+		return task;
 	}
 
-	// Feel tree
-	Vector2Int treePos = tTile->treePositions[tTile->amount - 1];
-	Vector2 dropPos = systems->world->TileToCenterPosition({ tTile->x, tTile->y});
-	dropPos.x += treePos.x;
-	dropPos.y += treePos.y;
-
-	Pickup felledTree = Pickup(Capital::ECapitalType::Tree, dropPos);
-	systems->entityMananger->AddPickup(&felledTree);
-
-	tTile->FellTree();
-}
-
-void Worker::TrainInto(float dt)
-{
-	if (role != EWorkerRole::General)
-		return;
-
-	// Progress
-	if (actionData.cost.time > 0)
+	/*
+	Task* TrainForRoleTask(Worker* worker, EWorkerRole role)
 	{
-		actionData.cost.time -= dt;
-		return;
+
 	}
-	
-	// Set role
-	role = actionData.targetRole;
-}
 
-bool Worker::TileReached(Vector2 targetPos)
-{
-	SystemsHolder* systems = SystemsHolder::GetInstance();
+	Task* BuildTask(Worker* worker, Building* building)
+	{
 
-	Vector2Int targetTile = systems->world->PositionToTile(targetPos);
-	Vector2Int workerTile = systems->world->PositionToTile(this->position);
-
-	return targetTile.x == workerTile.x && targetTile.y == workerTile.y;
+	}
+	*/
 }

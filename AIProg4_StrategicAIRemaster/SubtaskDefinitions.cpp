@@ -7,6 +7,7 @@
 #include "World.h"
 #include "EntityManager.h"
 #include "Pickup.h"
+#include "Building.h"
 #include <vector>
 
 using namespace SubtaskDefinitions;
@@ -14,9 +15,11 @@ using namespace SubtaskDefinitions;
 ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 {
 	// DEBUG teleport
+	/*
 	worker.position = position;
 	worker.target = position;
 	return ESubtaskState::Finnished;
+	*/
 
 	// Find path
 	if (!pathAssigned)
@@ -77,6 +80,16 @@ ESubtaskState PickupSubtask::Execute(Worker& worker, float dTime)
 
 	worker.carriedMaterial = pickup->type;
 	SystemsHolder::GetInstance()->entityMananger->RemovePickup(pickup);
+	return ESubtaskState::Finnished;
+}
+
+ESubtaskState DropItemSubtask::Execute(Worker& worker, float dTime)
+{
+	if (worker.carriedMaterial == Capital::ECapitalType::None)
+		return ESubtaskState::Canceled;
+
+	targetBuilding->storedCapital.amounts[worker.carriedMaterial]++;
+	worker.carriedMaterial = Capital::ECapitalType::None;
 	return ESubtaskState::Finnished;
 }
 

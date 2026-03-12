@@ -213,3 +213,29 @@ void World::Draw()
         }
     }
 }
+
+/// <summary>
+/// Find closest tree tile based on selected tile coordinate
+/// </summary>
+/// <param name="currentTile">Current tile coordinate in int vector</param>
+/// <returns></returns>
+TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
+{
+    TreesTile* closestTile = nullptr;
+    float closest = -1;
+
+    for (TreesTile& tile : treeTiles)
+    {
+        Vector2Int diff = { tile.x - currentTile.x, tile.y - currentTile.y };
+
+        float dist = diff.x * diff.x + diff.y * diff.y;
+
+        if (closest == -1 || closest > dist)
+        {
+            closestTile = &tile;
+            closest = dist;
+        }
+    }
+
+    return closestTile;
+}

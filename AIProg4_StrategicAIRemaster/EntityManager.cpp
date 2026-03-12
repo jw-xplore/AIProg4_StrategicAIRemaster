@@ -23,14 +23,14 @@ EntityManager::EntityManager()
 	// Setup workers
 	int population = db->startingPopulation;
 
-	workers = new std::vector<Worker>();
-	workers->reserve(population);
+	//workers = new std::vector<Worker>();
+	workers.reserve(population);
 
 	for (size_t i = 0; i < population; i++)
 	{
 		Vector2 randPos = { GetRandomValue(startX.x, startX.y), GetRandomValue(startY.x, startY.y) };
 		Worker worker = Worker(randPos);
-		workers->push_back(worker);
+		workers.push_back(worker);
 
 		workersRoleFilter[EWorkerRole::General].push_back(&worker);
 	}
@@ -53,8 +53,8 @@ EntityManager::EntityManager()
 
 EntityManager::~EntityManager()
 {
-	workers->clear();
-	delete workers;
+	workers.clear();
+	//delete workers;
 
 	pickups.clear();
 	//delete pickups;
@@ -63,10 +63,10 @@ EntityManager::~EntityManager()
 void EntityManager::Update(float dTime)
 {
 	// Workers
-	for (size_t i = 0; i < workers->size(); i++)
+	for (size_t i = 0; i < workers.size(); i++)
 	{
-		workers->at(i).Update(dTime);
-		workers->at(i).Render();
+		workers.at(i).Update(dTime);
+		workers.at(i).Render();
 	}
 
 	// Render pickups
@@ -93,3 +93,24 @@ void EntityManager::RemovePickup(Pickup* pickup)
 	pickups.erase(std::remove(pickups.begin(), pickups.end(), pickup), pickups.end());
 }
 
+Pickup* EntityManager::FindClosestPickup(Vector2 position)
+{
+	Pickup* closestPickup = nullptr;
+	float closest = -1;
+
+	// TODO: Find closest pickup in relation to position and target (e.g. closest for Worker and target Building)
+	for (Pickup*& pickup : pickups)
+	{
+		Vector2 diff = { pickup->position.x - position.x, pickup->position.y - position.y };
+
+		float dist = diff.x * diff.x + diff.y * diff.y;
+
+		if (closest == -1 || closest > dist)
+		{
+			closestPickup = pickup;
+			closest = dist;
+		}
+	}
+
+	return closestPickup;
+}

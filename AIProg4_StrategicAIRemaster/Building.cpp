@@ -7,7 +7,7 @@ Building::Building(EBuildingType type, Vector2 startPos)
 	standing = false;
 
 	this->type = type;
-	//color = GREEN;
+	color = GREEN;
 	creationTarget = GameDB::Database::Instance()->actionCostsBuilding[type].time;
 }
 

@@ -1,10 +1,11 @@
 #include "Task.h"
 
-Task::Task(std::initializer_list<Subtask*> subtasks)
+Task::Task(Worker* worker, std::initializer_list<Subtask*> subtasks)
 {
 	running = true;
 	currentSubTask = 0;
 	repeat = false;
+	assignee = worker;
 
 	this->subtasks = subtasks;
 }

@@ -8,6 +8,7 @@ enum EBuildingType;
 class Worker;
 enum EWorkerRole;
 struct TreesTile;
+class Building;
 class Pickup;
 
 namespace Capital
@@ -17,15 +18,7 @@ namespace Capital
 
 namespace SubtaskDefinitions
 {
-	// General
-	//ESubtaskState FindMaterial(Worker& worker, Capital::ECapitalType);
 	/*
-	ESubtaskState MoveTo(Worker& worker, float dTime);
-	ESubtaskState FellTree(Worker& worker, float dTime);
-	ESubtaskState Train(Worker& worker, float dTime);
-	ESubtaskState Pickup(Worker& worker, float dTime);
-	ESubtaskState Deliver(Worker& worker, float dTime);
-
 	// Role task
 	ESubtaskState MakeCoal(Worker& worker, float dTime); // Coal miner
 	ESubtaskState MakeIronBar(Worker& worker, float dTime); // Smelter operator
@@ -60,6 +53,15 @@ namespace SubtaskDefinitions
 		Pickup* pickup;
 
 		PickupSubtask(Pickup* pickup) : pickup(pickup) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
+	class DropItemSubtask : public Subtask
+	{
+	public:
+		Building* targetBuilding;
+
+		DropItemSubtask(Building* target) : targetBuilding(target) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 

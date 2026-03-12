@@ -7,6 +7,7 @@ class PathFinding;
 class Pickup;
 class Building;
 struct TreesTile;
+class Task;
 
 enum EWorkerRole
 {
@@ -20,29 +21,6 @@ enum EWorkerRole
 	EWorkerRoleCount
 };
 
-enum EWorkerActions
-{
-	Idle = -1,
-	MoveTo,
-	PickupItem,
-	Deliver,
-	Build,
-	FellTree,
-	Train,
-	BuildingAction, //? Like this
-	EWorkerActionsCount
-};
-
-struct WorkerActionData
-{
-	float x, y;
-	Pickup* targetItem;
-	Building* targetBuilding;
-	TreesTile* targetTreeTile;
-	Capital::ActionCost cost;
-	EWorkerRole targetRole;
-};
-
 class Worker
 {
 public:
@@ -51,9 +29,6 @@ public:
 
 	EWorkerRole role = EWorkerRole::General;
 	Capital::ECapitalType carriedMaterial = Capital::ECapitalType::None;
-	EWorkerActions currentAction = EWorkerActions::Idle;
-	WorkerActionData actionData;
-	float actionTimer = 0;
 
 	// Transform
 	Vector2 position;
@@ -74,14 +49,15 @@ public:
 
 	void SetNewPath(std::vector<Vector2> newPath);
 	bool FollowPath();
-
-	// Actions
-	void PickupItem();
-	void DeliverItemTo();
-	void Build(float dt);
-	void FellTree(float dt);
-	void TrainInto(float dt);
-
-	bool TileReached(Vector2 targetPos);
 };
 
+namespace WorkerTasks
+{
+	Task* FellTreeTask(Worker* worker);
+	Task* DeliverItemTask(Worker* worker, Capital::ECapitalType itemType, Building* target);
+
+	/*
+	Task* TrainForRoleTask(Worker* worker, EWorkerRole role);
+	Task* BuildTask(Worker* worker, Building* building);
+	*/
+};
