@@ -111,3 +111,17 @@ ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
 	timer += dTime;
 	return ESubtaskState::Running;
 }
+
+ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
+{
+	if (timer >= delay)
+	{
+		// Done
+		building->FinishBuilding();
+		return ESubtaskState::Finnished;
+	}
+
+	// Run 
+	timer += dTime;
+	return ESubtaskState::Running;
+}

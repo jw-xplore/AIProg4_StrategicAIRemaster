@@ -12,7 +12,11 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 
 	for (size_t i = 0; i < Capital::ECapitalType::ECapitalTypeCount; i++)
 	{
-		if (compareAmounts->amounts[i] > targetAmounts->amounts[i])
+		// Ignore 0 cost
+		if (targetAmounts->amounts[i] <= 0)
+			continue;
+
+		if (currentAmounts->amounts[i] < targetAmounts->amounts[i])
 		{
 			missing = (Capital::ECapitalType)i;
 			break;
@@ -27,11 +31,11 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 	switch (missing)
 	{
 	case Capital::ECapitalType::None: return successAction;
-	case Capital::ECapitalType::Tree: break;
-	case Capital::ECapitalType::Coal: break;
-	case Capital::ECapitalType::IronOre: break;
-	case Capital::ECapitalType::IronBar: break;
-	case Capital::ECapitalType::Sword: break;
+	case Capital::ECapitalType::Tree: return treeAction;
+	case Capital::ECapitalType::Coal: return coalAction;
+	case Capital::ECapitalType::IronOre: return ironOreAction;
+	case Capital::ECapitalType::IronBar: return ironBarAction;
+	case Capital::ECapitalType::Sword: return swordAction;
 	}
 
 	return successAction;

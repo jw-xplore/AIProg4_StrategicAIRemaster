@@ -26,6 +26,9 @@ namespace SubtaskDefinitions
 	ESubtaskState Build(Worker& worker, float dTime, EBuildingType type); // Builder
 	*/
 
+	/// <summary>
+	/// Move to specific position. Execute will automaticaly search and start moving along path upon finding.
+	/// </summary>
 	class MoveToSubtask : public Subtask
 	{
 	public:
@@ -36,6 +39,9 @@ namespace SubtaskDefinitions
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
+	/// <summary>
+	/// Turn tree tile into felled tree pickup after certain time delay
+	/// </summary>
 	class FellTreeSubtask : public Subtask
 	{
 	public:
@@ -47,6 +53,9 @@ namespace SubtaskDefinitions
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
+	/// <summary>
+	/// Turns pickup into worker carried material.
+	/// </summary>
 	class PickupSubtask : public Subtask
 	{
 	public:
@@ -56,6 +65,9 @@ namespace SubtaskDefinitions
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
+	/// <summary>
+	/// Turns workers carried material into pickup
+	/// </summary>
 	class DropItemSubtask : public Subtask
 	{
 	public:
@@ -65,6 +77,9 @@ namespace SubtaskDefinitions
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
+	/// <summary>
+	/// Changes regular worker role after certain delay
+	/// </summary>
 	class TrainWorker : public Subtask
 	{
 	public:
@@ -73,6 +88,20 @@ namespace SubtaskDefinitions
 		float delay;
 
 		TrainWorker(EWorkerRole role, float t) : role(role), timer(0), delay(t) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
+	/// <summary>
+	/// Finish pre-place building after certain delay
+	/// </summary>
+	class CreateBuilding : public Subtask
+	{
+	public:
+		Building* building;
+		float timer = 0;
+		float delay;
+
+		CreateBuilding(Building* building, float t) : building(building), delay(t) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 };

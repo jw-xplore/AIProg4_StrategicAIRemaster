@@ -20,11 +20,13 @@ namespace GameDB
 	enum EActionTraining
 	{
 		TrainScout,
+		TrainBuilder,
 		TrainSoldier,
 		TrainCraftsman,
 		EActionTrainingCount
 	};
 
+	/*
 	enum EActionBuilding
 	{
 		BuildCoalMile,
@@ -33,6 +35,7 @@ namespace GameDB
 		BuildTrainingCamp,
 		EActionBuildingCount
 	};
+	*/
 
 	//--------------------------------------------------
 	// Database structures

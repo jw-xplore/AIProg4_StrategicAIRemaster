@@ -22,6 +22,7 @@ EntityManager::EntityManager()
 
 	// Setup workers
 	int population = db->startingPopulation;
+	population = 4;
 
 	//workers = new std::vector<Worker>();
 	workers.reserve(population);

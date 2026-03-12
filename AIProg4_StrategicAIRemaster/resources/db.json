@@ -82,6 +82,15 @@
             "swords" : 0
         },
         {
+            "name" : "Train Builder",
+            "time" : 60,
+            "trees" : 0,
+            "coal" : 0,
+            "ironOre" : 0,
+            "ironBar" : 0,
+            "swords" : 1
+        },
+        {
             "name" : "Train Soldier",
             "time" : 60,
             "trees" : 0,

@@ -3,6 +3,7 @@
 
 class Commander;
 enum EWorkerRole;
+class Building;
 
 //--------------------------------------------------------------
 // Commander decisions
@@ -16,18 +17,33 @@ namespace Capital
 
 namespace CommanderDecisions
 {
+	//--------------------------------------------------------------
 	// Decisions
+	//--------------------------------------------------------------
 	class HasResources : DecisionTreeNode
 	{
 	public:
 		Action* successAction;
-		Capital::CapitalAmounts* compareAmounts;
+		Action* treeAction;
+		Action* coalAction;
+		Action* ironOreAction;
+		Action* ironBarAction;
+		Action* swordAction;
+
+		Capital::CapitalAmounts* currentAmounts;
 		Capital::CapitalAmounts* targetAmounts;
 
 		DecisionTreeNode* makeDecision() override;
 	};
 
-	class BuildingStand : Decision
+	class BuildingIsPreplaced : Decision
+	{
+	public:
+		
+		DecisionTreeNode* makeDecision() override;
+	};
+
+	class BuildingIsFinished : Decision
 	{
 	public:
 		DecisionTreeNode* makeDecision() override;
@@ -42,6 +58,8 @@ namespace CommanderDecisions
 		DecisionTreeNode* makeDecision() override;
 	};
 
+	//--------------------------------------------------------------
 	// Actions
-	//class 
+	//--------------------------------------------------------------
+
 }

@@ -24,7 +24,8 @@ Commander::Commander()
 
 	// Test worker action
 	//activeTasks.push_back(WorkerTasks::FellTreeTask(&entityManager->workers[0]));
-	activeTasks.push_back(WorkerTasks::DeliverItemTask(&entityManager->workers[0], Capital::ECapitalType::IronOre, coalMile));
+	//activeTasks.push_back(WorkerTasks::DeliverItemTask(&entityManager->workers[0], Capital::ECapitalType::IronOre, coalMile));
+	activeTasks.push_back(WorkerTasks::BuildTask(&entityManager->workers[0], coalMile));
 }
 
 Commander::~Commander()

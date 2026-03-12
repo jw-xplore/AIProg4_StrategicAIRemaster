@@ -4,6 +4,7 @@
 #include <string>
 
 #include "World.h"
+#include "Building.h"
 
 using namespace GameDB;
 
@@ -38,7 +39,7 @@ Database::Database()
 	// Costs
 	actionCostsResources = DefineActionCosts(jsonRes, "resourceActionCost", EActionResource::EActionResourceCount);
 	actionCostsTraining = DefineActionCosts(jsonRes, "trainingActionCost", EActionTraining::EActionTrainingCount);
-	actionCostsBuilding = DefineActionCosts(jsonRes, "buildingActionCost", EActionBuilding::EActionBuildingCount);
+	actionCostsBuilding = DefineActionCosts(jsonRes, "buildingActionCost", EBuildingType::EBuildingTypeCount);
 }
 
 Database::~Database()

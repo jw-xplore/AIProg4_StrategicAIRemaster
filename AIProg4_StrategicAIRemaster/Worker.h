@@ -55,9 +55,6 @@ namespace WorkerTasks
 {
 	Task* FellTreeTask(Worker* worker);
 	Task* DeliverItemTask(Worker* worker, Capital::ECapitalType itemType, Building* target);
-
-	/*
 	Task* TrainForRoleTask(Worker* worker, EWorkerRole role);
 	Task* BuildTask(Worker* worker, Building* building);
-	*/
 };

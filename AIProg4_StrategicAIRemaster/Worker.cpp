@@ -117,22 +117,49 @@ namespace WorkerTasks
 			new SubtaskDefinitions::PickupSubtask(item),
 			new SubtaskDefinitions::MoveToSubtask(target->position),
 			new SubtaskDefinitions::DropItemSubtask(target)
-			//new SubtaskDefinitions::FellTreeSubtask(treesTile, time)
 			}
 		);
 
 		return task;
 	}
 
-	/*
 	Task* TrainForRoleTask(Worker* worker, EWorkerRole role)
 	{
+		// Find training time
+		GameDB::EActionTraining trainingType = GameDB::EActionTraining::TrainScout;
+		switch (role)
+		{
+			case EWorkerRole::Scout: trainingType = GameDB::EActionTraining::TrainScout; break;
+			case EWorkerRole::Builder: trainingType = GameDB::EActionTraining::TrainBuilder; break;
+			case EWorkerRole::Soldier: trainingType = GameDB::EActionTraining::TrainSoldier; break;
+			default: trainingType = GameDB::EActionTraining::TrainCraftsman; break;
+		}
 
+		float time = GameDB::Database::Instance()->actionCostsTraining[trainingType].time;
+
+		// Setup task
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::TrainWorker(role, time)
+			}
+		);
+
+		return task;
 	}
 
 	Task* BuildTask(Worker* worker, Building* building)
 	{
+		// Building task
+		float time = GameDB::Database::Instance()->actionCostsBuilding[building->type].time;
 
+		// Setup task
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::MoveToSubtask(building->position),
+			new SubtaskDefinitions::CreateBuilding(building, time)
+			}
+		);
+
+		return task;
 	}
-	*/
 }
