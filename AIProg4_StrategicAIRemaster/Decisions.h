@@ -49,6 +49,8 @@ namespace CommanderDecisions
 	class BuildingIsFinished : Decision
 	{
 	public:
+		Building* building;
+		BuildingIsFinished(Building* building): building(building) {}
 		DecisionTreeNode* makeDecision() override;
 	};
 
@@ -58,8 +60,10 @@ namespace CommanderDecisions
 		EWorkerRole role;
 		int amount;
 
+		HasWorkersOfRole(EWorkerRole role, int amount): role(role), amount(amount) {}
 		DecisionTreeNode* makeDecision() override;
 	};
+
 
 	//--------------------------------------------------------------
 	// Actions

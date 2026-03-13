@@ -5,6 +5,10 @@
 // Commander decisions
 //--------------------------------------------------------------
 
+/// <summary>
+/// Check through all resources and there is enough of target resources
+/// </summary>
+/// <returns></returns>
 DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 {
 	// Check missing
