@@ -14,6 +14,7 @@ public:
 class Action : public DecisionTreeNode
 {
 public:
+	Action() {}
 	virtual void execute() {}
 
 	DecisionTreeNode* makeDecision() override

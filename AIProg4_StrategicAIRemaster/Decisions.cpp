@@ -1,5 +1,8 @@
 #include "Decisions.h"
 #include "Capital.h"
+#include "SystemsHolder.h"
+#include "Commander.h"
+#include "Task.h"
 
 //--------------------------------------------------------------
 // Commander decisions
@@ -20,7 +23,9 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 		if (targetAmounts->amounts[i] <= 0)
 			continue;
 
-		if (currentAmounts->amounts[i] < targetAmounts->amounts[i])
+		int val = currentAmounts->amounts[i] + potentialAmounts->amounts[i];
+
+		if (val < targetAmounts->amounts[i])
 		{
 			missing = (Capital::ECapitalType)i;
 			break;
@@ -43,4 +48,21 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 	}
 
 	return successAction;
+}
+
+//--------------------------------------------------------------
+// Commander actions
+//--------------------------------------------------------------
+
+void CommanderDecisions::AssignTaskAction::execute()
+{
+	//taskFunc();
+	Commander* commander = SystemsHolder::GetInstance()->commander;
+	Worker* worker = commander->FindFreeWorker(roleConstrain);
+
+	if (worker)
+	{
+		Task* task = taskFunc(worker);
+		commander->AssignTask(worker, nullptr, task);
+	}
 }

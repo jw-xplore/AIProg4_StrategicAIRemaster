@@ -1,9 +1,12 @@
 #pragma once
 #include "DecisionTree.h"
+#include <functional>
 
 class Commander;
 enum EWorkerRole;
 class Building;
+class Task;
+class Worker;
 
 //--------------------------------------------------------------
 // Commander decisions
@@ -20,7 +23,7 @@ namespace CommanderDecisions
 	//--------------------------------------------------------------
 	// Decisions
 	//--------------------------------------------------------------
-	class HasResources : DecisionTreeNode
+	class HasResources : public DecisionTreeNode
 	{
 	public:
 		Action* successAction;
@@ -30,6 +33,7 @@ namespace CommanderDecisions
 		Action* ironBarAction;
 		Action* swordAction;
 
+		Capital::CapitalAmounts* potentialAmounts;
 		Capital::CapitalAmounts* currentAmounts;
 		Capital::CapitalAmounts* targetAmounts;
 
@@ -39,22 +43,22 @@ namespace CommanderDecisions
 	/// <summary>
 	/// Checks if building is standing
 	/// </summary>
-	class BuildingIsPreplaced : Decision
+	class BuildingIsPreplaced : public Decision
 	{
 	public:
 		
 		DecisionTreeNode* makeDecision() override;
 	};
 
-	class BuildingIsFinished : Decision
+	class BuildingIsFinished : public Decision
 	{
 	public:
 		Building* building;
 		BuildingIsFinished(Building* building): building(building) {}
-		DecisionTreeNode* makeDecision() override;
+		bool pass() override;
 	};
 
-	class HasWorkersOfRole : Decision
+	class HasWorkersOfRole : public Decision
 	{
 	public:
 		EWorkerRole role;
@@ -69,4 +73,18 @@ namespace CommanderDecisions
 	// Actions
 	//--------------------------------------------------------------
 
+	class AssignTaskAction : public Action
+	{
+	public:
+		EWorkerRole roleConstrain;
+		std::function<Task* (Worker*)> taskFunc;
+
+		AssignTaskAction(EWorkerRole roleConstrain, std::function<Task* (Worker*)> fnc)
+		{
+			this->roleConstrain = roleConstrain;
+			taskFunc = fnc;
+		}
+
+		void execute() override;
+	};
 }

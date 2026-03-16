@@ -23,6 +23,24 @@ namespace Capital
 	{
 		int* amounts = new int[ECapitalType::ECapitalTypeCount];
 
+		void Empty()
+		{
+			amounts[ECapitalType::Tree] = 0;
+			amounts[ECapitalType::Coal] = 0;
+			amounts[ECapitalType::IronOre] = 0;
+			amounts[ECapitalType::IronBar] = 0;
+			amounts[ECapitalType::Sword] = 0;
+		}
+
+		CapitalAmounts(int trees = 0, int coal = 0, int ironOres = 0, int ironBars = 0, int swords = 0)
+		{
+			amounts[ECapitalType::Tree] = trees;
+			amounts[ECapitalType::Coal] = coal;
+			amounts[ECapitalType::IronOre] = ironOres;
+			amounts[ECapitalType::IronBar] = ironBars;
+			amounts[ECapitalType::Sword] = swords;
+		}
+
 		int operator[](size_t idx)
 		{
 			return amounts[idx];
@@ -37,6 +55,8 @@ namespace Capital
 			{
 				amounts[i] = rhs.amounts[i];
 			}
+
+			return *this;
 		}
 
 		inline CapitalAmounts& operator+=(const CapitalAmounts& rhs)
@@ -45,6 +65,8 @@ namespace Capital
 			{
 				amounts[i] += rhs.amounts[i];
 			}
+
+			return *this;
 		}
 
 		inline CapitalAmounts& operator-=(const CapitalAmounts& rhs)
@@ -53,6 +75,8 @@ namespace Capital
 			{
 				amounts[i] -= rhs.amounts[i];
 			}
+
+			return *this;
 		}
 
 		// Comparison

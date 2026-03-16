@@ -53,6 +53,10 @@ struct TreesTile
         amount--;
         return true;
     }
+
+    bool operator==(const TreesTile& other) const {
+        return this == &other;
+    }
 };
 
 //-----------------------------------------------
@@ -85,6 +89,7 @@ public:
     void Draw();
 
     TreesTile* ClosestTreeTile(Vector2Int currentTile);
+    void RemoveTreeTile(TreesTile* tile);
 
     // Coordination
     static inline Vector2Int PositionToTile(Vector2 position)

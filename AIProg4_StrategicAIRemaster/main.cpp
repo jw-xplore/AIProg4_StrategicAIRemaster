@@ -61,8 +61,8 @@ void RunGame()
 
     std::map<Node*, NodeRecordAs> searchResult;
     std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-    //std::vector<Node>* path = pathfinding.AStarDivided({ 64, 64 }, { 640, 640 }, searchResult, open);
-    std::vector<Node>* path = {};
+    std::vector<Node>* path = pathfinding.AStarDivided({ 1300, 64 }, { 1000, 640 }, searchResult, open);
+    //std::vector<Node>* path = {};
     int frameCount = 0;
 
     // Gameloop
@@ -78,7 +78,7 @@ void RunGame()
         ClearBackground(BLACK);
         world.Draw();
 
-        //pathfinding.DrawGraph();
+        pathfinding.DrawGraph();
         if (path)
             DrawPath(path);
 

@@ -65,6 +65,11 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 		treesTile->FellTree();
 		Pickup* felledTree = new Pickup(Capital::ECapitalType::Tree, pos);
 		SystemsHolder::GetInstance()->entityMananger->pickups.push_back(felledTree);
+
+		// Remove empty tree tile
+		if (treesTile->amount <= 0)
+			SystemsHolder::GetInstance()->world->RemoveTreeTile(treesTile);
+
 		return ESubtaskState::Finnished;
 	}
 

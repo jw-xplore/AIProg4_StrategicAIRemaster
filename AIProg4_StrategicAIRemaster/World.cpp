@@ -239,3 +239,12 @@ TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
 
     return closestTile;
 }
+
+/// <summary>
+/// Erase selected tile from trees tile list
+/// </summary>
+/// <param name="tile"></param>
+void World::RemoveTreeTile(TreesTile* tile)
+{
+    treeTiles.erase(std::find(treeTiles.begin(), treeTiles.end(), *tile));
+}

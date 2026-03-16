@@ -8,6 +8,10 @@
 #include "World.h"
 #include "Constants.h"
 #include "PathFinding.h"
+#include "DecisionTree.h"
+#include "Decisions.h"
+#include "Database.h"
+#include <iostream>
 
 Commander::Commander()
 {
@@ -19,13 +23,17 @@ Commander::Commander()
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
 	// Test building
-	Building* coalMile = new Building(EBuildingType::CoalMile, World::TileToCenterPosition({ 15, 14 }));
-	entityManager->buildings.push_back(coalMile);
+	//Building* coalMile = new Building(EBuildingType::CoalMile, World::TileToCenterPosition({ 15, 14 }));
+	//entityManager->buildings.push_back(coalMile);
 
 	// Test worker action
-	//activeTasks.push_back(WorkerTasks::FellTreeTask(&entityManager->workers[0]));
-	//activeTasks.push_back(WorkerTasks::DeliverItemTask(&entityManager->workers[0], Capital::ECapitalType::IronOre, coalMile));
-	activeTasks.push_back(WorkerTasks::BuildTask(&entityManager->workers[0], coalMile));
+	for (Worker& worker : entityManager->workers)
+	{
+		workerTaskMap[&worker] = nullptr;
+		workerGoalMap[&worker] = nullptr;
+	}
+
+	goals.push_back(CommanderGoals::CreateBuidingGoal(this, EBuildingType::CoalMile));
 }
 
 Commander::~Commander()
@@ -45,26 +53,82 @@ void Commander::Update(float dTime)
 	}
 
 	// Update tasks
-	for (size_t i = 0; i < activeTasks.size(); i++)
+	for (auto& wTask : workerTaskMap)
 	{
-		if (activeTasks[i])
-			activeTasks[i]->Update(dTime);
+		if (!wTask.second)
+			continue;
+
+		if (wTask.second->finished)
+		{
+			// Finished - Remove
+			*goals[currentGoal].potentialCapital -= wTask.second->rewardCapital;
+			wTask.second = nullptr;
+			continue;
+		}
+
+		wTask.second->Update(dTime);
 	}
 }
 
 void Commander::UpdatePlan()
 {
-	// Run current goal decision tree
-	size_t workersSize = entityManager->workers.size();
+	// Count potential capital - TODO: Do this calculation only on task add/remove
+	/*
+	goals[currentGoal].potentialCapital->Empty();
 
-	for (size_t i = 0; i < workersSize; i++)
+	for (auto& wTask : workerTaskMap)
 	{
-		
+		if (!wTask.second)
+			continue;
+
+		*goals[currentGoal].potentialCapital += wTask.second->rewardCapital;
+	}
+	*/
+
+	//std::cout << "Wood potential: " << goals[currentGoal].potentialCapital[Capital::ECapitalType::Tree] << "\n";
+
+	// Run current goal decision tree
+	for (Worker& worker : entityManager->workers)
+	{
+		if (workerTaskMap[&worker] != nullptr)
+			continue;
+
+		Action* action = dynamic_cast<Action*>(goals[currentGoal].decisionTree->makeDecision());
+		if (action)
+			action->execute();
 	}
 
+	// TODO:
 	// Add to pending tasks
 
 	// Distribute pending tasks to active if workers are available
+}
+
+Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
+{
+	for (Worker& worker : entityManager->workers)
+	{
+		// Get free worker
+		if (workerTaskMap[&worker] == nullptr)
+		{
+			if (roleConstrain != EWorkerRole::General && worker.role != roleConstrain)
+				continue;
+
+			return &worker;
+		}
+	}
+
+	return nullptr;
+}
+
+void Commander::AssignTask(Worker* worker, CommanderGoals::CommanderGoal* goal, Task* task)
+{
+	workerTaskMap[worker] = task;
+	workerGoalMap[worker] = goal;
+
+	task->assignee = worker;
+
+	*goals[currentGoal].potentialCapital += task->rewardCapital;
 }
 
 //--------------------------------------------------------------
@@ -73,15 +137,53 @@ void Commander::UpdatePlan()
 
 namespace CommanderGoals
 {
+	//--------------------------------------------------------------
+	// Warmup
+	//--------------------------------------------------------------
+
 	void WarmupGoal::Setup()
 	{
 		// Create scouts and builder
-		//commander->activeTasks
 
 		// Send others for wood
 	}
 
 	bool WarmupGoal::Complete()
+	{
+		return true;
+	}
+
+	//--------------------------------------------------------------
+	// Create building
+	//--------------------------------------------------------------
+
+	void CreateBuidingGoal::Setup()
+	{
+		SystemsHolder* systemsHolder = SystemsHolder::GetInstance();
+		EntityManager* entityManager = SystemsHolder::GetInstance()->entityMananger;
+
+		// Preplace building
+		building = new Building(buildingType, World::TileToCenterPosition({ 15, 14 }));
+		entityManager->buildings.push_back(building);
+
+		// Setup decisions
+		CommanderDecisions::HasResources* resourceCheck = new CommanderDecisions::HasResources();
+		decisionTree = resourceCheck;
+
+		resourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
+		resourceCheck->currentAmounts = &building->storedCapital; // Current amounts should be evaluated with potential capital
+		resourceCheck->potentialAmounts = potentialCapital;
+
+		resourceCheck->treeAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+			[](Worker* worker) { return WorkerTasks::FellTreeTask(worker); }
+			);
+
+		resourceCheck->ironOreAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+			[this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, building); }
+		);
+	}
+
+	bool CreateBuidingGoal::Complete()
 	{
 		return true;
 	}

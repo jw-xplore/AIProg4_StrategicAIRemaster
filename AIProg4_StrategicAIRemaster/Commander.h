@@ -7,6 +7,7 @@ Takes care of high-level decision making and assigning tasks
 #include <queue>
 #include <map>
 #include <algorithm>
+#include "Capital.h"
 
 class Worker;
 enum EWorkerRole;
@@ -22,6 +23,7 @@ class EntityManager;
 class DecisionTreeNode;
 
 class Commander;
+class Building;
 
 //--------------------------------------------------------------
 // Commander goals
@@ -34,8 +36,11 @@ namespace CommanderGoals
 	public:
 		Commander* commander;
 		DecisionTreeNode* decisionTree;
+		// Capital promised if all workers tasks are finnished
+		Capital::CapitalAmounts* potentialCapital = new Capital::CapitalAmounts();
 
-		CommanderGoal(Commander* commander) : commander(commander) {}
+		CommanderGoal() {}
+		CommanderGoal(Commander* commander) : commander(commander) { Setup(); }
 		~CommanderGoal() {}
 
 		virtual void Setup() {}
@@ -55,12 +60,21 @@ namespace CommanderGoals
 	};
 
 	// Gather resources and create building of specific type
-	class CreateBuidlingGoal : public CommanderGoal
+	class CreateBuidingGoal : public CommanderGoal
 	{
 	public:
 		EBuildingType buildingType;
+		Building* building;
+
+		CreateBuidingGoal(Commander* commander, EBuildingType buildingType)
+		{
+			this->commander = commander;
+			this->buildingType = buildingType;
+			Setup();
+		}
 
 		void Setup() override;
+		bool Complete() override;
 	};
 
 	class GatherGoal : public CommanderGoal
@@ -97,9 +111,8 @@ public:
 	std::vector<CommanderGoals::CommanderGoal> goals;
 	int currentGoal = 0;
 
-	std::vector<Task*> activeTasks;
-	int activeTasksCount = 0;
-	std::queue<EBuildingType> neededBuildings;
+	std::map<Worker*, Task*> workerTaskMap;
+	std::map<Worker*, CommanderGoals::CommanderGoal*> workerGoalMap;
 
 	EntityManager* entityManager;
 
@@ -117,5 +130,6 @@ public:
 	void Update(float dTime);
 	void UpdatePlan();
 
-	void RegisterFreeWorker(Worker* worker);
+	Worker* FindFreeWorker(EWorkerRole roleConstrain);
+	void AssignTask(Worker* worker, CommanderGoals::CommanderGoal* goal, Task* task);
 };

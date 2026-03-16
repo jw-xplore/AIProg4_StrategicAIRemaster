@@ -27,11 +27,18 @@ void Task::Update(float dTime)
 
 	if (currentSubTask >= subtasks.size())
 	{
-		// Repeat
 		if (repeat)
+		{
+			// Repeat
 			currentSubTask = 0;
+		}
+		else
+		{
+			// Stop execution - All subtasks done
+			running = false;
+			finished = true;
+		}
 
-		// Stop execution
 		return;
 	}
 

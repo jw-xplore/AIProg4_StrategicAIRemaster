@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <functional>
+#include "Capital.h"
 
 class Worker;
 
@@ -29,12 +30,14 @@ public:
 class Task
 {
 public:
+	bool finished;
 	bool running;
 	int currentSubTask = 0;
 	bool repeat;
 
 	Worker* assignee;
 	std::vector<Subtask*> subtasks;
+	Capital::CapitalAmounts rewardCapital;
 
 	Task(Worker* worker, std::initializer_list<Subtask*> subtasks);
 	Task(const Task& rhs);

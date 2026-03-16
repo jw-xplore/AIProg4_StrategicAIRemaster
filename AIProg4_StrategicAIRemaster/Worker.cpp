@@ -100,6 +100,8 @@ namespace WorkerTasks
 			}
 		);
 
+		task->rewardCapital.amounts[Capital::ECapitalType::Tree] = 1;
+
 		return task;
 	}
 
@@ -119,6 +121,8 @@ namespace WorkerTasks
 			new SubtaskDefinitions::DropItemSubtask(target)
 			}
 		);
+
+		task->rewardCapital.amounts[itemType] = 1;
 
 		return task;
 	}
