@@ -78,7 +78,7 @@ void RunGame()
         ClearBackground(BLACK);
         world.Draw();
 
-        pathfinding.DrawGraph();
+        //pathfinding.DrawGraph();
         if (path)
             DrawPath(path);
 

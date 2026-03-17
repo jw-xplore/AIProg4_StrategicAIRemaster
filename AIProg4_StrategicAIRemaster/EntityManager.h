@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "raylib.h"
+#include "Capital.h"
 
 enum EWorkerRole;
 class Worker;
@@ -23,5 +24,5 @@ public:
 
 	void AddPickup(Pickup* pickup);
 	void RemovePickup(Pickup* pickup);
-	Pickup* FindClosestPickup(Vector2 position);
+	Pickup* FindClosestPickup(Vector2 position, Capital::ECapitalType type);
 };

@@ -23,7 +23,10 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 		if (targetAmounts->amounts[i] <= 0)
 			continue;
 
-		int val = currentAmounts->amounts[i] + potentialAmounts->amounts[i];
+		int val = currentAmounts->amounts[i];
+
+		if (potentialAmounts)
+			val += potentialAmounts->amounts[i];
 
 		if (val < targetAmounts->amounts[i])
 		{

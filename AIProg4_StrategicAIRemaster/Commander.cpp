@@ -167,6 +167,8 @@ namespace CommanderGoals
 		entityManager->buildings.push_back(building);
 
 		// Setup decisions
+
+		// Resource checking and gathering actions
 		CommanderDecisions::HasResources* resourceCheck = new CommanderDecisions::HasResources();
 		decisionTree = resourceCheck;
 
@@ -175,12 +177,23 @@ namespace CommanderGoals
 		resourceCheck->potentialAmounts = potentialCapital;
 
 		resourceCheck->treeAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[](Worker* worker) { return WorkerTasks::FellTreeTask(worker); }
+			[*this](Worker* worker) {
+				// Pickup wood 
+				Task* deliverTask = WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, building);
+				if (deliverTask)
+					return deliverTask;
+
+				return WorkerTasks::FellTreeTask(worker);
+			}
 			);
 
 		resourceCheck->ironOreAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, building); }
+			[*this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, building); }
 		);
+
+		// Building
+		//resourceCheck->successAction = 
+
 	}
 
 	bool CreateBuidingGoal::Complete()

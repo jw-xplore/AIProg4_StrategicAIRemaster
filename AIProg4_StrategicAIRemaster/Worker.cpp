@@ -110,7 +110,9 @@ namespace WorkerTasks
 		SystemsHolder* systems = SystemsHolder::GetInstance();
 
 		// Find closest item
-		Pickup* item = systems->entityMananger->FindClosestPickup(worker->position);
+		Pickup* item = systems->entityMananger->FindClosestPickup(worker->position, itemType);
+		if (!item)
+			return nullptr;
 
 		// Setup subtasks
 		Task* task = new Task(worker,

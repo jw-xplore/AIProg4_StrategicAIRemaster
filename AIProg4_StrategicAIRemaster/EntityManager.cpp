@@ -94,7 +94,7 @@ void EntityManager::RemovePickup(Pickup* pickup)
 	pickups.erase(std::remove(pickups.begin(), pickups.end(), pickup), pickups.end());
 }
 
-Pickup* EntityManager::FindClosestPickup(Vector2 position)
+Pickup* EntityManager::FindClosestPickup(Vector2 position, Capital::ECapitalType type)
 {
 	Pickup* closestPickup = nullptr;
 	float closest = -1;
@@ -102,6 +102,9 @@ Pickup* EntityManager::FindClosestPickup(Vector2 position)
 	// TODO: Find closest pickup in relation to position and target (e.g. closest for Worker and target Building)
 	for (Pickup*& pickup : pickups)
 	{
+		if (pickup->type != type)
+			continue;
+
 		Vector2 diff = { pickup->position.x - position.x, pickup->position.y - position.y };
 
 		float dist = diff.x * diff.x + diff.y * diff.y;
