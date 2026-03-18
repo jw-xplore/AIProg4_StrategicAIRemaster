@@ -4,7 +4,7 @@
 Building::Building(EBuildingType type, Vector2 startPos)
 {
 	position = startPos;
-	standing = false;
+	state = EBuildingState::Preplaced;
 
 	this->type = type;
 	color = GREEN;
@@ -20,6 +20,9 @@ void Building::FinishBuilding()
 void Building::ProgressBuilding(float progress)
 {
 	creationCounter += progress;
+	state = EBuildingState::InProgress;
+	color = BLACK;
+
 	if (creationCounter < creationTarget)
 		return;
 
@@ -32,5 +35,5 @@ void Building::ProgressBuilding(float progress)
 	case EBuildingType::TrainingCamp: color = ORANGE; break;
 	}
 
-	standing = true;
+	state = EBuildingState::Finished;
 }

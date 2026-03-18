@@ -3,6 +3,10 @@
 #include "SystemsHolder.h"
 #include "Commander.h"
 #include "Task.h"
+#include "EntityManager.h"
+#include "Worker.h"
+#include "Building.h"
+#include <iostream>
 
 //--------------------------------------------------------------
 // Commander decisions
@@ -37,7 +41,7 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 	
 	// Nothing missing 
 	if (missing == Capital::ECapitalType::None)
-		return successAction;
+		return successAction->makeDecision();
 
 	// Apply behavior
 	switch (missing)
@@ -51,6 +55,40 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 	}
 
 	return successAction;
+}
+
+/// <summary>
+/// Check if there is enought workers of selected type
+/// </summary>
+bool CommanderDecisions::HasWorkersOfRole::pass()
+{
+	EntityManager* entityManager = SystemsHolder::GetInstance()->entityMananger;
+
+	int count = 0;
+
+	for (Worker& worker : entityManager->workers)
+	{
+		if (worker.role == this->role)
+			count++;
+
+		if (count >= this->amount)
+			return true;
+	}
+
+	return false;
+}
+
+/// <summary>
+/// Just compare building state value
+/// </summary>
+/// <returns></returns>
+bool CommanderDecisions::BuidingHasState::pass()
+{
+	// Check finish debug 
+	if (state == EBuildingState::Finished && building->state == this->state)
+		std::cout << "Building finished! \n";
+
+	return building->state == this->state;
 }
 
 //--------------------------------------------------------------

@@ -114,7 +114,7 @@
         {
             "name" : "Build Coal mile",
             "time" : 60,
-            "trees" : 10,
+            "trees" : 2,
             "coal" : 0,
             "ironOre" : 0,
             "ironBar" : 0,

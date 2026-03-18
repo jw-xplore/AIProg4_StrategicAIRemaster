@@ -35,7 +35,7 @@ void Worker::Update(float dTime)
 void Worker::Render()
 {
 	Vector2 pos = position;
-	DrawCircle(pos.x, pos.y, Worker::WORKER_SIZE, Worker::WORKER_COLOR);
+	DrawCircle(pos.x, pos.y, Worker::WORKER_SIZE, coloring);
 }
 
 void Worker::SetNewPath(std::vector<Vector2> newPath)
@@ -157,6 +157,7 @@ namespace WorkerTasks
 	{
 		// Building task
 		float time = GameDB::Database::Instance()->actionCostsBuilding[building->type].time;
+		building->state = EBuildingState::InProgress;
 
 		// Setup task
 		Task* task = new Task(worker,

@@ -3,10 +3,12 @@
 #include <functional>
 
 class Commander;
-enum EWorkerRole;
 class Building;
 class Task;
 class Worker;
+
+enum EWorkerRole;
+enum EBuildingState;
 
 //--------------------------------------------------------------
 // Commander decisions
@@ -26,7 +28,7 @@ namespace CommanderDecisions
 	class HasResources : public DecisionTreeNode
 	{
 	public:
-		Action* successAction;
+		DecisionTreeNode* successAction;
 		Action* treeAction;
 		Action* coalAction;
 		Action* ironOreAction;
@@ -41,20 +43,15 @@ namespace CommanderDecisions
 	};
 
 	/// <summary>
-	/// Checks if building is standing
+	/// Checks current building status - Finished? In Progress? Just preplaced?
 	/// </summary>
-	class BuildingIsPreplaced : public Decision
-	{
-	public:
-		
-		DecisionTreeNode* makeDecision() override;
-	};
-
-	class BuildingIsFinished : public Decision
+	class BuidingHasState : public Decision
 	{
 	public:
 		Building* building;
-		BuildingIsFinished(Building* building): building(building) {}
+		EBuildingState state;
+
+		BuidingHasState(Building* building, EBuildingState state): building(building), state(state) {}
 		bool pass() override;
 	};
 
@@ -65,7 +62,7 @@ namespace CommanderDecisions
 		int amount;
 
 		HasWorkersOfRole(EWorkerRole role, int amount): role(role), amount(amount) {}
-		DecisionTreeNode* makeDecision() override;
+		bool pass() override;
 	};
 
 

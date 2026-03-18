@@ -29,6 +29,7 @@ public:
 
 	EWorkerRole role = EWorkerRole::General;
 	Capital::ECapitalType carriedMaterial = Capital::ECapitalType::None;
+	Color coloring = WORKER_COLOR;
 
 	// Transform
 	Vector2 position;

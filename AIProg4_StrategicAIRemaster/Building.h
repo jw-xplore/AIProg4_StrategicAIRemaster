@@ -19,6 +19,13 @@ enum EBuildingType
 	EBuildingTypeCount
 };
 
+enum EBuildingState
+{
+	Preplaced,
+	InProgress,
+	Finished
+};
+
 /*
 struct CapitalReservation
 {
@@ -34,7 +41,8 @@ public:
 	Capital::CapitalAmounts storedCapital;
 	float creationTarget;
 	float creationCounter = 0;
-	bool standing = false; // Building which is not standing is yet to be build
+	EBuildingState state = EBuildingState::Preplaced;
+	//bool standing = false; // Building which is not standing is yet to be build
 	//std::vector<CapitalReservation> capitalReservations;
 
 	Vector2 position;

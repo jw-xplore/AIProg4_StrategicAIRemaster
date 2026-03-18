@@ -105,15 +105,24 @@ ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
 		// Done
 		worker.role = role;
 
-		EntityManager* entMngr = SystemsHolder::GetInstance()->entityMananger;
-		entMngr->workersRoleFilter[EWorkerRole::General].erase(std::remove(entMngr->workersRoleFilter->begin(), entMngr->workersRoleFilter->end(), &worker));
-		entMngr->workersRoleFilter[role].push_back(&worker);
+		// Change coloring
+		switch (role)
+		{
+		case EWorkerRole::Builder: worker.coloring = YELLOW; break;
+		}
+
+		// TODO: Check filter logic
+		//EntityManager* entMngr = SystemsHolder::GetInstance()->entityMananger;
+		//entMngr->workersRoleFilter[EWorkerRole::General].erase(std::remove(entMngr->workersRoleFilter->begin(), entMngr->workersRoleFilter->end(), &worker));
+		//entMngr->workersRoleFilter[role].push_back(&worker);
 
 		return ESubtaskState::Finnished;
 	}
 
 	// Run 
 	timer += dTime;
+	worker.role = role;
+	worker.coloring = BLACK;
 	return ESubtaskState::Running;
 }
 

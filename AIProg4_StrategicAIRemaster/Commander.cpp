@@ -168,9 +168,18 @@ namespace CommanderGoals
 
 		// Setup decisions
 
+		// Is building finished?
+		CommanderDecisions::BuidingHasState* finishedCheck = new CommanderDecisions::BuidingHasState(
+			building, EBuildingState::Finished
+		);
+
+		decisionTree = finishedCheck;
+		// TODO: Finish goal on building finished
+
 		// Resource checking and gathering actions
 		CommanderDecisions::HasResources* resourceCheck = new CommanderDecisions::HasResources();
-		decisionTree = resourceCheck;
+		finishedCheck->negative = resourceCheck;
+		finishedCheck->positive = new Action(); // Placeholder
 
 		resourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
 		resourceCheck->currentAmounts = &building->storedCapital; // Current amounts should be evaluated with potential capital
@@ -191,9 +200,38 @@ namespace CommanderGoals
 			[*this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, building); }
 		);
 
-		// Building
-		//resourceCheck->successAction = 
 
+		// Building
+		CommanderDecisions::HasResources* realResourceCheck = new CommanderDecisions::HasResources();
+		realResourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
+		realResourceCheck->currentAmounts = &building->storedCapital;
+
+		resourceCheck->successAction = realResourceCheck;
+		
+		// Train builder check
+		CommanderDecisions::HasWorkersOfRole* workersRoleCheck = new CommanderDecisions::HasWorkersOfRole(
+			EWorkerRole::Builder, 1
+		);
+
+		realResourceCheck->successAction = workersRoleCheck;
+
+		workersRoleCheck->negative = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+			[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Builder); }
+		);
+
+		// Check building is being builded
+		CommanderDecisions::BuidingHasState* inProgressStateCheck = new CommanderDecisions::BuidingHasState(
+			building, EBuildingState::InProgress
+		);
+
+		workersRoleCheck->positive = inProgressStateCheck;
+
+		// Start building
+		inProgressStateCheck->negative = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+			[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, building); }
+		);
+
+		inProgressStateCheck->positive = new Action(); // Empty action, finishing resolve in top
 	}
 
 	bool CreateBuidingGoal::Complete()
