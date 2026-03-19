@@ -101,6 +101,7 @@ namespace WorkerTasks
 		);
 
 		task->rewardCapital.amounts[Capital::ECapitalType::Tree] = 1;
+		treesTile->reservations++;
 
 		return task;
 	}
@@ -131,6 +132,8 @@ namespace WorkerTasks
 
 	Task* TrainForRoleTask(Worker* worker, EWorkerRole role)
 	{
+		worker->trainedRole = role;
+
 		// Find training time
 		GameDB::EActionTraining trainingType = GameDB::EActionTraining::TrainScout;
 		switch (role)

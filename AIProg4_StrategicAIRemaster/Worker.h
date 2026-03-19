@@ -11,6 +11,7 @@ class Task;
 
 enum EWorkerRole
 {
+	None = -1,
 	General,
 	Scout,
 	CoalMiner,
@@ -28,6 +29,7 @@ public:
 	const Color WORKER_COLOR = RED;
 
 	EWorkerRole role = EWorkerRole::General;
+	EWorkerRole trainedRole = EWorkerRole::None;
 	Capital::ECapitalType carriedMaterial = Capital::ECapitalType::None;
 	Color coloring = WORKER_COLOR;
 

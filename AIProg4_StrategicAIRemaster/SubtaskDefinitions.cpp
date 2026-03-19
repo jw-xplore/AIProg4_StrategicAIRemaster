@@ -70,6 +70,7 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 		if (treesTile->amount <= 0)
 			SystemsHolder::GetInstance()->world->RemoveTreeTile(treesTile);
 
+		treesTile->reservations--;
 		return ESubtaskState::Finnished;
 	}
 
@@ -116,12 +117,12 @@ ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
 		//entMngr->workersRoleFilter[EWorkerRole::General].erase(std::remove(entMngr->workersRoleFilter->begin(), entMngr->workersRoleFilter->end(), &worker));
 		//entMngr->workersRoleFilter[role].push_back(&worker);
 
+		worker.trainedRole = EWorkerRole::None;
 		return ESubtaskState::Finnished;
 	}
 
 	// Run 
 	timer += dTime;
-	worker.role = role;
 	worker.coloring = BLACK;
 	return ESubtaskState::Running;
 }

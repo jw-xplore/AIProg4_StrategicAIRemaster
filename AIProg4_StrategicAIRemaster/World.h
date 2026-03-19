@@ -27,6 +27,7 @@ struct Vector2Int
 struct TreesTile
 {
     int x, y, amount;
+    int reservations = 0;
     Vector2Int* treePositions;
 
     TreesTile(int tileX, int tileY, int count, int range)

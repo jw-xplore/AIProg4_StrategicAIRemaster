@@ -68,7 +68,7 @@ bool CommanderDecisions::HasWorkersOfRole::pass()
 
 	for (Worker& worker : entityManager->workers)
 	{
-		if (worker.role == this->role)
+		if (worker.role == this->role || worker.trainedRole == this->role)
 			count++;
 
 		if (count >= this->amount)

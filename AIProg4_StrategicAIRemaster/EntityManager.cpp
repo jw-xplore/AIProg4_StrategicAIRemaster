@@ -105,6 +105,9 @@ Pickup* EntityManager::FindClosestPickup(Vector2 position, Capital::ECapitalType
 		if (pickup->type != type)
 			continue;
 
+		if (pickup->reserved)
+			continue;
+
 		Vector2 diff = { pickup->position.x - position.x, pickup->position.y - position.y };
 
 		float dist = diff.x * diff.x + diff.y * diff.y;

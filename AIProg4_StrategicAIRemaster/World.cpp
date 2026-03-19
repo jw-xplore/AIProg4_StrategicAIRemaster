@@ -226,6 +226,10 @@ TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
 
     for (TreesTile& tile : treeTiles)
     {
+        // Ignore tile that will be empty
+        if (tile.amount - tile.reservations <= 0)
+            continue;
+
         Vector2Int diff = { tile.x - currentTile.x, tile.y - currentTile.y };
 
         float dist = diff.x * diff.x + diff.y * diff.y;

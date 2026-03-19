@@ -15,6 +15,7 @@ public:
 	Vector2 position;
 	Vector2 size;
 	Color color;
+	bool reserved = false;
 	//Worker* reservedBy;
 
 	Pickup() {}

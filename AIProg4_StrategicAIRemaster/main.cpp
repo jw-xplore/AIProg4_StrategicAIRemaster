@@ -65,6 +65,15 @@ void RunGame()
     //std::vector<Node>* path = {};
     int frameCount = 0;
 
+    //SetWindowPosition(10, 0);
+
+    Camera2D camera = { 0 };
+    camera.target = { 0,0};
+    camera.offset = { 0,0 };
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
+
     // Gameloop
     while (!WindowShouldClose())
     {
@@ -75,6 +84,7 @@ void RunGame()
 
         // Rendering
         BeginDrawing();
+        BeginMode2D(camera);
         ClearBackground(BLACK);
         world.Draw();
 

@@ -227,7 +227,7 @@ namespace CommanderGoals
 		workersRoleCheck->positive = inProgressStateCheck;
 
 		// Start building
-		inProgressStateCheck->negative = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+		inProgressStateCheck->negative = new CommanderDecisions::AssignTaskAction(EWorkerRole::Builder,
 			[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, building); }
 		);
 
