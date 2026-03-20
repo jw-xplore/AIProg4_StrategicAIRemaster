@@ -2,6 +2,7 @@
 #include <vector>
 #include <functional>
 #include "Capital.h"
+#include <string>
 
 class Worker;
 
@@ -34,6 +35,7 @@ public:
 	bool running;
 	int currentSubTask = 0;
 	bool repeat;
+	std::string name = "";
 
 	Worker* assignee;
 	std::vector<Subtask*> subtasks;

@@ -100,6 +100,7 @@ namespace WorkerTasks
 			}
 		);
 
+		task->name = "FellTree";
 		task->rewardCapital.amounts[Capital::ECapitalType::Tree] = 1;
 		treesTile->reservations++;
 
@@ -125,6 +126,7 @@ namespace WorkerTasks
 			}
 		);
 
+		task->name = "Deliver " + std::to_string(itemType);
 		task->rewardCapital.amounts[itemType] = 1;
 
 		return task;
@@ -153,6 +155,8 @@ namespace WorkerTasks
 			}
 		);
 
+		task->name = "Train " + std::to_string(role);
+
 		return task;
 	}
 
@@ -170,6 +174,7 @@ namespace WorkerTasks
 			}
 		);
 
+		task->name = "Build " + std::to_string(building->type);
 		return task;
 	}
 }

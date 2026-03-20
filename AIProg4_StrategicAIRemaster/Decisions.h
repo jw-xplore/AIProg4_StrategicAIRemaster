@@ -3,6 +3,10 @@
 #include <functional>
 
 class Commander;
+namespace CommanderGoals {
+	class CommanderGoal;
+}
+
 class Building;
 class Task;
 class Worker;
@@ -55,6 +59,9 @@ namespace CommanderDecisions
 		bool pass() override;
 	};
 
+	/// <summary>
+	/// Check if there exits enough worker of selected role
+	/// </summary>
 	class HasWorkersOfRole : public Decision
 	{
 	public:
@@ -64,7 +71,6 @@ namespace CommanderDecisions
 		HasWorkersOfRole(EWorkerRole role, int amount): role(role), amount(amount) {}
 		bool pass() override;
 	};
-
 
 	//--------------------------------------------------------------
 	// Actions

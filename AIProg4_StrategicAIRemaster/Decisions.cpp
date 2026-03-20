@@ -84,10 +84,6 @@ bool CommanderDecisions::HasWorkersOfRole::pass()
 /// <returns></returns>
 bool CommanderDecisions::BuidingHasState::pass()
 {
-	// Check finish debug 
-	if (state == EBuildingState::Finished && building->state == this->state)
-		std::cout << "Building finished! \n";
-
 	return building->state == this->state;
 }
 

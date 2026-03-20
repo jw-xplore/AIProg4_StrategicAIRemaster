@@ -25,6 +25,11 @@ class DecisionTreeNode;
 class Commander;
 class Building;
 
+namespace CommanderDecisions
+{
+	class HasResources;
+}
+
 //--------------------------------------------------------------
 // Commander goals
 //--------------------------------------------------------------
@@ -44,7 +49,7 @@ namespace CommanderGoals
 		~CommanderGoal() {}
 
 		virtual void Setup() {}
-		virtual bool Complete() { return true; }
+		virtual bool Complete() { return false; }
 	};
 
 	// Do basic setup
@@ -75,6 +80,8 @@ namespace CommanderGoals
 
 		void Setup() override;
 		bool Complete() override;
+
+		CommanderDecisions::HasResources* DefineResourceTree();
 	};
 
 	class GatherGoal : public CommanderGoal
@@ -108,7 +115,7 @@ struct CommnaderStatictics
 class Commander
 {
 public:
-	std::vector<CommanderGoals::CommanderGoal> goals;
+	std::vector<CommanderGoals::CommanderGoal*> goals;
 	int currentGoal = 0;
 
 	std::map<Worker*, Task*> workerTaskMap;
@@ -129,6 +136,7 @@ public:
 
 	void Update(float dTime);
 	void UpdatePlan();
+	void DebugDraw();
 
 	Worker* FindFreeWorker(EWorkerRole roleConstrain);
 	void AssignTask(Worker* worker, CommanderGoals::CommanderGoal* goal, Task* task);

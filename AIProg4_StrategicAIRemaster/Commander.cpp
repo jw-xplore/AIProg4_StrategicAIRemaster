@@ -33,7 +33,7 @@ Commander::Commander()
 		workerGoalMap[&worker] = nullptr;
 	}
 
-	goals.push_back(CommanderGoals::CreateBuidingGoal(this, EBuildingType::CoalMile));
+	goals.push_back(new CommanderGoals::CreateBuidingGoal(this, EBuildingType::CoalMile));
 }
 
 Commander::~Commander()
@@ -61,7 +61,7 @@ void Commander::Update(float dTime)
 		if (wTask.second->finished)
 		{
 			// Finished - Remove
-			*goals[currentGoal].potentialCapital -= wTask.second->rewardCapital;
+			*goals[currentGoal]->potentialCapital -= wTask.second->rewardCapital;
 			wTask.second = nullptr;
 			continue;
 		}
@@ -72,28 +72,20 @@ void Commander::Update(float dTime)
 
 void Commander::UpdatePlan()
 {
-	// Count potential capital - TODO: Do this calculation only on task add/remove
-	/*
-	goals[currentGoal].potentialCapital->Empty();
-
-	for (auto& wTask : workerTaskMap)
-	{
-		if (!wTask.second)
-			continue;
-
-		*goals[currentGoal].potentialCapital += wTask.second->rewardCapital;
-	}
-	*/
-
-	//std::cout << "Wood potential: " << goals[currentGoal].potentialCapital[Capital::ECapitalType::Tree] << "\n";
-
 	// Run current goal decision tree
 	for (Worker& worker : entityManager->workers)
 	{
+		if (goals[currentGoal]->Complete())
+		{
+			// Progress to next 
+			currentGoal++;
+			return;
+		}
+
 		if (workerTaskMap[&worker] != nullptr)
 			continue;
 
-		Action* action = dynamic_cast<Action*>(goals[currentGoal].decisionTree->makeDecision());
+		Action* action = dynamic_cast<Action*>(goals[currentGoal]->decisionTree->makeDecision());
 		if (action)
 			action->execute();
 	}
@@ -102,6 +94,19 @@ void Commander::UpdatePlan()
 	// Add to pending tasks
 
 	// Distribute pending tasks to active if workers are available
+}
+
+void Commander::DebugDraw()
+{
+	for (auto& wTask : workerTaskMap)
+	{
+		if (!wTask.second)
+			continue;
+
+		// Task debug
+		std::string str = wTask.second->name;
+		DrawText(str.c_str(), wTask.first->position.x, wTask.first->position.y, 5, WHITE);
+	}
 }
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
@@ -128,7 +133,7 @@ void Commander::AssignTask(Worker* worker, CommanderGoals::CommanderGoal* goal, 
 
 	task->assignee = worker;
 
-	*goals[currentGoal].potentialCapital += task->rewardCapital;
+	*goals[currentGoal]->potentialCapital += task->rewardCapital;
 }
 
 //--------------------------------------------------------------
@@ -177,31 +182,11 @@ namespace CommanderGoals
 		// TODO: Finish goal on building finished
 
 		// Resource checking and gathering actions
-		CommanderDecisions::HasResources* resourceCheck = new CommanderDecisions::HasResources();
+		CommanderDecisions::HasResources* resourceCheck = DefineResourceTree();
 		finishedCheck->negative = resourceCheck;
 		finishedCheck->positive = new Action(); // Placeholder
 
-		resourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
-		resourceCheck->currentAmounts = &building->storedCapital; // Current amounts should be evaluated with potential capital
-		resourceCheck->potentialAmounts = potentialCapital;
-
-		resourceCheck->treeAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[*this](Worker* worker) {
-				// Pickup wood 
-				Task* deliverTask = WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, building);
-				if (deliverTask)
-					return deliverTask;
-
-				return WorkerTasks::FellTreeTask(worker);
-			}
-			);
-
-		resourceCheck->ironOreAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[*this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, building); }
-		);
-
-
-		// Building
+		// Real resource check - Confirm that building contains required resources without potential capital
 		CommanderDecisions::HasResources* realResourceCheck = new CommanderDecisions::HasResources();
 		realResourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
 		realResourceCheck->currentAmounts = &building->storedCapital;
@@ -234,8 +219,40 @@ namespace CommanderGoals
 		inProgressStateCheck->positive = new Action(); // Empty action, finishing resolve in top
 	}
 
+	CommanderDecisions::HasResources* CreateBuidingGoal::DefineResourceTree()
+	{
+		CommanderDecisions::HasResources* resourceCheck = new CommanderDecisions::HasResources();
+		//finishedCheck->negative = resourceCheck;
+		//finishedCheck->positive = new Action(); // Placeholder
+
+		resourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
+		resourceCheck->currentAmounts = &building->storedCapital; // Current amounts should be evaluated with potential capital
+		resourceCheck->potentialAmounts = potentialCapital;
+
+		resourceCheck->treeAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+			[*this](Worker* worker) {
+				// Pickup wood 
+				Task* deliverTask = WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, this->building);
+				if (deliverTask)
+					return deliverTask;
+
+				// Fell tree
+				return WorkerTasks::FellTreeTask(worker);
+			}
+		);
+
+		resourceCheck->ironOreAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
+			[*this](Worker* worker) {
+				return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, this->building);
+			}
+		);
+
+		// End
+		return resourceCheck;
+	}
+
 	bool CreateBuidingGoal::Complete()
 	{
-		return true;
+		return building->state == EBuildingState::Finished;
 	}
 }

@@ -11,8 +11,11 @@
 #include "raymath.h"
 #include "SystemsHolder.h"
 #include "Commander.h"
+#include "Camera.h"
 
 extern float TIME_SCALE = 1;
+
+CustomCamera cam;
 
 /*
 Debug
@@ -37,12 +40,17 @@ void AdjustTimeScale()
     // Show time
     std::string strTime = "Time scale: " + std::to_string(TIME_SCALE);
     char const* cTime = strTime.c_str();
-    DrawText(cTime, 50, 10, 16, YELLOW);
+    DrawText(cTime, 50 + cam.camera.target.x, 10 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
 
     // Show FPS
     std::string strFPS = "FPS: " + std::to_string(1 / GetFrameTime());
     char const* cFPS = strFPS.c_str();
-    DrawText(cFPS, 50, 30, 16, YELLOW);
+    DrawText(cFPS, 50 + cam.camera.target.x, 30 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
+
+    // Camera zoom
+    std::string strZoom = "Zoom: " + std::to_string(cam.camera.zoom) + "x";
+    char const* cZoom = strZoom.c_str();
+    DrawText(cZoom, 50 + cam.camera.target.x, 50 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
 }
 
 // Game functionality
@@ -55,6 +63,7 @@ void RunGame()
     EntityManager entityManager = EntityManager();
     SystemsHolder::GetInstance()->Init(&world, &entityManager, &pathfinding);
     Commander commander = Commander();
+    cam = CustomCamera();
 
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
@@ -65,14 +74,13 @@ void RunGame()
     //std::vector<Node>* path = {};
     int frameCount = 0;
 
-    //SetWindowPosition(10, 0);
-
+    /*
     Camera2D camera = { 0 };
     camera.target = { 0,0};
     camera.offset = { 0,0 };
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
-
+    */
 
     // Gameloop
     while (!WindowShouldClose())
@@ -84,7 +92,8 @@ void RunGame()
 
         // Rendering
         BeginDrawing();
-        BeginMode2D(camera);
+        //BeginMode2D(camera);
+        cam.Update(dt);
         ClearBackground(BLACK);
         world.Draw();
 
@@ -96,6 +105,9 @@ void RunGame()
 
         AdjustTimeScale();
         //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
+
+        // Debug drawing
+        commander.DebugDraw();
 
         EndDrawing();
         //return;
