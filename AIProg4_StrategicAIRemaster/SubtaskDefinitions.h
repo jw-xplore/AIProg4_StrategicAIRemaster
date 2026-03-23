@@ -65,6 +65,16 @@ namespace SubtaskDefinitions
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
+	class PickupFromBuildingSubtask : public Subtask
+	{
+	public:
+		Building* building;
+		Capital::ECapitalType type;
+
+		PickupFromBuildingSubtask(Building* building, Capital::ECapitalType type) : building(building), type(type) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
 	/// <summary>
 	/// Turns workers carried material into pickup
 	/// </summary>

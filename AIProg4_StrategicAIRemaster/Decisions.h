@@ -46,6 +46,16 @@ namespace CommanderDecisions
 		DecisionTreeNode* makeDecision() override;
 	};
 
+	class HasSpecificResource : public Decision
+	{
+	public:
+		Capital::ECapitalType type;
+		Building* building;
+		
+		HasSpecificResource(Capital::ECapitalType type, Building* building): type(type), building(building) {}
+		bool pass() override;
+	};
+
 	/// <summary>
 	/// Checks current building status - Finished? In Progress? Just preplaced?
 	/// </summary>

@@ -39,6 +39,7 @@ class Building
 public:
 	EBuildingType type;
 	Capital::CapitalAmounts storedCapital;
+	Capital::CapitalAmounts reservedCapital;
 	float creationTarget;
 	float creationCounter = 0;
 	EBuildingState state = EBuildingState::Preplaced;

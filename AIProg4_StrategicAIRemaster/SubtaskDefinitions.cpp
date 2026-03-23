@@ -89,6 +89,17 @@ ESubtaskState PickupSubtask::Execute(Worker& worker, float dTime)
 	return ESubtaskState::Finnished;
 }
 
+ESubtaskState PickupFromBuildingSubtask::Execute(Worker& worker, float dTime)
+{
+	if (worker.carriedMaterial != Capital::ECapitalType::None)
+		return ESubtaskState::Canceled;
+
+	worker.carriedMaterial = type;
+	building->storedCapital.amounts[type] -= 1;
+	building->storedCapital.amounts[type] -= 1;
+	return ESubtaskState::Finnished;
+}
+
 ESubtaskState DropItemSubtask::Execute(Worker& worker, float dTime)
 {
 	if (worker.carriedMaterial == Capital::ECapitalType::None)

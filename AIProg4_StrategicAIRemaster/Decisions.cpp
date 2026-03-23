@@ -58,6 +58,15 @@ DecisionTreeNode* CommanderDecisions::HasResources::makeDecision()
 }
 
 /// <summary>
+/// Check if specific building contains one unit of selected capital type
+/// </summary>
+/// <returns></returns>
+bool CommanderDecisions::HasSpecificResource::pass()
+{
+	return building->GetAvailableCapital().amounts[type] > 0;
+}
+
+/// <summary>
 /// Check if there is enought workers of selected type
 /// </summary>
 bool CommanderDecisions::HasWorkersOfRole::pass()
@@ -84,6 +93,9 @@ bool CommanderDecisions::HasWorkersOfRole::pass()
 /// <returns></returns>
 bool CommanderDecisions::BuidingHasState::pass()
 {
+	if (!building)
+		return false;
+
 	return building->state == this->state;
 }
 

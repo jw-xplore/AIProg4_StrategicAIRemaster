@@ -229,6 +229,7 @@ namespace CommanderGoals
 		resourceCheck->currentAmounts = &building->storedCapital; // Current amounts should be evaluated with potential capital
 		resourceCheck->potentialAmounts = potentialCapital;
 
+		// Gathering trees
 		resourceCheck->treeAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
 			[*this](Worker* worker) {
 				// Pickup wood 
@@ -241,6 +242,7 @@ namespace CommanderGoals
 			}
 		);
 
+		// Gathering iron
 		resourceCheck->ironOreAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
 			[*this](Worker* worker) {
 				return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, this->building);
@@ -249,6 +251,31 @@ namespace CommanderGoals
 
 		// End
 		return resourceCheck;
+	}
+
+	Decision* CreateBuidingGoal::DefineResourceDecision(Building* requiredBuilding, Capital::ECapitalType requiredCapital, EWorkerRole requiredRole)
+	{
+		// Check building exists
+		CommanderDecisions::BuidingHasState* buildingExistDecision = new CommanderDecisions::BuidingHasState(requiredBuilding, EBuildingState::Finished);
+		buildingExistDecision->negative = new Action(); // Should be wait until building goal is done
+
+		// Has at least one free capital of required type?
+		CommanderDecisions::HasSpecificResource* resourceCheck = new CommanderDecisions::HasSpecificResource(requiredCapital, requiredBuilding);
+		buildingExistDecision->positive = resourceCheck;
+
+		resourceCheck->positive = new CommanderDecisions::AssignTaskAction(requiredRole,
+			[*this, &requiredBuilding, &requiredCapital](Worker* worker) {
+				return WorkerTasks::DeliverFromBuildingTask(worker, requiredCapital, requiredBuilding, this->building);
+			}
+		);
+
+		// Has worker of specific role?
+		CommanderDecisions::HasWorkersOfRole* roleCheck = new CommanderDecisions::HasWorkersOfRole(requiredRole, 1);
+		resourceCheck->negative = roleCheck;
+
+		roleCheck->negative = new CommanderDecisions::AssignTaskAction(requiredRole,
+			[*this, &requiredRole](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, requiredRole); }
+		);
 	}
 
 	bool CreateBuidingGoal::Complete()

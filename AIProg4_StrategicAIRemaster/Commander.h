@@ -21,6 +21,7 @@ class PathFinding;
 
 class EntityManager;
 class DecisionTreeNode;
+class Decision;
 
 class Commander;
 class Building;
@@ -82,6 +83,7 @@ namespace CommanderGoals
 		bool Complete() override;
 
 		CommanderDecisions::HasResources* DefineResourceTree();
+		Decision* DefineResourceDecision(Building* requiredBuilding, Capital::ECapitalType requiredCapital, EWorkerRole requiredRole);
 	};
 
 	class GatherGoal : public CommanderGoal
@@ -105,16 +107,22 @@ namespace CommanderGoals
 // Commander
 //--------------------------------------------------------------
 
-struct CommnaderStatictics
+struct CommnaderStateTracking
 {
 	// Tracks game state from commnader perspective
 	int scoutsAmount;
 	
+	// Buildings
+	Building* coalMile;
+	Building* arsmithsForge;
+	Building* smelter;
+	Building* trainingCamp;
 };
 
 class Commander
 {
 public:
+	CommnaderStateTracking stateTracking;
 	std::vector<CommanderGoals::CommanderGoal*> goals;
 	int currentGoal = 0;
 

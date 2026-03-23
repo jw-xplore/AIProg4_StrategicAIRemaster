@@ -132,6 +132,33 @@ namespace WorkerTasks
 		return task;
 	}
 
+	Task* DeliverFromBuildingTask(Worker* worker, Capital::ECapitalType itemType, Building* from, Building* target)
+	{
+		SystemsHolder* systems = SystemsHolder::GetInstance();
+
+		// Check availability
+		if (from->GetAvailableCapital()[itemType] <= 0)
+			return nullptr;
+
+		// Reserve capital
+		from->reservedCapital.amounts[itemType] += 1;
+
+		// Setup subtasks
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::MoveToSubtask(from->position),
+			new SubtaskDefinitions::PickupFromBuildingSubtask(from, itemType),
+			new SubtaskDefinitions::MoveToSubtask(target->position),
+			new SubtaskDefinitions::DropItemSubtask(target)
+			}
+		);
+
+		task->name = "Deliver " + std::to_string(itemType);
+		task->rewardCapital.amounts[itemType] = 1;
+
+		return task;
+	}
+
 	Task* TrainForRoleTask(Worker* worker, EWorkerRole role)
 	{
 		worker->trainedRole = role;

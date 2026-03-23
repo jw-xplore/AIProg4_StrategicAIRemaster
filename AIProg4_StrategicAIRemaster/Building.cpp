@@ -37,3 +37,11 @@ void Building::ProgressBuilding(float progress)
 
 	state = EBuildingState::Finished;
 }
+
+Capital::CapitalAmounts Building::GetAvailableCapital()
+{
+	Capital::CapitalAmounts availabe = storedCapital;
+	availabe -= reservedCapital;
+
+	return availabe;
+}
