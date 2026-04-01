@@ -139,7 +139,6 @@
     <ClCompile Include="Capital.cpp" />
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="Database.cpp" />
-    <ClCompile Include="Decisions.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathFinding.cpp" />
@@ -158,8 +157,6 @@
     <ClInclude Include="Commander.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Database.h" />
-    <ClInclude Include="Decisions.h" />
-    <ClInclude Include="DecisionTree.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="Json.hpp" />
     <ClInclude Include="PathFinding.h" />

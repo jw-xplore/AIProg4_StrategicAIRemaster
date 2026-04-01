@@ -8,8 +8,6 @@
 #include "World.h"
 #include "Constants.h"
 #include "PathFinding.h"
-#include "DecisionTree.h"
-#include "Decisions.h"
 #include "Database.h"
 #include <iostream>
 
@@ -21,19 +19,6 @@ Commander::Commander()
 	SystemsHolder* systemsHolder = SystemsHolder::GetInstance();
 	systemsHolder->commander = this;
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
-
-	// Test building
-	//Building* coalMile = new Building(EBuildingType::CoalMile, World::TileToCenterPosition({ 15, 14 }));
-	//entityManager->buildings.push_back(coalMile);
-
-	// Test worker action
-	for (Worker& worker : entityManager->workers)
-	{
-		workerTaskMap[&worker] = nullptr;
-		workerGoalMap[&worker] = nullptr;
-	}
-
-	goals.push_back(new CommanderGoals::CreateBuidingGoal(this, EBuildingType::CoalMile));
 }
 
 Commander::~Commander()
@@ -51,53 +36,19 @@ void Commander::Update(float dTime)
 		UpdatePlan();
 		replanTimer = 0;
 	}
-
-	// Update tasks
-	for (auto& wTask : workerTaskMap)
-	{
-		if (!wTask.second)
-			continue;
-
-		if (wTask.second->finished)
-		{
-			// Finished - Remove
-			*goals[currentGoal]->potentialCapital -= wTask.second->rewardCapital;
-			wTask.second = nullptr;
-			continue;
-		}
-
-		wTask.second->Update(dTime);
-	}
 }
 
 void Commander::UpdatePlan()
 {
-	// Run current goal decision tree
+
 	for (Worker& worker : entityManager->workers)
 	{
-		if (goals[currentGoal]->Complete())
-		{
-			// Progress to next 
-			currentGoal++;
-			return;
-		}
-
-		if (workerTaskMap[&worker] != nullptr)
-			continue;
-
-		Action* action = dynamic_cast<Action*>(goals[currentGoal]->decisionTree->makeDecision());
-		if (action)
-			action->execute();
 	}
-
-	// TODO:
-	// Add to pending tasks
-
-	// Distribute pending tasks to active if workers are available
 }
 
 void Commander::DebugDraw()
 {
+	/*
 	for (auto& wTask : workerTaskMap)
 	{
 		if (!wTask.second)
@@ -107,12 +58,14 @@ void Commander::DebugDraw()
 		std::string str = wTask.second->name;
 		DrawText(str.c_str(), wTask.first->position.x, wTask.first->position.y, 5, WHITE);
 	}
+	*/
 }
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 {
 	for (Worker& worker : entityManager->workers)
 	{
+		/*
 		// Get free worker
 		if (workerTaskMap[&worker] == nullptr)
 		{
@@ -121,165 +74,8 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 			return &worker;
 		}
+		*/
 	}
 
 	return nullptr;
-}
-
-void Commander::AssignTask(Worker* worker, CommanderGoals::CommanderGoal* goal, Task* task)
-{
-	workerTaskMap[worker] = task;
-	workerGoalMap[worker] = goal;
-
-	task->assignee = worker;
-
-	*goals[currentGoal]->potentialCapital += task->rewardCapital;
-}
-
-//--------------------------------------------------------------
-// Commander goals
-//--------------------------------------------------------------
-
-namespace CommanderGoals
-{
-	//--------------------------------------------------------------
-	// Warmup
-	//--------------------------------------------------------------
-
-	void WarmupGoal::Setup()
-	{
-		// Create scouts and builder
-
-		// Send others for wood
-	}
-
-	bool WarmupGoal::Complete()
-	{
-		return true;
-	}
-
-	//--------------------------------------------------------------
-	// Create building
-	//--------------------------------------------------------------
-
-	void CreateBuidingGoal::Setup()
-	{
-		SystemsHolder* systemsHolder = SystemsHolder::GetInstance();
-		EntityManager* entityManager = SystemsHolder::GetInstance()->entityMananger;
-
-		// Preplace building
-		building = new Building(buildingType, World::TileToCenterPosition({ 15, 14 }));
-		entityManager->buildings.push_back(building);
-
-		// Setup decisions
-
-		// Is building finished?
-		CommanderDecisions::BuidingHasState* finishedCheck = new CommanderDecisions::BuidingHasState(
-			building, EBuildingState::Finished
-		);
-
-		decisionTree = finishedCheck;
-		// TODO: Finish goal on building finished
-
-		// Resource checking and gathering actions
-		CommanderDecisions::HasResources* resourceCheck = DefineResourceTree();
-		finishedCheck->negative = resourceCheck;
-		finishedCheck->positive = new Action(); // Placeholder
-
-		// Real resource check - Confirm that building contains required resources without potential capital
-		CommanderDecisions::HasResources* realResourceCheck = new CommanderDecisions::HasResources();
-		realResourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
-		realResourceCheck->currentAmounts = &building->storedCapital;
-
-		resourceCheck->successAction = realResourceCheck;
-		
-		// Train builder check
-		CommanderDecisions::HasWorkersOfRole* workersRoleCheck = new CommanderDecisions::HasWorkersOfRole(
-			EWorkerRole::Builder, 1
-		);
-
-		realResourceCheck->successAction = workersRoleCheck;
-
-		workersRoleCheck->negative = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Builder); }
-		);
-
-		// Check building is being builded
-		CommanderDecisions::BuidingHasState* inProgressStateCheck = new CommanderDecisions::BuidingHasState(
-			building, EBuildingState::InProgress
-		);
-
-		workersRoleCheck->positive = inProgressStateCheck;
-
-		// Start building
-		inProgressStateCheck->negative = new CommanderDecisions::AssignTaskAction(EWorkerRole::Builder,
-			[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, building); }
-		);
-
-		inProgressStateCheck->positive = new Action(); // Empty action, finishing resolve in top
-	}
-
-	CommanderDecisions::HasResources* CreateBuidingGoal::DefineResourceTree()
-	{
-		CommanderDecisions::HasResources* resourceCheck = new CommanderDecisions::HasResources();
-		//finishedCheck->negative = resourceCheck;
-		//finishedCheck->positive = new Action(); // Placeholder
-
-		resourceCheck->targetAmounts = &GameDB::Database::Instance()->actionCostsBuilding->capital;
-		resourceCheck->currentAmounts = &building->storedCapital; // Current amounts should be evaluated with potential capital
-		resourceCheck->potentialAmounts = potentialCapital;
-
-		// Gathering trees
-		resourceCheck->treeAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[*this](Worker* worker) {
-				// Pickup wood 
-				Task* deliverTask = WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, this->building);
-				if (deliverTask)
-					return deliverTask;
-
-				// Fell tree
-				return WorkerTasks::FellTreeTask(worker);
-			}
-		);
-
-		// Gathering iron
-		resourceCheck->ironOreAction = new CommanderDecisions::AssignTaskAction(EWorkerRole::General,
-			[*this](Worker* worker) {
-				return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::IronOre, this->building);
-			}
-		);
-
-		// End
-		return resourceCheck;
-	}
-
-	Decision* CreateBuidingGoal::DefineResourceDecision(Building* requiredBuilding, Capital::ECapitalType requiredCapital, EWorkerRole requiredRole)
-	{
-		// Check building exists
-		CommanderDecisions::BuidingHasState* buildingExistDecision = new CommanderDecisions::BuidingHasState(requiredBuilding, EBuildingState::Finished);
-		buildingExistDecision->negative = new Action(); // Should be wait until building goal is done
-
-		// Has at least one free capital of required type?
-		CommanderDecisions::HasSpecificResource* resourceCheck = new CommanderDecisions::HasSpecificResource(requiredCapital, requiredBuilding);
-		buildingExistDecision->positive = resourceCheck;
-
-		resourceCheck->positive = new CommanderDecisions::AssignTaskAction(requiredRole,
-			[*this, &requiredBuilding, &requiredCapital](Worker* worker) {
-				return WorkerTasks::DeliverFromBuildingTask(worker, requiredCapital, requiredBuilding, this->building);
-			}
-		);
-
-		// Has worker of specific role?
-		CommanderDecisions::HasWorkersOfRole* roleCheck = new CommanderDecisions::HasWorkersOfRole(requiredRole, 1);
-		resourceCheck->negative = roleCheck;
-
-		roleCheck->negative = new CommanderDecisions::AssignTaskAction(requiredRole,
-			[*this, &requiredRole](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, requiredRole); }
-		);
-	}
-
-	bool CreateBuidingGoal::Complete()
-	{
-		return building->state == EBuildingState::Finished;
-	}
 }
