@@ -83,6 +83,28 @@ void EntityManager::Update(float dTime)
 	}
 }
 
+Worker* EntityManager::FindWorkerOfRole(EWorkerRole role)
+{
+	for (Worker& worker : workers)
+	{
+		if (worker.role == role)
+			return &worker;
+	}
+
+	return nullptr;
+}
+
+Building* EntityManager::FindFinishedBuildingOfType(EBuildingType type)
+{
+	for (Building*& building : buildings)
+	{
+		if (building->type == type && building->state == EBuildingState::Finished)
+			return building;
+	}
+
+	return nullptr;
+}
+
 void EntityManager::AddPickup(Pickup* pickup)
 {
 	pickups.push_back(pickup);
@@ -92,6 +114,17 @@ void EntityManager::RemovePickup(Pickup* pickup)
 {
 	//pickups.erase(find(pickups.begin(), pickups.end(), *pickup));
 	pickups.erase(std::remove(pickups.begin(), pickups.end(), pickup), pickups.end());
+}
+
+Pickup* EntityManager::FindFreePickupOfType(Capital::ECapitalType type)
+{
+	for (Pickup*& pickup : pickups)
+	{
+		if (pickup->type == type && !pickup->reserved)
+			return pickup;
+	}
+
+	return nullptr;
 }
 
 Pickup* EntityManager::FindClosestPickup(Vector2 position, Capital::ECapitalType type)

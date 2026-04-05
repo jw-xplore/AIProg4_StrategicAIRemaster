@@ -8,7 +8,7 @@
 #include "Pickup.h"
 #include "Building.h"
 #include "Capital.h"
-#include "Task.h"
+#include "GoalSystem.h"
 #include "SubtaskDefinitions.h"
 #include "Database.h"
 
@@ -101,7 +101,7 @@ namespace WorkerTasks
 		);
 
 		task->name = "FellTree";
-		task->rewardCapital.amounts[Capital::ECapitalType::Tree] = 1;
+		//task->rewardCapital.amounts[Capital::ECapitalType::Tree] = 1;
 		treesTile->reservations++;
 
 		return task;
@@ -127,7 +127,7 @@ namespace WorkerTasks
 		);
 
 		task->name = "Deliver " + std::to_string(itemType);
-		task->rewardCapital.amounts[itemType] = 1;
+		//task->rewardCapital.amounts[itemType] = 1;
 
 		return task;
 	}
@@ -154,7 +154,7 @@ namespace WorkerTasks
 		);
 
 		task->name = "Deliver " + std::to_string(itemType);
-		task->rewardCapital.amounts[itemType] = 1;
+		//task->rewardCapital.amounts[itemType] = 1;
 
 		return task;
 	}

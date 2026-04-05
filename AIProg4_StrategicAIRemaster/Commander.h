@@ -52,6 +52,9 @@ public:
 	std::map<Node*, NodeRecordAs>* searchResult;
 	std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>* open;
 
+	// Plan
+	std::vector<Task> availableTasks;
+	std::vector<Goal> goals;
 
 	float replanTimer = 0;
 	const float replanDelay = 1;
@@ -59,6 +62,7 @@ public:
 	Commander();
 	~Commander();
 
+	void DefineAvailableTasks();
 	void Update(float dTime);
 	void UpdatePlan();
 	void DebugDraw();

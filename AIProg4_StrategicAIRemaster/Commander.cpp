@@ -3,7 +3,7 @@
 #include "Building.h"
 #include "SystemsHolder.h"
 #include "EntityManager.h"
-#include "Task.h"
+#include "GoalSystem.h"
 #include "SubtaskDefinitions.h"
 #include "World.h"
 #include "Constants.h"
@@ -19,11 +19,18 @@ Commander::Commander()
 	SystemsHolder* systemsHolder = SystemsHolder::GetInstance();
 	systemsHolder->commander = this;
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
+
+	DefineAvailableTasks();
 }
 
 Commander::~Commander()
 {
 
+}
+
+void DefineAvailableTasks()
+{
+	WorkerTasks::TrainForRoleTask(nullptr, EWorkerRole::Scout);
 }
 
 void Commander::Update(float dTime)
@@ -36,6 +43,8 @@ void Commander::Update(float dTime)
 		UpdatePlan();
 		replanTimer = 0;
 	}
+
+	DebugDraw();
 }
 
 void Commander::UpdatePlan()
@@ -59,6 +68,8 @@ void Commander::DebugDraw()
 		DrawText(str.c_str(), wTask.first->position.x, wTask.first->position.y, 5, WHITE);
 	}
 	*/
+
+	
 }
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)

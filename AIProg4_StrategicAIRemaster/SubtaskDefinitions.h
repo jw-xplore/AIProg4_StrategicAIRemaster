@@ -1,6 +1,6 @@
 #pragma once
 #include <raylib.h>
-#include "Task.h"
+#include "GoalSystem.h"
 
 enum ESubtaskState;
 enum EBuildingType;

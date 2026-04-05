@@ -140,13 +140,13 @@
     <ClCompile Include="Commander.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="EntityManager.cpp" />
+    <ClCompile Include="GoalSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathFinding.cpp" />
     <ClCompile Include="Pickup.cpp" />
     <ClCompile Include="SteeringBehavior.cpp" />
     <ClCompile Include="SubtaskDefinitions.cpp" />
     <ClCompile Include="SystemsHolder.cpp" />
-    <ClCompile Include="Task.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -158,13 +158,13 @@
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Database.h" />
     <ClInclude Include="EntityManager.h" />
+    <ClInclude Include="GoalSystem.h" />
     <ClInclude Include="Json.hpp" />
     <ClInclude Include="PathFinding.h" />
     <ClInclude Include="Pickup.h" />
     <ClInclude Include="SteeringBehavior.h" />
     <ClInclude Include="SubtaskDefinitions.h" />
     <ClInclude Include="SystemsHolder.h" />
-    <ClInclude Include="Task.h" />
     <ClInclude Include="Worker.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>
