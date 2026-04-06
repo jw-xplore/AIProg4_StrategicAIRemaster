@@ -12,6 +12,8 @@ Takes care of high-level decision making and assigning tasks
 class Worker;
 enum EWorkerRole;
 class Task;
+class Goal;
+class GoalStep;
 enum EBuildingType;
 
 struct Node;
@@ -52,9 +54,12 @@ public:
 	std::map<Node*, NodeRecordAs>* searchResult;
 	std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>* open;
 
+	std::map<Worker*, Task*> workerTaskMap;
+	//std::map<Worker*, CommanderGoals::CommanderGoal*> workerGoalMap;
+
 	// Plan
-	std::vector<Task> availableTasks;
-	std::vector<Goal> goals;
+	std::vector<GoalStep*> availableSteps;
+	std::vector<Goal*> goals;
 
 	float replanTimer = 0;
 	const float replanDelay = 1;
@@ -68,5 +73,5 @@ public:
 	void DebugDraw();
 
 	Worker* FindFreeWorker(EWorkerRole roleConstrain);
-	//void AssignTask(Worker* worker, CommanderGoals::CommanderGoal* goal, Task* task);
+	void AssignTask(Worker* worker, Task* task);
 };

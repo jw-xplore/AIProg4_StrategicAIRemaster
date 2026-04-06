@@ -3,6 +3,9 @@
 #include "World.h";
 #include "EntityManager.h"
 #include "Building.h"
+#include <stdexcept>
+#include "Commander.h"
+#include "Worker.h"
 
 //--------------------------------------------------------------
 // Task
@@ -10,7 +13,7 @@
 
 Task::Task(Worker* worker, std::initializer_list<Subtask*> subtasks)
 {
-	running = true;
+	running = false;
 	currentSubTask = 0;
 	repeat = false;
 	assignee = worker;
@@ -70,11 +73,23 @@ void Task::Cancel()
 	running = true;
 }
 
-bool Task::IsInputSatisfied()
+//--------------------------------------------------------------
+// Goal step
+//--------------------------------------------------------------
+
+GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output)
+{
+	this->name = name;
+
+	this->requirements = requirements;
+	this->output = output;
+}
+
+bool GoalStep::IsInputSatisfied()
 {
 	EntityManager* entityMngr = SystemsHolder::GetInstance()->entityMananger;
 
-	for (const TaskAttribute& attribute : input)
+	for (const TaskAttribute& attribute : requirements)
 	{
 		// Capital
 		if (attribute.category == ETaskAttributeCategory::Capital)
@@ -121,91 +136,121 @@ bool Task::IsInputSatisfied()
 	return true;
 }
 
+bool GoalStep::IsActive()
+{
+	return totalTasks > 0 && finishedTasks < totalTasks;
+}
+
+bool GoalStep::IsDone()
+{
+	if (totalTasks == 0)
+		return false;
+
+	if (finishedTasks > totalTasks)
+		throw std::runtime_error("Goal step finished tasks overflow!");
+
+	return finishedTasks == totalTasks;
+}
+
+void GoalStep::AssignTask()
+{
+	Commander* commander = SystemsHolder::GetInstance()->commander;
+	Worker* worker = commander->FindFreeWorker(roleConstrain);
+
+	if (worker)
+	{
+		Task* task = taskFunc(worker);
+		commander->AssignTask(worker, task);
+	}
+}
+
 //--------------------------------------------------------------
 // Goal
 //--------------------------------------------------------------
 
-Goal::Goal(Task& finalTask, std::vector<Task>& availableTasks)
+Goal::Goal()
 {
-	this->finalTask = &finalTask;
 
-	DefineTaskChain(*this->finalTask, availableTasks);
 }
 
-void Goal::DefineTaskChain(Task& currentTask, std::vector<Task>& availableTasks)
+Goal::Goal(GoalStep& finalStep, std::vector<GoalStep*>& availableSteps)
+{
+	this->finalStep = &finalStep;
+
+	DefineTaskChain(*this->finalStep, availableSteps);
+}
+
+void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availableSteps)
 {
 	// No input criteria needed = Regular worker can do immediately
-	if (currentTask.input.empty())
+	if (currentStep.requirements.empty())
 		return;
 
 	// Define previous task for each input to safisfy current criteria
-	for (const TaskAttribute& input : currentTask.input)
+	for (const TaskAttribute& input : currentStep.requirements)
 	{
-		for (Task& task : availableTasks)
+		for (GoalStep*& step : availableSteps)
 		{
 			// Found task satisfying input criteria
-			if (task.output.category == input.category && task.output.type == input.type && task.output.source == input.source)
+			if (step->output.category == input.category && step->output.type == input.type && step->output.source == input.source)
 			{
-				currentTask.previousTasks.push_back(&task);
-				DefineTaskChain(task, availableTasks);
+				currentStep.previousSteps.push_back(step);
+				DefineTaskChain(*step, availableSteps);
 				break;
 			}
 		}
 	}
 }
 
-Task* Goal::NextAvailableTask()
+GoalStep* Goal::NextAvailableStep()
 {
-	return NextAvailableTask(*finalTask);
+	return NextAvailableStep(*finalStep);
 }
 
-Task* Goal::NextAvailableTask(Task& currentTask)
+GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 {
 	// This is done - Should work only with last one
-	if (currentTask.finished)
+	if (currentStep.IsDone())
 		return nullptr;
 
 	// Check not started previous tasks
 	int inputId = 0;
 
-	for (Task*& task : currentTask.previousTasks)
+	for (GoalStep*& step : currentStep.previousSteps)
 	{
-		if (task->IsInputSatisfied())
-		{
-			if (!task->finished && !task->running)
-				return NextAvailableTask(*task);
-		}
+		if (step->IsInputSatisfied() && !step->IsDone())
+			return step;
 
 		inputId++;
 	}
 
 	// If some of tasks is in progress but unfinished - return null and wait for completion
-	for (Task*& task : currentTask.previousTasks)
+	for (GoalStep*& step : currentStep.previousSteps)
 	{
-		if (task->running)
+		if (step->IsActive())
 			return nullptr;
 	}
 
 	// All previous tasks are done
-	return &currentTask;
+	return &currentStep;
 }
 
-void Goal::DebugDraw(Task& task, int posX = 0, int posY = 0)
+void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 {
-	std::string strZoom = "Zoom";
-	char const* cZoom = strZoom.c_str();
+	std::string str = step.name;
+	char const* cZoom = str.c_str();
 
 	Color coloring = RED;
-	if (task.running)
+	if (step.IsActive())
 		coloring = YELLOW;
-	if (task.finished)
+	if (step.IsDone())
 		coloring = GREEN;
 
-	DrawText(cZoom, posX * 50, posY * 50, 20, coloring);
+	DrawText(cZoom, posX * 250, posY * 50, 20, coloring);
 
 	int addY = 0;
 
-	for (Task*& prev : task.previousTasks)
+	for (GoalStep*& prev : step.previousSteps)
 	{
 		DebugDraw(*prev, posX + 1, posY + addY);
 		addY++;

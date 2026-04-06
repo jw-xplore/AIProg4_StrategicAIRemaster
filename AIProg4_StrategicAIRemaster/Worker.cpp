@@ -101,8 +101,10 @@ namespace WorkerTasks
 		);
 
 		task->name = "FellTree";
-		//task->rewardCapital.amounts[Capital::ECapitalType::Tree] = 1;
 		treesTile->reservations++;
+
+		// Input - Output
+		//task->output = TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr);
 
 		return task;
 	}
@@ -126,8 +128,15 @@ namespace WorkerTasks
 			}
 		);
 
-		task->name = "Deliver " + std::to_string(itemType);
-		//task->rewardCapital.amounts[itemType] = 1;
+		task->name = "W Deliver " + std::to_string(itemType);
+
+		// Input - Output
+		/*
+		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, nullptr);
+		task->input.push_back(input);
+
+		task->output = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, target);
+		*/
 
 		return task;
 	}
@@ -154,15 +163,20 @@ namespace WorkerTasks
 		);
 
 		task->name = "Deliver " + std::to_string(itemType);
-		//task->rewardCapital.amounts[itemType] = 1;
+
+		// Input - Output
+		/*
+		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, from);
+		task->input.push_back(input);
+
+		task->output = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, target);
+		*/
 
 		return task;
 	}
 
 	Task* TrainForRoleTask(Worker* worker, EWorkerRole role)
 	{
-		worker->trainedRole = role;
-
 		// Find training time
 		GameDB::EActionTraining trainingType = GameDB::EActionTraining::TrainScout;
 		switch (role)
@@ -176,13 +190,20 @@ namespace WorkerTasks
 		float time = GameDB::Database::Instance()->actionCostsTraining[trainingType].time;
 
 		// Setup task
-		Task* task = new Task(worker,
+		Task* task = new Task(nullptr,
 			{
 			new SubtaskDefinitions::TrainWorker(role, time)
 			}
 		);
 
 		task->name = "Train " + std::to_string(role);
+
+		// Input - Output
+		/*
+		task->output.category = ETaskAttributeCategory::Worker;
+		task->output.type = role;
+		task->output.amount = 1;
+		*/
 
 		return task;
 	}
@@ -202,6 +223,15 @@ namespace WorkerTasks
 		);
 
 		task->name = "Build " + std::to_string(building->type);
+
+		// Input - Output
+		/*
+		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr);
+		task->input.push_back(input);
+
+		task->output = TaskAttribute(ETaskAttributeCategory::Building, building->type, 1, nullptr);
+		*/
+
 		return task;
 	}
 }

@@ -8,6 +8,7 @@
 
 class Worker;
 class Building;
+enum EWorkerRole;
 
 enum ESubtaskState
 {
@@ -47,6 +48,15 @@ struct TaskAttribute
 	int type = -1; // Id of type to given category
 	int amount = 0;
 	Building* source = nullptr; // Nullptr will result in checking availability in world
+
+	TaskAttribute() {}
+
+	TaskAttribute(ETaskAttributeCategory category, int type, int amount, Building* source): 
+		category(category),
+		type(type),
+		amount(amount),
+		source(source)
+	{ }
 };
 
 /// <summary>
@@ -65,12 +75,16 @@ public:
 	Worker* assignee;
 	std::vector<Subtask*> subtasks;
 
+	/*
 	std::vector<TaskAttribute> input;
 	std::vector<TaskAttribute> potentialInput;
 	TaskAttribute output;
+	*/
 
+	/*
 	std::vector<Task*> previousTasks;
 	Task* nextTask;
+	*/
 
 	Task(Worker* worker, std::initializer_list<Subtask*> subtasks);
 	Task(const Task& rhs);
@@ -79,26 +93,55 @@ public:
 	void Update(float dTime);
 	void Cancel();
 
-	bool IsInputSatisfied();
+	//bool IsInputSatisfied();
 };
 
 /// <summary>
-/// 
+/// Define task type, requirements and output
+/// </summary>
+class GoalStep
+{
+public:
+	std::string name;
+
+	EWorkerRole roleConstrain;
+	std::function<Task* (Worker*)> taskFunc;
+	std::vector<TaskAttribute> requirements;
+	TaskAttribute output;
+
+	std::vector<GoalStep*> previousSteps;
+	Task* nextStep;
+
+	int finishedTasks = 0;
+	int totalTasks = 0;
+	std::vector<Task*> activeTasks;
+
+	GoalStep() {}
+	GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output);
+
+	bool IsInputSatisfied();
+	bool IsActive();
+	bool IsDone();
+	void AssignTask();
+};
+
+/// <summary>
+/// Holds chain of steps defining completion of complex tasks
 /// </summary>
 class Goal
 {
 public:
 	unsigned short priority;
-	Task* finalTask; // Linked list to previous tasks, finishing this task will complete the goal 
+	GoalStep* finalStep; // Linked list to previous tasks, finishing this task will complete the goal 
 
-	Goal() {}
-	Goal(Task& finalTask, std::vector<Task>& availableTasks);
+	Goal();
+	Goal(GoalStep& finalStep, std::vector<GoalStep*>& availableSteps);
 
-	void DefineTaskChain(Task& currentTask, std::vector<Task>& availableTasks);
-	Task* NextAvailableTask();
-	Task* NextAvailableTask(Task& currentTask);
+	void DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availableSteps);
+	GoalStep* NextAvailableStep();
+	GoalStep* NextAvailableStep(GoalStep& currentStep);
 	bool IsCompleted();
 
-	void DebugDraw(Task& task, int posX, int posY);
+	void DebugDraw(GoalStep& step, int posX, int posY);
 };
 

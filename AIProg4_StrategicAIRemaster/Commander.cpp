@@ -21,6 +21,11 @@ Commander::Commander()
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
 	DefineAvailableTasks();
+	GoalStep trainScout = GoalStep("Train scout",
+		{},
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
+	);
+	
 }
 
 Commander::~Commander()
@@ -28,9 +33,48 @@ Commander::~Commander()
 
 }
 
-void DefineAvailableTasks()
+void Commander::DefineAvailableTasks()
 {
-	WorkerTasks::TrainForRoleTask(nullptr, EWorkerRole::Scout);
+	// Material gathering
+	availableSteps.push_back(new GoalStep(
+		"Fell tree",
+		{},
+		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
+	));
+
+	/*
+	availableSteps.push_back(new GoalStep(
+		"Deliver wood",
+		{
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
+	));
+	*/
+
+	//--------------
+
+	// Goals final tasks
+	GoalStep* trainScout = new GoalStep(
+		"Train scout",
+		{},
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
+	);
+
+	availableSteps.push_back(trainScout);
+
+	GoalStep* deliverWood = new GoalStep(
+		"Deliver wood",
+		{
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
+	);
+
+	availableSteps.push_back(deliverWood);
+
+	// Goals definition
+	goals.push_back(new Goal(*deliverWood, availableSteps));
 }
 
 void Commander::Update(float dTime)
@@ -69,14 +113,14 @@ void Commander::DebugDraw()
 	}
 	*/
 
-	
+	if (goals[0]->finalStep)
+		goals[0]->DebugDraw(*goals[0]->finalStep, 0, 0);
 }
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 {
 	for (Worker& worker : entityManager->workers)
 	{
-		/*
 		// Get free worker
 		if (workerTaskMap[&worker] == nullptr)
 		{
@@ -85,8 +129,15 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 			return &worker;
 		}
-		*/
 	}
 
 	return nullptr;
+}
+
+void Commander::AssignTask(Worker* worker, Task* task)
+{
+	workerTaskMap[worker] = task;
+	task->assignee = worker;
+
+	//*goals[currentGoal]->potentialCapital += task->rewardCapital;
 }
