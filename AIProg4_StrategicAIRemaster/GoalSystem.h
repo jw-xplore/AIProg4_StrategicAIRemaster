@@ -10,6 +10,12 @@ class Worker;
 class Building;
 enum EWorkerRole;
 
+// Main classses
+class Subtask;
+class Task;
+class GoalStep;
+class Goal;
+
 enum ESubtaskState
 {
 	Running,
@@ -74,17 +80,7 @@ public:
 
 	Worker* assignee;
 	std::vector<Subtask*> subtasks;
-
-	/*
-	std::vector<TaskAttribute> input;
-	std::vector<TaskAttribute> potentialInput;
-	TaskAttribute output;
-	*/
-
-	/*
-	std::vector<Task*> previousTasks;
-	Task* nextTask;
-	*/
+	GoalStep* parentGoalStep;
 
 	Task(Worker* worker, std::initializer_list<Subtask*> subtasks);
 	Task(const Task& rhs);
@@ -92,8 +88,6 @@ public:
 
 	void Update(float dTime);
 	void Cancel();
-
-	//bool IsInputSatisfied();
 };
 
 /// <summary>
@@ -117,7 +111,8 @@ public:
 	std::vector<Task*> activeTasks;
 
 	GoalStep() {}
-	GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output);
+	GoalStep(GoalStep& source);
+	GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc);
 
 	bool IsInputSatisfied();
 	bool IsActive();

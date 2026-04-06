@@ -13,7 +13,7 @@
 
 Task::Task(Worker* worker, std::initializer_list<Subtask*> subtasks)
 {
-	running = false;
+	running = true;
 	currentSubTask = 0;
 	repeat = false;
 	assignee = worker;
@@ -77,12 +77,24 @@ void Task::Cancel()
 // Goal step
 //--------------------------------------------------------------
 
-GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output)
+GoalStep::GoalStep(GoalStep& source)
+{
+	this->name = source.name;
+
+	this->requirements = source.requirements;
+	this->output = source.output;
+
+	this->taskFunc = std::function<Task* (Worker*)>(source.taskFunc);
+}
+
+GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc)
 {
 	this->name = name;
 
 	this->requirements = requirements;
 	this->output = output;
+
+	this->taskFunc = taskFunc;
 }
 
 bool GoalStep::IsInputSatisfied()
@@ -138,7 +150,10 @@ bool GoalStep::IsInputSatisfied()
 
 bool GoalStep::IsActive()
 {
-	return totalTasks > 0 && finishedTasks < totalTasks;
+	if (totalTasks <= 0)
+		return false;
+
+	return activeTasks.size() > 0 && finishedTasks < totalTasks;
 }
 
 bool GoalStep::IsDone()
@@ -160,7 +175,11 @@ void GoalStep::AssignTask()
 	if (worker)
 	{
 		Task* task = taskFunc(worker);
+		task->parentGoalStep = this;
 		commander->AssignTask(worker, task);
+
+		// Push active task
+		activeTasks.push_back(task);
 	}
 }
 
@@ -175,7 +194,8 @@ Goal::Goal()
 
 Goal::Goal(GoalStep& finalStep, std::vector<GoalStep*>& availableSteps)
 {
-	this->finalStep = &finalStep;
+	this->finalStep = new GoalStep(finalStep);
+	this->finalStep->totalTasks = 1;
 
 	DefineTaskChain(*this->finalStep, availableSteps);
 }
@@ -194,8 +214,11 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 			// Found task satisfying input criteria
 			if (step->output.category == input.category && step->output.type == input.type && step->output.source == input.source)
 			{
-				currentStep.previousSteps.push_back(step);
-				DefineTaskChain(*step, availableSteps);
+				GoalStep* newStep = new GoalStep(*step);
+				newStep->totalTasks = input.amount; // TODO: Multipliying with previous steps amounts
+
+				currentStep.previousSteps.push_back(newStep);
+				DefineTaskChain(*newStep, availableSteps);
 				break;
 			}
 		}
@@ -232,7 +255,12 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 	}
 
 	// All previous tasks are done
-	return &currentStep;
+	// Is active but not all tasks are started
+	if (currentStep.activeTasks.size() < currentStep.totalTasks)
+		return &currentStep;
+
+	// Is active and fully occupied - wait as nothing can be done now
+	return nullptr;
 }
 
 void Goal::DebugDraw(GoalStep& step, int posX, int posY)

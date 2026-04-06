@@ -21,11 +21,6 @@ Commander::Commander()
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
 	DefineAvailableTasks();
-	GoalStep trainScout = GoalStep("Train scout",
-		{},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
-	);
-	
 }
 
 Commander::~Commander()
@@ -36,11 +31,12 @@ Commander::~Commander()
 void Commander::DefineAvailableTasks()
 {
 	// Material gathering
-	availableSteps.push_back(new GoalStep(
+	GoalStep* cutWood = new GoalStep(
 		"Fell tree",
 		{},
-		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
-	));
+		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr),
+		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
+	);
 
 	/*
 	availableSteps.push_back(new GoalStep(
@@ -58,23 +54,27 @@ void Commander::DefineAvailableTasks()
 	GoalStep* trainScout = new GoalStep(
 		"Train scout",
 		{},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Builder); }
 	);
 
 	availableSteps.push_back(trainScout);
 
+	/*
 	GoalStep* deliverWood = new GoalStep(
 		"Deliver wood",
 		{
 			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
 		},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, this->building); }
 	);
+	*/
 
-	availableSteps.push_back(deliverWood);
+	//availableSteps.push_back(deliverWood);
 
 	// Goals definition
-	goals.push_back(new Goal(*deliverWood, availableSteps));
+	goals.push_back(new Goal(*cutWood, availableSteps));
 }
 
 void Commander::Update(float dTime)
@@ -88,14 +88,34 @@ void Commander::Update(float dTime)
 		replanTimer = 0;
 	}
 
+	// Update tasks
+	for (auto& wTask : workerTaskMap)
+	{
+		if (!wTask.second)
+			continue;
+
+		if (wTask.second->finished)
+		{
+			// Finished - Remove
+			//*goals[currentGoal]->potentialCapital -= wTask.second->rewardCapital;
+			wTask.second->parentGoalStep->finishedTasks++;
+			wTask.second = nullptr;
+			continue;
+		}
+
+		wTask.second->Update(dTime);
+	}
+
 	DebugDraw();
 }
 
 void Commander::UpdatePlan()
 {
-
 	for (Worker& worker : entityManager->workers)
 	{
+		GoalStep* step = goals[0]->NextAvailableStep();
+		if (step)
+			step->AssignTask();
 	}
 }
 
