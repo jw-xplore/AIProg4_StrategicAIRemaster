@@ -80,6 +80,10 @@ void EntityManager::Update(float dTime)
 	for (auto& building : buildings)
 	{
 		DrawRectangle(building->position.x, building->position.y, GlobalVars::TILE_HALF_SIZE, GlobalVars::TILE_HALF_SIZE, building->color);
+	
+		// Debug
+		std::string buildStr = "w: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::Tree]);
+		DrawText(buildStr.c_str(), building->position.x, building->position.y, 8, BLACK);
 	}
 }
 
@@ -89,6 +93,17 @@ Worker* EntityManager::FindWorkerOfRole(EWorkerRole role)
 	{
 		if (worker.role == role)
 			return &worker;
+	}
+
+	return nullptr;
+}
+
+Building* EntityManager::FindBuildingOfType(EBuildingType type)
+{
+	for (Building*& building : buildings)
+	{
+		if (building->type == type)
+			return building;
 	}
 
 	return nullptr;
@@ -153,4 +168,9 @@ Pickup* EntityManager::FindClosestPickup(Vector2 position, Capital::ECapitalType
 	}
 
 	return closestPickup;
+}
+
+void EntityManager::AddBuilding(Building* building)
+{
+	buildings.push_back(building);
 }

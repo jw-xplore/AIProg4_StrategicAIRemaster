@@ -81,6 +81,7 @@ public:
 	Worker* assignee;
 	std::vector<Subtask*> subtasks;
 	GoalStep* parentGoalStep;
+	std::vector<std::function<void (Task*)>> onFinishedListeners;
 
 	Task(Worker* worker, std::initializer_list<Subtask*> subtasks);
 	Task(const Task& rhs);
@@ -102,6 +103,7 @@ public:
 	std::function<Task* (Worker*)> taskFunc;
 	std::vector<TaskAttribute> requirements;
 	TaskAttribute output;
+	bool dynamicSource = true;
 
 	std::vector<GoalStep*> previousSteps;
 	Task* nextStep;
@@ -118,6 +120,7 @@ public:
 	bool IsActive();
 	bool IsDone();
 	void AssignTask();
+	void OnTaskFinished(Task* task);
 };
 
 /// <summary>

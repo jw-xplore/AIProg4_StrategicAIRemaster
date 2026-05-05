@@ -20,6 +20,9 @@ Commander::Commander()
 	systemsHolder->commander = this;
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
+	// Preplace buildings 
+	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}));
+
 	DefineAvailableTasks();
 }
 
@@ -37,6 +40,10 @@ void Commander::DefineAvailableTasks()
 		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr),
 		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
 	);
+
+	cutWood->dynamicSource = false;
+
+	availableSteps.push_back(cutWood);
 
 	/*
 	availableSteps.push_back(new GoalStep(
@@ -60,21 +67,30 @@ void Commander::DefineAvailableTasks()
 
 	availableSteps.push_back(trainScout);
 
-	/*
 	GoalStep* deliverWood = new GoalStep(
 		"Deliver wood",
 		{
 			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
 		},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr),
-		[*this](Worker* worker) { return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, this->building); }
+		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr),
+		[*this, &deliverWood](Worker* worker) {
+			return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, entityManager->FindBuildingOfType(EBuildingType::CoalMile));
+		}
 	);
-	*/
 
-	//availableSteps.push_back(deliverWood);
+	availableSteps.push_back(deliverWood);
+
+	GoalStep* buildCoalMile = new GoalStep(
+		"Build coal mile",
+		{
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::CoalMile))
+		},
+		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::CoalMile, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::CoalMile)); }
+	);
 
 	// Goals definition
-	goals.push_back(new Goal(*cutWood, availableSteps));
+	goals.push_back(new Goal(*buildCoalMile, availableSteps));
 }
 
 void Commander::Update(float dTime)

@@ -48,6 +48,11 @@ void Task::Update(float dTime)
 			// Stop execution - All subtasks done
 			running = false;
 			finished = true;
+
+			for (auto& listener : onFinishedListeners)
+			{
+				listener(this);
+			}
 		}
 
 		return;
@@ -118,7 +123,7 @@ bool GoalStep::IsInputSatisfied()
 			else
 			{
 				// For building
-				if (attribute.source->storedCapital[type] > attribute.amount)
+				if (attribute.source->storedCapital[type] < attribute.amount)
 					return false;
 			}
 
@@ -180,7 +185,15 @@ void GoalStep::AssignTask()
 
 		// Push active task
 		activeTasks.push_back(task);
+		task->onFinishedListeners.push_back(
+			[&](Task* task) { OnTaskFinished(task); }
+		);
 	}
+}
+
+void GoalStep::OnTaskFinished(Task* task)
+{
+	activeTasks.erase(std::remove(std::begin(activeTasks), std::end(activeTasks), task), std::end(activeTasks));
 }
 
 //--------------------------------------------------------------
@@ -211,11 +224,21 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 	{
 		for (GoalStep*& step : availableSteps)
 		{
+			// Compare required source
+			bool sourcePass = step->output.source == input.source;
+			if (!sourcePass)
+				sourcePass = step->output.source == nullptr && step->dynamicSource;
+
 			// Found task satisfying input criteria
-			if (step->output.category == input.category && step->output.type == input.type && step->output.source == input.source)
+			if (step->output.category == input.category && step->output.type == input.type && sourcePass)
 			{
 				GoalStep* newStep = new GoalStep(*step);
-				newStep->totalTasks = input.amount; // TODO: Multipliying with previous steps amounts
+
+				// Dynamic source building
+				if (newStep->output.source == nullptr && step->dynamicSource)
+					newStep->output.source = input.source;
+
+				newStep->totalTasks = input.amount * currentStep.totalTasks; // TODO: Multipliying with previous steps amounts
 
 				currentStep.previousSteps.push_back(newStep);
 				DefineTaskChain(*newStep, availableSteps);
@@ -232,32 +255,27 @@ GoalStep* Goal::NextAvailableStep()
 
 GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 {
-	// This is done - Should work only with last one
+	// This is done - Should work only with first step in goal chain = goal is done
 	if (currentStep.IsDone())
 		return nullptr;
 
+	// Can perform this step?
+	if (currentStep.IsInputSatisfied())
+	{
+		// Is there work to be done? 
+		int assigned = currentStep.activeTasks.size() + currentStep.finishedTasks;
+		if (assigned < currentStep.totalTasks)
+			return &currentStep;
+	}
+
 	// Check not started previous tasks
-	int inputId = 0;
-
 	for (GoalStep*& step : currentStep.previousSteps)
 	{
-		if (step->IsInputSatisfied() && !step->IsDone())
-			return step;
-
-		inputId++;
+		if (!step->IsDone())
+		{
+			return NextAvailableStep(*step);
+		}
 	}
-
-	// If some of tasks is in progress but unfinished - return null and wait for completion
-	for (GoalStep*& step : currentStep.previousSteps)
-	{
-		if (step->IsActive())
-			return nullptr;
-	}
-
-	// All previous tasks are done
-	// Is active but not all tasks are started
-	if (currentStep.activeTasks.size() < currentStep.totalTasks)
-		return &currentStep;
 
 	// Is active and fully occupied - wait as nothing can be done now
 	return nullptr;
@@ -265,7 +283,11 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 
 void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 {
-	std::string str = step.name;
+	std::string buildingStr = "Non";
+	if (step.output.source)
+		buildingStr = std::to_string(step.output.source->type);
+
+	std::string str = step.name + " - " + buildingStr;
 	char const* cZoom = str.c_str();
 
 	Color coloring = RED;

@@ -25,6 +25,8 @@ public:
 
 	Worker* FindWorkerOfRole(EWorkerRole role);
 
+	void AddBuilding(Building* building);
+	Building* FindBuildingOfType(EBuildingType type);
 	Building* FindFinishedBuildingOfType(EBuildingType type);
 
 	void AddPickup(Pickup* pickup);
