@@ -7,6 +7,27 @@
 #include "Commander.h"
 #include "Worker.h"
 
+Building* TaskAttribute::VariableSource(ETaskAttributeCategory category, int type)
+{
+	// Find correct building for a resource type
+	if (category == ETaskAttributeCategory::Capital)
+	{
+		EntityManager* entityManager = SystemsHolder::GetInstance()->entityMananger;
+		entityManager->FindBuildingOfType(EBuildingType::CoalMile);
+
+		switch (type)
+		{
+		case Capital::ECapitalType::Tree: return nullptr;
+		case Capital::ECapitalType::Coal: return entityManager->FindBuildingOfType(EBuildingType::CoalMile);
+		case Capital::ECapitalType::IronOre: return nullptr;
+		case Capital::ECapitalType::IronBar: return entityManager->FindBuildingOfType(EBuildingType::Smelter);
+		case Capital::ECapitalType::Sword: return entityManager->FindBuildingOfType(EBuildingType::ArsmithsForge);
+		}
+	}
+
+	return nullptr;
+}
+
 //--------------------------------------------------------------
 // Task
 //--------------------------------------------------------------
@@ -90,6 +111,9 @@ GoalStep::GoalStep(GoalStep& source)
 	this->output = source.output;
 
 	this->taskFunc = std::function<Task* (Worker*)>(source.taskFunc);
+
+	this->variableInOut = source.variableInOut;
+	this->isDelivery = source.isDelivery;
 }
 
 GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc)
@@ -226,17 +250,54 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 		{
 			// Compare required source
 			bool sourcePass = step->output.source == input.source;
-			if (!sourcePass)
-				sourcePass = step->output.source == nullptr && step->dynamicSource;
+			bool inputSafisfied = step->output.category == input.category && step->output.type == input.type && sourcePass;
+			if (step->variableInOut)
+				inputSafisfied = true;
 
 			// Found task satisfying input criteria
-			if (step->output.category == input.category && step->output.type == input.type && sourcePass)
+			if (inputSafisfied)
 			{
 				GoalStep* newStep = new GoalStep(*step);
 
-				// Dynamic source building
-				if (newStep->output.source == nullptr && step->dynamicSource)
-					newStep->output.source = input.source;
+				if (newStep->variableInOut)
+				{
+					// Variable input requirements
+					if (newStep->requirements.empty())
+					{
+
+						newStep->requirements.push_back(TaskAttribute(
+							input.category,
+							input.type,
+							input.amount,
+							TaskAttribute::VariableSource(input.category, input.type)
+						));
+
+					}
+
+					// Variable output
+					if (newStep->output.source == nullptr)
+						newStep->output.source = input.source;
+
+					if (newStep->output.category == ETaskAttributeCategory::None)
+						newStep->output.category = input.category;
+
+					if (newStep->output.type == -1)
+						newStep->output.type = input.type;
+
+					if (newStep->output.amount == 0)
+						newStep->output.amount = input.amount;
+
+					// Dynamic task assign for deliver step
+					if (newStep->isDelivery)
+					{
+						newStep->taskFunc = [*this, &currentStep](Worker* worker) {
+							//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
+							Building* building = currentStep.requirements[0].source;
+							return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, building);
+							};
+					}
+				}
+
 
 				newStep->totalTasks = input.amount * currentStep.totalTasks; // TODO: Multipliying with previous steps amounts
 
@@ -283,11 +344,15 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 
 void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 {
+	// Helper stats
 	std::string buildingStr = "Non";
 	if (step.output.source)
 		buildingStr = std::to_string(step.output.source->type);
 
-	std::string str = step.name + " - " + buildingStr;
+	std::string outCTStr = std::to_string((int)step.output.category) + " - " + std::to_string(step.output.type);
+
+	// Display string
+	std::string str = step.name + "\n out bu:" + buildingStr + "\n out c/t:" + outCTStr;
 	char const* cZoom = str.c_str();
 
 	Color coloring = RED;

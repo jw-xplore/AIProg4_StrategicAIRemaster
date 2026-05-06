@@ -63,6 +63,8 @@ struct TaskAttribute
 		amount(amount),
 		source(source)
 	{ }
+
+	static Building* VariableSource(ETaskAttributeCategory category, int type);
 };
 
 /// <summary>
@@ -103,7 +105,8 @@ public:
 	std::function<Task* (Worker*)> taskFunc;
 	std::vector<TaskAttribute> requirements;
 	TaskAttribute output;
-	bool dynamicSource = true;
+	bool variableInOut = false;
+	bool isDelivery = false;
 
 	std::vector<GoalStep*> previousSteps;
 	Task* nextStep;

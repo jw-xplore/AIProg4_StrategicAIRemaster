@@ -41,8 +41,6 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
 	);
 
-	cutWood->dynamicSource = false;
-
 	availableSteps.push_back(cutWood);
 
 	/*
@@ -67,18 +65,25 @@ void Commander::DefineAvailableTasks()
 
 	availableSteps.push_back(trainScout);
 
-	GoalStep* deliverWood = new GoalStep(
-		"Deliver wood",
+	// Define delivery tasks
+	GoalStep* deliverItem = new GoalStep(
+		"Deliver",
 		{
-			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
+			//TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
 		},
-		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr),
-		[*this, &deliverWood](Worker* worker) {
-			return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, entityManager->FindBuildingOfType(EBuildingType::CoalMile));
+		TaskAttribute(ETaskAttributeCategory::None, -1, 0, nullptr),
+		nullptr
+		/*
+		[*this](Worker* worker) {
+			return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, nullptr);
 		}
+		*/
 	);
 
-	availableSteps.push_back(deliverWood);
+	deliverItem->variableInOut = true;
+	deliverItem->isDelivery = true;
+
+	availableSteps.push_back(deliverItem);
 
 	GoalStep* buildCoalMile = new GoalStep(
 		"Build coal mile",
