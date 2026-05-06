@@ -352,7 +352,7 @@ void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 	std::string outCTStr = std::to_string((int)step.output.category) + " - " + std::to_string(step.output.type);
 
 	// Display string
-	std::string str = step.name + "\n out bu:" + buildingStr + "\n out c/t:" + outCTStr;
+	std::string str = step.name /* + "\n out bu:" + buildingStr */+ "\n out c/t:" + outCTStr;
 	char const* cZoom = str.c_str();
 
 	Color coloring = RED;

@@ -22,6 +22,7 @@ Commander::Commander()
 
 	// Preplace buildings 
 	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}));
+	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 100 }));
 
 	DefineAvailableTasks();
 }
@@ -33,6 +34,10 @@ Commander::~Commander()
 
 void Commander::DefineAvailableTasks()
 {
+	// Buildings
+	Building* coalMile = entityManager->FindBuildingOfType(EBuildingType::CoalMile);
+	Building* smelter = entityManager->FindBuildingOfType(EBuildingType::Smelter);
+
 	// Material gathering
 	GoalStep* cutWood = new GoalStep(
 		"Fell tree",
@@ -41,7 +46,22 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
 	);
 
+	GoalStep* createCoal = new GoalStep(
+		"Cr coal",
+		{
+			// TODO: Determine which building is required
+			// TODO: Get unit numbers from database
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::CoalMiner, 1, nullptr),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, coalMile)
+		},
+		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Coal, 1, coalMile),
+
+		// TODO: Add creating of coal by coal miler
+		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
+	);
+
 	availableSteps.push_back(cutWood);
+	availableSteps.push_back(createCoal);
 
 	/*
 	availableSteps.push_back(new GoalStep(
@@ -60,10 +80,18 @@ void Commander::DefineAvailableTasks()
 		"Train scout",
 		{},
 		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Scout); }
+	);
+
+	GoalStep* trainBuilder = new GoalStep(
+		"Train builder",
+		{},
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr),
 		[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Builder); }
 	);
 
 	availableSteps.push_back(trainScout);
+	availableSteps.push_back(trainBuilder);
 
 	// Define delivery tasks
 	GoalStep* deliverItem = new GoalStep(
@@ -85,17 +113,33 @@ void Commander::DefineAvailableTasks()
 
 	availableSteps.push_back(deliverItem);
 
+	// Buidling tasks 
 	GoalStep* buildCoalMile = new GoalStep(
 		"Build coal mile",
 		{
-			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::CoalMile))
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::CoalMile)),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr)
 		},
 		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::CoalMile, 1, nullptr),
 		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::CoalMile)); }
 	);
 
+	GoalStep* buildSmelter = new GoalStep(
+		"Build smelter",
+		{
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::Smelter)),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::CoalMile, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::Smelter)); }
+	);
+
+
+
 	// Goals definition
 	goals.push_back(new Goal(*buildCoalMile, availableSteps));
+	goals.push_back(new Goal(*buildSmelter, availableSteps));
+	goals.push_back(new Goal(*createCoal, availableSteps));
 }
 
 void Commander::Update(float dTime)
@@ -134,11 +178,16 @@ void Commander::UpdatePlan()
 {
 	for (Worker& worker : entityManager->workers)
 	{
-		GoalStep* step = goals[0]->NextAvailableStep();
-		if (step)
-			step->AssignTask();
+		for (Goal*& goal : goals)
+		{
+			GoalStep* step = goal->NextAvailableStep();
+			if (step)
+				step->AssignTask();
+		}
 	}
 }
+
+int displayTask = 0;
 
 void Commander::DebugDraw()
 {
@@ -153,9 +202,15 @@ void Commander::DebugDraw()
 		DrawText(str.c_str(), wTask.first->position.x, wTask.first->position.y, 5, WHITE);
 	}
 	*/
+	if (IsKeyDown(KEY_ONE))
+		displayTask = 0;
+	if (IsKeyDown(KEY_TWO))
+		displayTask = 1;
+	if (IsKeyDown(KEY_THREE))
+		displayTask = 2;
 
-	if (goals[0]->finalStep)
-		goals[0]->DebugDraw(*goals[0]->finalStep, 0, 0);
+	if (goals[displayTask]->finalStep)
+		goals[displayTask]->DebugDraw(*goals[displayTask]->finalStep, 0, 0);
 }
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
