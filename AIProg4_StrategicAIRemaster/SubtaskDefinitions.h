@@ -48,8 +48,11 @@ namespace SubtaskDefinitions
 		TreesTile* treesTile;
 		float timer = 0;
 		float delay;
+		
+		int ogX = 0;
+		int ogY = 0;
 
-		FellTreeSubtask(TreesTile* tile, float t) : treesTile(tile), delay(t) {}
+		FellTreeSubtask(TreesTile* tile, float t);
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
@@ -112,6 +115,22 @@ namespace SubtaskDefinitions
 		float delay;
 
 		CreateBuilding(Building* building, float t) : building(building), delay(t) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
+	/// <summary>
+	/// Exchange capital into specific item over the time
+	/// </summary>
+	class CreateItem : public Subtask
+	{
+	public:
+		Building* building;
+		float timer = 0;
+		float delay;
+		Capital::CapitalAmounts cost;
+		Capital::ECapitalType gainItem;
+
+		CreateItem(Building* building, float t, Capital::CapitalAmounts cost, Capital::ECapitalType gainItem) : building(building), delay(t), cost(cost), gainItem(gainItem) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 };

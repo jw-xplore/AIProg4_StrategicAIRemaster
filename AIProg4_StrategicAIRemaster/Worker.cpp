@@ -234,4 +234,24 @@ namespace WorkerTasks
 
 		return task;
 	}
+
+	Task* CreateItemTask(Worker* worker, Building* building, Capital::ActionCost cost, Capital::ECapitalType gainItem)
+	{
+		// Building task
+		float time = GameDB::Database::Instance()->actionCostsBuilding[building->type].time;
+		building->state = EBuildingState::InProgress;
+
+		// Setup task
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::MoveToSubtask(building->position),
+			new SubtaskDefinitions::CreateItem(building, cost.time, cost.capital, gainItem)
+			//new SubtaskDefinitions::CreateBuilding(building, time)
+			}
+		);
+
+		task->name = "Cr coal";
+
+		return task;
+	}
 }

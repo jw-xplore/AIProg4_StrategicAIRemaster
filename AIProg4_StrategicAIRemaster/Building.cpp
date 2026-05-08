@@ -13,6 +13,10 @@ Building::Building(EBuildingType type, Vector2 startPos)
 
 void Building::FinishBuilding()
 {
+	// Substract resources
+	storedCapital -= GameDB::Database::Instance()->actionCostsBuilding[type].capital;
+
+	// Change building
 	creationCounter = creationTarget;
 	ProgressBuilding(0);
 }

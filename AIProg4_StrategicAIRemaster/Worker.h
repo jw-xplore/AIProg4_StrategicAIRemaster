@@ -61,4 +61,5 @@ namespace WorkerTasks
 	Task* DeliverFromBuildingTask(Worker * worker, Capital::ECapitalType itemType, Building * from, Building * target);
 	Task* TrainForRoleTask(Worker* worker, EWorkerRole role);
 	Task* BuildTask(Worker* worker, Building* building);
+	Task* CreateItemTask(Worker* worker, Building* building, Capital::ActionCost cost, Capital::ECapitalType gainItem);
 };

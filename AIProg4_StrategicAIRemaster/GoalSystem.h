@@ -9,6 +9,7 @@
 class Worker;
 class Building;
 enum EWorkerRole;
+class EntityManager;
 
 // Main classses
 class Subtask;
@@ -54,14 +55,16 @@ struct TaskAttribute
 	int type = -1; // Id of type to given category
 	int amount = 0;
 	Building* source = nullptr; // Nullptr will result in checking availability in world
+	bool blocker = false;
 
 	TaskAttribute() {}
 
-	TaskAttribute(ETaskAttributeCategory category, int type, int amount, Building* source): 
+	TaskAttribute(ETaskAttributeCategory category, int type, int amount, Building* source, bool blocker = false): 
 		category(category),
 		type(type),
 		amount(amount),
-		source(source)
+		source(source),
+		blocker(blocker)
 	{ }
 
 	static Building* VariableSource(ETaskAttributeCategory category, int type);
@@ -107,9 +110,11 @@ public:
 	TaskAttribute output;
 	bool variableInOut = false;
 	bool isDelivery = false;
+	bool doneEvaluateReality = false;
 
 	std::vector<GoalStep*> previousSteps;
 	Task* nextStep;
+	bool blocker = false; // Blocker won't stop expanding action chain, It is intended to solve blocker input in separate goal chain (e.g. creation of buildings)
 
 	int finishedTasks = 0;
 	int totalTasks = 0;
@@ -119,6 +124,7 @@ public:
 	GoalStep(GoalStep& source);
 	GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc);
 
+	bool IsAttributeSatisfied(TaskAttribute& attribute, EntityManager* entityMngr);
 	bool IsInputSatisfied();
 	bool IsActive();
 	bool IsDone();

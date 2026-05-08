@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include "Commander.h"
 #include "Worker.h"
+#include <iostream>
 
 Building* TaskAttribute::VariableSource(ETaskAttributeCategory category, int type)
 {
@@ -114,6 +115,7 @@ GoalStep::GoalStep(GoalStep& source)
 
 	this->variableInOut = source.variableInOut;
 	this->isDelivery = source.isDelivery;
+	this->doneEvaluateReality = source.doneEvaluateReality;
 }
 
 GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc)
@@ -126,12 +128,48 @@ GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requir
 	this->taskFunc = taskFunc;
 }
 
+bool GoalStep::IsAttributeSatisfied(TaskAttribute& attribute, EntityManager* entityMngr)
+{
+	// Capital
+	if (attribute.category == ETaskAttributeCategory::Capital)
+	{
+		Capital::ECapitalType type = (Capital::ECapitalType)attribute.type;
+
+		// For world
+		if (!attribute.source)
+		{
+			// Find single free pickup - In world we don't care about mutliple items
+			return entityMngr->FindFreePickupOfType(type);
+		}
+		else
+		{
+			// For building
+			return attribute.source->storedCapital[type] >= attribute.amount;
+		}
+	}
+
+	// Worker
+	if (attribute.category == ETaskAttributeCategory::Worker)
+	{
+		return entityMngr->FindWorkerOfRole((EWorkerRole)attribute.type);
+	}
+
+	// Building
+	if (attribute.category == ETaskAttributeCategory::Building)
+	{
+		return entityMngr->FindFinishedBuildingOfType((EBuildingType)attribute.type);
+	}
+
+	return false;
+}
+
 bool GoalStep::IsInputSatisfied()
 {
 	EntityManager* entityMngr = SystemsHolder::GetInstance()->entityMananger;
 
-	for (const TaskAttribute& attribute : requirements)
+	for (TaskAttribute& attribute : requirements)
 	{
+		/*
 		// Capital
 		if (attribute.category == ETaskAttributeCategory::Capital)
 		{
@@ -171,6 +209,10 @@ bool GoalStep::IsInputSatisfied()
 
 			continue;
 		}
+		*/
+
+		if (!IsAttributeSatisfied(attribute, entityMngr))
+			return false;
 	}
 
 	// All fullfilled
@@ -187,11 +229,19 @@ bool GoalStep::IsActive()
 
 bool GoalStep::IsDone()
 {
+	// Evaluate a real state
+	if (doneEvaluateReality)
+	{
+		EntityManager* entityMngr = SystemsHolder::GetInstance()->entityMananger;
+		return IsAttributeSatisfied(output, entityMngr);
+	}
+
+	// Check tasks fullfilment
 	if (totalTasks == 0)
 		return false;
 
-	if (finishedTasks > totalTasks)
-		throw std::runtime_error("Goal step finished tasks overflow!");
+	//if (finishedTasks > totalTasks)
+		//throw std::runtime_error("Goal step finished tasks overflow!");
 
 	return finishedTasks == totalTasks;
 }
@@ -252,12 +302,17 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 			bool sourcePass = step->output.source == input.source;
 			bool inputSafisfied = step->output.category == input.category && step->output.type == input.type && sourcePass;
 			if (step->variableInOut)
-				inputSafisfied = true;
+				inputSafisfied = step->output.category == input.category;
 
 			// Found task satisfying input criteria
 			if (inputSafisfied)
 			{
 				GoalStep* newStep = new GoalStep(*step);
+
+				if (input.blocker)
+					int a = 5;
+
+				newStep->blocker = input.blocker;
 
 				if (newStep->variableInOut)
 				{
@@ -290,9 +345,9 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 					// Dynamic task assign for deliver step
 					if (newStep->isDelivery)
 					{
-						newStep->taskFunc = [*this, &currentStep](Worker* worker) {
+						newStep->taskFunc = [*this, &input](Worker* worker) {
 							//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
-							Building* building = currentStep.requirements[0].source;
+							Building* building = input.source;
 							return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, building);
 							};
 					}
@@ -302,7 +357,11 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 				newStep->totalTasks = input.amount * currentStep.totalTasks; // TODO: Multipliying with previous steps amounts
 
 				currentStep.previousSteps.push_back(newStep);
-				DefineTaskChain(*newStep, availableSteps);
+
+				std::cout << "new step: " << newStep->name << "\n";
+
+				if (!newStep->blocker)
+					DefineTaskChain(*newStep, availableSteps);
 				break;
 			}
 		}

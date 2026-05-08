@@ -34,6 +34,9 @@ Commander::~Commander()
 
 void Commander::DefineAvailableTasks()
 {
+	GameDB::Database* db = GameDB::Database::Instance();
+	//db->actionCostsResources[EActionResource::MakeCoal];
+
 	// Buildings
 	Building* coalMile = entityManager->FindBuildingOfType(EBuildingType::CoalMile);
 	Building* smelter = entityManager->FindBuildingOfType(EBuildingType::Smelter);
@@ -51,13 +54,20 @@ void Commander::DefineAvailableTasks()
 		{
 			// TODO: Determine which building is required
 			// TODO: Get unit numbers from database
-			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::CoalMiner, 1, nullptr),
-			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, coalMile)
+			TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::CoalMile, 1, nullptr, true),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, db->actionCostsResources[GameDB::EActionResource::MakeCoal].capital.amounts[Capital::ECapitalType::Tree], coalMile),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::CoalMiner, 1, nullptr)
 		},
 		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Coal, 1, coalMile),
 
 		// TODO: Add creating of coal by coal miler
-		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
+		[*this, db](Worker* worker) { return  WorkerTasks::CreateItemTask(
+			worker,
+			entityManager->FindBuildingOfType(EBuildingType::CoalMile), 
+			db->actionCostsResources[GameDB::EActionResource::MakeCoal],
+			Capital::ECapitalType::Coal
+		); 
+		}
 	);
 
 	availableSteps.push_back(cutWood);
@@ -76,22 +86,31 @@ void Commander::DefineAvailableTasks()
 	//--------------
 
 	// Goals final tasks
-	GoalStep* trainScout = new GoalStep(
-		"Train scout",
-		{},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr),
-		[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Scout); }
-	);
+	for (size_t i = 0; i < EWorkerRole::EWorkerRoleCount; i++)
+	{
+		// Soldier will have custon task
+		if (i == EWorkerRole::Soldier)
+			continue;
 
-	GoalStep* trainBuilder = new GoalStep(
-		"Train builder",
-		{},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr),
-		[*this](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Builder); }
-	);
+		std::string name = "";
+		switch (i)
+		{
+		case EWorkerRole::Scout: name = "Scout"; break;
+		case EWorkerRole::Builder: name = "Builder"; break;
+		case EWorkerRole::CoalMiner: name = "CoalM"; break;
+		case EWorkerRole::SmelterOperator: name = "Smelt"; break;
+		case EWorkerRole::ArmsSmith: name = "Smith"; break;
+		}
 
-	availableSteps.push_back(trainScout);
-	availableSteps.push_back(trainBuilder);
+		GoalStep* train = new GoalStep(
+			"Train " + name,
+			{},
+			TaskAttribute(ETaskAttributeCategory::Worker, static_cast<EWorkerRole>(i), 1, nullptr),
+			[*this, i](Worker* worker) { return WorkerTasks::TrainForRoleTask(worker, static_cast<EWorkerRole>(i)); }
+		);
+
+		availableSteps.push_back(train);
+	}
 
 	// Define delivery tasks
 	GoalStep* deliverItem = new GoalStep(
@@ -99,7 +118,7 @@ void Commander::DefineAvailableTasks()
 		{
 			//TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
 		},
-		TaskAttribute(ETaskAttributeCategory::None, -1, 0, nullptr),
+		TaskAttribute(ETaskAttributeCategory::Capital, -1, 0, nullptr),
 		nullptr
 		/*
 		[*this](Worker* worker) {
@@ -124,17 +143,22 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::CoalMile)); }
 	);
 
+	buildCoalMile->doneEvaluateReality = true;
+
 	GoalStep* buildSmelter = new GoalStep(
 		"Build smelter",
 		{
 			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::Smelter)),
 			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr)
 		},
-		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::CoalMile, 1, nullptr),
+		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::Smelter, 1, nullptr),
 		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::Smelter)); }
 	);
 
+	buildSmelter->doneEvaluateReality = true;
 
+	availableSteps.push_back(buildCoalMile);
+	availableSteps.push_back(buildSmelter);
 
 	// Goals definition
 	goals.push_back(new Goal(*buildCoalMile, availableSteps));

@@ -1,6 +1,7 @@
 #include <raylib.h>
 #include <vector>
 #include "Constants.h"
+#include <iostream>
 
 class ComponentsManager;
 class EntityManager;
@@ -104,6 +105,10 @@ public:
     {
         float x = tile.x * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
         float y = tile.y * GlobalVars::TILE_SIZE + GlobalVars::TILE_HALF_SIZE;
+
+        if (y == 37)
+            int a = 5;
+
         return { x,y };
     }
 };

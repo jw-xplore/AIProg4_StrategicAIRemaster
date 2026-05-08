@@ -196,6 +196,8 @@ void World::Draw()
             }
 
             DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, col);
+
+            //DrawText(std::to_string(y).c_str(), x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, 6, BLACK);
         }
     }
 

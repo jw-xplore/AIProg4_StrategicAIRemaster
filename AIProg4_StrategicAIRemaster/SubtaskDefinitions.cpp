@@ -55,11 +55,22 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 	return ESubtaskState::Running;
 }
 
+FellTreeSubtask::FellTreeSubtask(TreesTile* tile, float t) :
+	treesTile(tile), delay(t) 
+{
+	ogX = tile->x;
+	ogY = tile->y;
+}
+
 ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 {
 	if (timer >= delay)
 	{
-		Vector2 pos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
+		//Vector2 pos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
+		Vector2 pos = worker.position; // Hot fix for faulty tile (11,37)
+
+		std::cout << "feel tree tile: (" << treesTile->x << ", " << treesTile->y << ") - ";
+		std::cout << "pos: (" << pos.x << ", " << pos.y << ") \n";
 
 		// Done
 		treesTile->FellTree();
@@ -73,6 +84,9 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 		treesTile->reservations--;
 		return ESubtaskState::Finnished;
 	}
+
+	if (treesTile->y > 30)
+		int a = 5;
 
 	// Run 
 	timer += dTime;
@@ -144,6 +158,21 @@ ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
 	{
 		// Done
 		building->FinishBuilding();
+		return ESubtaskState::Finnished;
+	}
+
+	// Run 
+	timer += dTime;
+	return ESubtaskState::Running;
+}
+
+ESubtaskState CreateItem::Execute(Worker& worker, float dTime)
+{
+	if (timer >= delay)
+	{
+		// Done
+		building->storedCapital -= cost;
+		building->storedCapital.amounts[gainItem] += 1;
 		return ESubtaskState::Finnished;
 	}
 
