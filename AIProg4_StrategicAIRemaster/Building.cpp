@@ -15,6 +15,8 @@ Building::Building(EBuildingType type, Vector2 startPos, EBuildingState state)
 		creationCounter = creationTarget;
 		ProgressBuilding(0);
 	}
+
+	//storedCapital.amounts[1] = 10;
 }
 
 void Building::FinishBuilding()

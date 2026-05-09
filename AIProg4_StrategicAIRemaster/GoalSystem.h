@@ -88,6 +88,7 @@ public:
 	GoalStep* parentGoalStep;
 	std::vector<std::function<void (Task*)>> onFinishedListeners;
 
+	Task() {}
 	Task(Worker* worker, std::initializer_list<Subtask*> subtasks);
 	Task(const Task& rhs);
 	~Task();

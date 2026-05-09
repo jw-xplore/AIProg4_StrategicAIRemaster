@@ -21,7 +21,7 @@ namespace Capital
 	// Can be used for stored or defining how resources cost - e.g. how much wood and iron will cost to build a smelter
 	struct CapitalAmounts
 	{
-		int* amounts = new int[ECapitalType::ECapitalTypeCount];
+		int amounts[ECapitalType::ECapitalTypeCount];
 
 		void Empty()
 		{

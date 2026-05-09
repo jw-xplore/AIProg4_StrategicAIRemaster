@@ -9,6 +9,7 @@
 #include "Pickup.h"
 #include "Building.h"
 #include <vector>
+#include <iostream>
 
 using namespace SubtaskDefinitions;
 
@@ -110,7 +111,8 @@ ESubtaskState PickupFromBuildingSubtask::Execute(Worker& worker, float dTime)
 
 	worker.carriedMaterial = type;
 	building->storedCapital.amounts[type] -= 1;
-	building->storedCapital.amounts[type] -= 1;
+	building->reservedCapital.amounts[type] -= 1;
+
 	return ESubtaskState::Finnished;
 }
 

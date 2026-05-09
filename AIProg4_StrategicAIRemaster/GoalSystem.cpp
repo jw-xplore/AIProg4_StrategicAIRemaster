@@ -212,6 +212,9 @@ void GoalStep::AssignTask()
 
 	if (worker)
 	{
+		if (isDelivery && output.type == Capital::ECapitalType::Coal)
+			int a = 4;
+
 		Task* task = taskFunc(worker);
 		task->parentGoalStep = this;
 		commander->AssignTask(worker, task);
@@ -311,14 +314,29 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 					// Dynamic task assign for deliver step
 					if (newStep->isDelivery)
 					{
-						if (input.type == Capital::ECapitalType::IronOre)
+						if (input.type == Capital::ECapitalType::Coal)
 							int a = 5;
 
-						newStep->taskFunc = [*this, &input](Worker* worker) {
-							//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
-							Building* building = input.source;
-							return WorkerTasks::DeliverItemTask(worker, static_cast<Capital::ECapitalType>(input.type), building);
-							};
+						Building* from = TaskAttribute::VariableSource(input.category, input.type);
+
+						if (from)
+						{
+							// Getting resources from building
+							newStep->taskFunc = [*this, &input, from](Worker* worker) {
+								//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
+								Building* building = input.source;
+								return WorkerTasks::DeliverFromBuildingTask(worker, static_cast<Capital::ECapitalType>(input.type), from, building);
+								};
+						}
+						else
+						{
+							// Getting resources from world
+							newStep->taskFunc = [*this, &input](Worker* worker) {
+								//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
+								Building* building = input.source;
+								return WorkerTasks::DeliverItemTask(worker, static_cast<Capital::ECapitalType>(input.type), building);
+								};
+						}
 					}
 				}
 

@@ -113,10 +113,16 @@ namespace WorkerTasks
 	{
 		SystemsHolder* systems = SystemsHolder::GetInstance();
 
+		if (itemType == Capital::ECapitalType::Coal)
+			int a = 5;
+
 		// Find closest item
 		Pickup* item = systems->entityMananger->FindClosestPickup(worker->position, itemType);
 		if (!item)
+		{
+			throw std::runtime_error("World out of resources!");
 			return nullptr;
+		}
 
 		// Setup subtasks
 		Task* task = new Task(worker,

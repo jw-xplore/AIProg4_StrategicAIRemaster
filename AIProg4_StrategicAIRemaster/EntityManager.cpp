@@ -22,7 +22,7 @@ EntityManager::EntityManager()
 
 	// Setup workers
 	int population = db->startingPopulation;
-	population = 4;
+	population = 5;
 
 	//workers = new std::vector<Worker>();
 	workers.reserve(population);
@@ -84,6 +84,8 @@ void EntityManager::Update(float dTime)
 		// Debug
 		std::string buildStr = "w: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::Tree]);
 		buildStr += ", co: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::Coal]);
+		buildStr += ", io: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::IronOre]);
+		buildStr += ", ib: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::IronBar]);
 		DrawText(buildStr.c_str(), building->position.x, building->position.y, 8, BLACK);
 	}
 }

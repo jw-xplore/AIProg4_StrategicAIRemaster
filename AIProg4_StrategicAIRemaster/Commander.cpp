@@ -21,8 +21,8 @@ Commander::Commander()
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
 	// Preplace buildings 
-	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}, EBuildingState::Finished));
-	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 100 }, EBuildingState::Finished));
+	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}));
+	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 100 }));
 
 	DefineAvailableTasks();
 }
@@ -185,8 +185,8 @@ void Commander::DefineAvailableTasks()
 	availableSteps.push_back(buildSmelter);
 
 	// Goals definition
-	//goals.push_back(new Goal(*buildCoalMile, availableSteps));
-	//goals.push_back(new Goal(*buildSmelter, availableSteps));
+	goals.push_back(new Goal(*buildCoalMile, availableSteps));
+	goals.push_back(new Goal(*buildSmelter, availableSteps));
 	goals.push_back(new Goal(*createIronBar, availableSteps));
 }
 
