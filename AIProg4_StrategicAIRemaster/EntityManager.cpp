@@ -22,7 +22,7 @@ EntityManager::EntityManager()
 
 	// Setup workers
 	int population = db->startingPopulation;
-	population = 5;
+	//population = 10;
 
 	//workers = new std::vector<Worker>();
 	workers.reserve(population);
@@ -31,6 +31,7 @@ EntityManager::EntityManager()
 	{
 		Vector2 randPos = { GetRandomValue(startX.x, startX.y), GetRandomValue(startY.x, startY.y) };
 		Worker worker = Worker(randPos);
+		worker.id = i;
 		workers.push_back(worker);
 
 		workersRoleFilter[EWorkerRole::General].push_back(&worker);
@@ -68,6 +69,9 @@ void EntityManager::Update(float dTime)
 	{
 		workers.at(i).Update(dTime);
 		workers.at(i).Render();
+
+		// Debug
+		DrawText(std::to_string(workers[i].id).c_str(), workers[i].position.x, workers[i].position.y, 4, BLACK);
 	}
 
 	// Render pickups

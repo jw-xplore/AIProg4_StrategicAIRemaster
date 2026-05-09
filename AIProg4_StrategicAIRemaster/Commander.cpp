@@ -259,6 +259,30 @@ void Commander::DebugDraw()
 
 	if (goals[displayTask]->finalStep)
 		goals[displayTask]->DebugDraw(*goals[displayTask]->finalStep, 0, 0);
+
+	// Worker stats
+	std::string workerStats = "";
+	int working = 0;
+
+	for (auto& worker : entityManager->workers)
+	{
+		std::string taskName = "Idle";
+
+		if (workerTaskMap.find(&worker) != workerTaskMap.end())
+		{
+			Task* task = workerTaskMap.at(&worker);
+			if (task)
+			{
+				taskName = task->name;
+				working++;
+			}
+		}
+
+		workerStats += std::to_string(worker.id) + ". task: " + taskName + "\n";
+	}
+
+	DrawText(("Working: " + std::to_string(working)).c_str(), 20, 80, 10, YELLOW);
+	DrawText(workerStats.c_str(), 20, 100, 10, YELLOW);
 }
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)

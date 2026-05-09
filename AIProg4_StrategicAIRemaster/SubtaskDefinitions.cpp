@@ -26,8 +26,7 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 	if (!pathAssigned)
 	{
 		// Clear previous path
-		if (!worker.path.empty())
-			worker.path.clear();
+		worker.ClearPath();
 
 		// Find 
 		std::map<Node*, NodeRecordAs>* searchResult = SystemsHolder::GetInstance()->commander->searchResult;
@@ -39,18 +38,22 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 			ESubtaskState::Running;
 
 		// Assign path
+		std::vector<Vector2> pathPositions;
+
 		for (size_t p = 0; p < path->size(); p++)
 		{
 			float x = path->at(p).x * GlobalVars::TILE_SIZE;
 			float y = path->at(p).y * GlobalVars::TILE_SIZE;
-			worker.path.push_back({ x, y });
+			pathPositions.push_back({ x, y });
 		}
+
+		worker.SetNewPath(pathPositions);
 
 		pathAssigned = true;
 	}
 
 	// Move to point
-	if (worker.path.empty())
+	if (worker.PathTargetReached())
 		return ESubtaskState::Finnished;
 	
 	return ESubtaskState::Running;

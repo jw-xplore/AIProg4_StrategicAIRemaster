@@ -38,7 +38,7 @@ void Worker::Render()
 	DrawCircle(pos.x, pos.y, Worker::WORKER_SIZE, coloring);
 }
 
-void Worker::SetNewPath(std::vector<Vector2> newPath)
+void Worker::SetNewPath(std::vector<Vector2>& newPath)
 {
 	path = newPath;
 	currentPathNode = path.size() - 1;
@@ -64,7 +64,7 @@ bool Worker::FollowPath()
 	if (Vector2LengthSqr(dist) > pathNodeDistance)
 	{
 		target = pos;
-		DrawCircle(pos.x, pos.y, 4, ORANGE);
+		//DrawCircle(pos.x, pos.y, 4, ORANGE);
 	}
 	else
 	{
@@ -75,6 +75,16 @@ bool Worker::FollowPath()
 	return true;
 }
 
+void Worker::ClearPath()
+{
+	if (path.empty())
+		path.clear();
+}
+
+bool Worker::PathTargetReached() 
+{
+	return currentPathNode < 0;
+}
 
 //--------------------------------------------------------------
 // Worker task definitions
@@ -153,7 +163,11 @@ namespace WorkerTasks
 
 		// Check availability
 		if (from->GetAvailableCapital()[itemType] <= 0)
+		{
+			std::string err = "Building: " + std::to_string(from->type) + " out of resource: " + std::to_string(itemType);
+			throw std::runtime_error(err);
 			return nullptr;
+		}
 
 		// Reserve capital
 		from->reservedCapital.amounts[itemType] += 1;

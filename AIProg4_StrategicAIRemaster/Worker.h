@@ -24,7 +24,12 @@ enum EWorkerRole
 
 class Worker
 {
+private:
+	std::vector<Vector2> path = {};
+	int currentPathNode = 0;
+
 public:
+	int id = -1;
 	const int WORKER_SIZE = 2;
 	const Color WORKER_COLOR = RED;
 
@@ -39,8 +44,6 @@ public:
 	float speed;
 
 	// Path
-	std::vector<Vector2> path = {};
-	int currentPathNode = 0;
 	float pathNodeDistance = 10;
 
 	Worker(){}
@@ -50,8 +53,10 @@ public:
 	void Update(float dTime);
 	void Render();
 
-	void SetNewPath(std::vector<Vector2> newPath);
+	void SetNewPath(std::vector<Vector2>& newPath);
 	bool FollowPath();
+	void ClearPath();
+	bool PathTargetReached();
 };
 
 namespace WorkerTasks

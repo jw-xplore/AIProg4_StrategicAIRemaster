@@ -14,6 +14,7 @@
 #include "Camera.h"
 
 extern float TIME_SCALE = 1;
+bool pause = false;
 
 CustomCamera cam;
 
@@ -37,8 +38,15 @@ void AdjustTimeScale()
     else  if (IsKeyDown(KEY_LEFT) && TIME_SCALE > 0.1)
         TIME_SCALE -= 0.1f;
 
+    if (IsKeyPressed(KEY_SPACE))
+        pause = !pause;
+
     // Show time
-    std::string strTime = "Time scale: " + std::to_string(TIME_SCALE);
+    std::string strPause = " (Running)";
+    if (pause)
+        strPause = " (Paused)";
+
+    std::string strTime = "Time scale: " + std::to_string(TIME_SCALE) + strPause;
     char const* cTime = strTime.c_str();
     DrawText(cTime, 50 + cam.camera.target.x, 10 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
 
@@ -86,7 +94,11 @@ void RunGame()
     while (!WindowShouldClose())
     {
         // Update entities
-        float dt = GetFrameTime() * TIME_SCALE;
+        float ts = TIME_SCALE;
+        if (pause)
+            ts = 0;
+
+        float dt = GetFrameTime() * ts;
         world.Update(dt);
         commander.Update(dt);
 

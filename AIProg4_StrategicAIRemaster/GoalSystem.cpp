@@ -292,7 +292,7 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 						newStep->requirements.push_back(TaskAttribute(
 							input.category,
 							input.type,
-							input.amount,
+							1,
 							TaskAttribute::VariableSource(input.category, input.type)
 						));
 
@@ -381,16 +381,20 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 	}
 
 	// Check not started previous tasks
+	GoalStep* available = nullptr;
+
 	for (GoalStep*& step : currentStep.previousSteps)
 	{
 		if (!step->IsDone())
 		{
-			return NextAvailableStep(*step);
+			available = NextAvailableStep(*step);
+			if (available)
+				break;
 		}
 	}
 
 	// Is active and fully occupied - wait as nothing can be done now
-	return nullptr;
+	return available;
 }
 
 void Goal::DebugDraw(GoalStep& step, int posX, int posY)
