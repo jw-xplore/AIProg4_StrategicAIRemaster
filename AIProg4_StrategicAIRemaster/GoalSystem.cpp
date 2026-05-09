@@ -7,6 +7,7 @@
 #include "Commander.h"
 #include "Worker.h"
 #include <iostream>
+#include "Capital.h"
 
 Building* TaskAttribute::VariableSource(ETaskAttributeCategory category, int type)
 {
@@ -169,48 +170,6 @@ bool GoalStep::IsInputSatisfied()
 
 	for (TaskAttribute& attribute : requirements)
 	{
-		/*
-		// Capital
-		if (attribute.category == ETaskAttributeCategory::Capital)
-		{
-			Capital::ECapitalType type = (Capital::ECapitalType)attribute.type;
-
-			// For world
-			if (!attribute.source)
-			{
-				// Find single free pickup - In world we don't care about mutliple items
-				if (!entityMngr->FindFreePickupOfType(type))
-					return false;
-			}
-			else
-			{
-				// For building
-				if (attribute.source->storedCapital[type] < attribute.amount)
-					return false;
-			}
-
-			continue;
-		}
-
-		// Worker
-		if (attribute.category == ETaskAttributeCategory::Worker)
-		{
-			if (!entityMngr->FindWorkerOfRole((EWorkerRole)attribute.type))
-				return false;
-
-			continue;
-		}
-
-		// Building
-		if (attribute.category == ETaskAttributeCategory::Building)
-		{
-			if (!entityMngr->FindFinishedBuildingOfType((EBuildingType)attribute.type))
-				return false;
-
-			continue;
-		}
-		*/
-
 		if (!IsAttributeSatisfied(attribute, entityMngr))
 			return false;
 	}
@@ -296,6 +255,13 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 	// Define previous task for each input to safisfy current criteria
 	for (const TaskAttribute& input : currentStep.requirements)
 	{
+		// HACK: Ingore iron ore as there is no previous step required
+		if (input.category == ETaskAttributeCategory::Capital && input.type == Capital::ECapitalType::IronOre && currentStep.isDelivery)
+		{
+			currentStep.requirements.clear();
+			continue;
+		}
+
 		for (GoalStep*& step : availableSteps)
 		{
 			// Compare required source
@@ -345,20 +311,28 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 					// Dynamic task assign for deliver step
 					if (newStep->isDelivery)
 					{
+						if (input.type == Capital::ECapitalType::IronOre)
+							int a = 5;
+
 						newStep->taskFunc = [*this, &input](Worker* worker) {
 							//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
 							Building* building = input.source;
-							return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, building);
+							return WorkerTasks::DeliverItemTask(worker, static_cast<Capital::ECapitalType>(input.type), building);
 							};
 					}
 				}
 
 
-				newStep->totalTasks = input.amount * currentStep.totalTasks; // TODO: Multipliying with previous steps amounts
+
+				newStep->totalTasks = input.amount;
+				
+				// Mutliply supplies
+				if (newStep->output.category == ETaskAttributeCategory::Capital)
+					newStep->totalTasks  *= currentStep.totalTasks;
 
 				currentStep.previousSteps.push_back(newStep);
 
-				std::cout << "new step: " << newStep->name << "\n";
+				std::cout << "new step: " << newStep->name << " (from: " << currentStep.name << ")" << "\n";
 
 				if (!newStep->blocker)
 					DefineTaskChain(*newStep, availableSteps);
@@ -404,6 +378,8 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 {
 	// Helper stats
+	std::string amount = " (" + std::to_string(step.totalTasks) + ")";
+
 	std::string buildingStr = "Non";
 	if (step.output.source)
 		buildingStr = std::to_string(step.output.source->type);
@@ -411,7 +387,7 @@ void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 	std::string outCTStr = std::to_string((int)step.output.category) + " - " + std::to_string(step.output.type);
 
 	// Display string
-	std::string str = step.name /* + "\n out bu:" + buildingStr */+ "\n out c/t:" + outCTStr;
+	std::string str = step.name + amount /* + "\n out bu:" + buildingStr */+ "\n out c/t:" + outCTStr;
 	char const* cZoom = str.c_str();
 
 	Color coloring = RED;

@@ -21,8 +21,8 @@ Commander::Commander()
 	entityManager = SystemsHolder::GetInstance()->entityMananger;
 
 	// Preplace buildings 
-	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}));
-	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 100 }));
+	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}, EBuildingState::Finished));
+	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 100 }, EBuildingState::Finished));
 
 	DefineAvailableTasks();
 }
@@ -49,18 +49,17 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return  WorkerTasks::FellTreeTask(worker); }
 	);
 
+	// Creation
+	int* createCoalAmounts = db->actionCostsResources[GameDB::EActionResource::MakeCoal].capital.amounts;
+
 	GoalStep* createCoal = new GoalStep(
 		"Cr coal",
 		{
-			// TODO: Determine which building is required
-			// TODO: Get unit numbers from database
 			TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::CoalMile, 1, nullptr, true),
-			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, db->actionCostsResources[GameDB::EActionResource::MakeCoal].capital.amounts[Capital::ECapitalType::Tree], coalMile),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, createCoalAmounts[Capital::ECapitalType::Tree], coalMile),
 			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::CoalMiner, 1, nullptr)
 		},
 		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Coal, 1, coalMile),
-
-		// TODO: Add creating of coal by coal miler
 		[*this, db](Worker* worker) { return  WorkerTasks::CreateItemTask(
 			worker,
 			entityManager->FindBuildingOfType(EBuildingType::CoalMile), 
@@ -70,8 +69,33 @@ void Commander::DefineAvailableTasks()
 		}
 	);
 
+	createCoal->roleConstrain = EWorkerRole::CoalMiner;
+
+	int* createIronBarAmounts = db->actionCostsResources[GameDB::EActionResource::MakeIronBar].capital.amounts;
+
+	GoalStep* createIronBar = new GoalStep(
+		"Cr ironB",
+		{
+			TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::Smelter, 1, nullptr, true),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Coal, createIronBarAmounts[Capital::ECapitalType::Coal], smelter),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::IronOre, createIronBarAmounts[Capital::ECapitalType::IronOre], smelter),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::SmelterOperator, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::IronBar, 1, smelter),
+		[*this, db](Worker* worker) { return  WorkerTasks::CreateItemTask(
+			worker,
+			entityManager->FindBuildingOfType(EBuildingType::Smelter),
+			db->actionCostsResources[GameDB::EActionResource::MakeIronBar],
+			Capital::ECapitalType::IronBar
+		);
+		}
+	);
+
+	createCoal->roleConstrain = EWorkerRole::SmelterOperator;
+
 	availableSteps.push_back(cutWood);
 	availableSteps.push_back(createCoal);
+	availableSteps.push_back(createIronBar);
 
 	/*
 	availableSteps.push_back(new GoalStep(
@@ -161,9 +185,9 @@ void Commander::DefineAvailableTasks()
 	availableSteps.push_back(buildSmelter);
 
 	// Goals definition
-	goals.push_back(new Goal(*buildCoalMile, availableSteps));
-	goals.push_back(new Goal(*buildSmelter, availableSteps));
-	goals.push_back(new Goal(*createCoal, availableSteps));
+	//goals.push_back(new Goal(*buildCoalMile, availableSteps));
+	//goals.push_back(new Goal(*buildSmelter, availableSteps));
+	goals.push_back(new Goal(*createIronBar, availableSteps));
 }
 
 void Commander::Update(float dTime)

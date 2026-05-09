@@ -239,7 +239,6 @@ namespace WorkerTasks
 	{
 		// Building task
 		float time = GameDB::Database::Instance()->actionCostsBuilding[building->type].time;
-		building->state = EBuildingState::InProgress;
 
 		// Setup task
 		Task* task = new Task(worker,

@@ -1,14 +1,20 @@
 #include "Building.h"
 #include "Database.h"
 
-Building::Building(EBuildingType type, Vector2 startPos)
+Building::Building(EBuildingType type, Vector2 startPos, EBuildingState state)
 {
 	position = startPos;
-	state = EBuildingState::Preplaced;
 
 	this->type = type;
 	color = GREEN;
 	creationTarget = GameDB::Database::Instance()->actionCostsBuilding[type].time;
+
+	this->state = state;
+	if (state == EBuildingState::Finished)
+	{
+		creationCounter = creationTarget;
+		ProgressBuilding(0);
+	}
 }
 
 void Building::FinishBuilding()

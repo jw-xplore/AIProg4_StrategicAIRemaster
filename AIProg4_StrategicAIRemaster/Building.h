@@ -36,6 +36,8 @@ struct CapitalReservation
 
 class Building
 {
+private:
+
 public:
 	EBuildingType type;
 	Capital::CapitalAmounts storedCapital;
@@ -50,7 +52,7 @@ public:
 	Color color;
 
 	Building() {}
-	Building(EBuildingType type, Vector2 startPos);
+	Building(EBuildingType type, Vector2 startPos, EBuildingState state = EBuildingState::Preplaced);
 	~Building() {}
 
 	void FinishBuilding();
