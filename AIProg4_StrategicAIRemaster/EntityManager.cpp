@@ -22,7 +22,7 @@ EntityManager::EntityManager()
 
 	// Setup workers
 	int population = db->startingPopulation;
-	//population = 10;
+	population = 20;
 
 	//workers = new std::vector<Worker>();
 	workers.reserve(population);
@@ -86,10 +86,13 @@ void EntityManager::Update(float dTime)
 		DrawRectangle(building->position.x, building->position.y, GlobalVars::TILE_HALF_SIZE, GlobalVars::TILE_HALF_SIZE, building->color);
 	
 		// Debug
-		std::string buildStr = "w: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::Tree]);
-		buildStr += ", co: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::Coal]);
-		buildStr += ", io: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::IronOre]);
-		buildStr += ", ib: " + std::to_string(building->GetAvailableCapital().amounts[Capital::ECapitalType::IronBar]);
+		int* available = building->GetAvailableCapital().amounts;
+		int* reserved = building->reservedCapital.amounts;
+
+		std::string buildStr = "w: " + std::to_string(available[Capital::ECapitalType::Tree]) + " (" + std::to_string(reserved[Capital::ECapitalType::Tree]) + ")";
+		buildStr += ", co: " + std::to_string(available[Capital::ECapitalType::Coal]) + " (" + std::to_string(reserved[Capital::ECapitalType::Coal]) + ")";
+		buildStr += ", io: " + std::to_string(available[Capital::ECapitalType::IronOre]) + " (" + std::to_string(reserved[Capital::ECapitalType::IronOre]) + ")";
+		buildStr += ", ib: " + std::to_string(available[Capital::ECapitalType::IronBar]) + " (" + std::to_string(reserved[Capital::ECapitalType::IronBar]) + ")";
 		DrawText(buildStr.c_str(), building->position.x, building->position.y, 8, BLACK);
 	}
 }

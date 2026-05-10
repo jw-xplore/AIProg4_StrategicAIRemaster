@@ -55,6 +55,7 @@ public:
 	Building(EBuildingType type, Vector2 startPos, EBuildingState state = EBuildingState::Preplaced);
 	~Building() {}
 
+	void StartBuilding();
 	void FinishBuilding();
 	void ProgressBuilding(float progress);
 	Capital::CapitalAmounts GetAvailableCapital();

@@ -19,9 +19,15 @@ Building::Building(EBuildingType type, Vector2 startPos, EBuildingState state)
 	//storedCapital.amounts[1] = 10;
 }
 
+void Building::StartBuilding()
+{
+	reservedCapital += GameDB::Database::Instance()->actionCostsBuilding[type].capital;
+}
+
 void Building::FinishBuilding()
 {
 	// Substract resources
+	reservedCapital -= GameDB::Database::Instance()->actionCostsBuilding[type].capital;
 	storedCapital -= GameDB::Database::Instance()->actionCostsBuilding[type].capital;
 
 	// Change building

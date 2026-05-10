@@ -73,8 +73,8 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 		//Vector2 pos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
 		Vector2 pos = worker.position; // Hot fix for faulty tile (11,37)
 
-		std::cout << "feel tree tile: (" << treesTile->x << ", " << treesTile->y << ") - ";
-		std::cout << "pos: (" << pos.x << ", " << pos.y << ") \n";
+		//std::cout << "feel tree tile: (" << treesTile->x << ", " << treesTile->y << ") - ";
+		//std::cout << "pos: (" << pos.x << ", " << pos.y << ") \n";
 
 		// Done
 		treesTile->FellTree();
@@ -159,6 +159,12 @@ ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
 
 ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
 {
+	if (!started)
+	{
+		building->StartBuilding();
+		started = true;
+	}
+
 	if (timer >= delay)
 	{
 		// Done

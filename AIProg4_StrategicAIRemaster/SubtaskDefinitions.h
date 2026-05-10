@@ -111,6 +111,7 @@ namespace SubtaskDefinitions
 	{
 	public:
 		Building* building;
+		bool started = false;
 		float timer = 0;
 		float delay;
 

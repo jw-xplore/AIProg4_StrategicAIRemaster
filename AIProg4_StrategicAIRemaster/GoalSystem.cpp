@@ -145,7 +145,7 @@ bool GoalStep::IsAttributeSatisfied(TaskAttribute& attribute, EntityManager* ent
 		else
 		{
 			// For building
-			return attribute.source->storedCapital[type] >= attribute.amount;
+			return attribute.source->GetAvailableCapital()[type] >= attribute.amount;
 		}
 	}
 
@@ -385,7 +385,7 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 
 	for (GoalStep*& step : currentStep.previousSteps)
 	{
-		if (!step->IsDone())
+		if (!step->IsDone() && !step->blocker)
 		{
 			available = NextAvailableStep(*step);
 			if (available)

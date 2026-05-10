@@ -162,7 +162,11 @@ namespace WorkerTasks
 		SystemsHolder* systems = SystemsHolder::GetInstance();
 
 		// Check availability
-		if (from->GetAvailableCapital()[itemType] <= 0)
+		int itemAmount = from->GetAvailableCapital()[itemType];
+		int actual = from->storedCapital[itemType];
+		int reserved = from->reservedCapital[itemType];
+
+		if (itemAmount <= 0)
 		{
 			std::string err = "Building: " + std::to_string(from->type) + " out of resource: " + std::to_string(itemType);
 			throw std::runtime_error(err);
@@ -170,6 +174,9 @@ namespace WorkerTasks
 		}
 
 		// Reserve capital
+		if (itemType == Capital::ECapitalType::Coal)
+			int a = 4;
+
 		from->reservedCapital.amounts[itemType] += 1;
 
 		// Setup subtasks
