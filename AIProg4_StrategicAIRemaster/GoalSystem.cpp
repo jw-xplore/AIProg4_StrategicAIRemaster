@@ -111,12 +111,17 @@ GoalStep::GoalStep(GoalStep& source)
 
 	this->requirements = source.requirements;
 	this->output = source.output;
+	this->roleConstrain = source.roleConstrain;
 
 	this->taskFunc = std::function<Task* (Worker*)>(source.taskFunc);
+	this->totalTasks = source.totalTasks;
 
 	this->variableInOut = source.variableInOut;
 	this->isDelivery = source.isDelivery;
 	this->doneEvaluateReality = source.doneEvaluateReality;
+
+	if (this->output.category == ETaskAttributeCategory::Worker && this->output.type == EWorkerRole::Soldier)
+		int a = 5;
 }
 
 GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc)
@@ -244,7 +249,8 @@ Goal::Goal()
 Goal::Goal(GoalStep& finalStep, std::vector<GoalStep*>& availableSteps)
 {
 	this->finalStep = new GoalStep(finalStep);
-	this->finalStep->totalTasks = 1;
+	if (this->finalStep->totalTasks == 0)
+		this->finalStep->totalTasks = 1;
 
 	DefineTaskChain(*this->finalStep, availableSteps);
 }

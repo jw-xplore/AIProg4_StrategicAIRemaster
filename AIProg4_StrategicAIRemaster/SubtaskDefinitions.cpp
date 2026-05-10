@@ -179,9 +179,16 @@ ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
 
 ESubtaskState CreateItem::Execute(Worker& worker, float dTime)
 {
+	if (!started)
+	{
+		building->reservedCapital += cost;
+		started = true;
+	}
+
 	if (timer >= delay)
 	{
 		// Done
+		building->reservedCapital -= cost;
 		building->storedCapital -= cost;
 		building->storedCapital.amounts[gainItem] += 1;
 		return ESubtaskState::Finnished;

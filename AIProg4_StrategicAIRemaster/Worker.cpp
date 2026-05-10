@@ -235,6 +235,23 @@ namespace WorkerTasks
 		return task;
 	}
 
+	Task* TrainForSoldierTask(Worker* worker, Building* trainingCamp)
+	{
+		float time = GameDB::Database::Instance()->actionCostsTraining[GameDB::EActionTraining::TrainSoldier].time;
+
+		// Setup task
+		Task* task = new Task(nullptr,
+			{
+			new SubtaskDefinitions::MoveToSubtask(trainingCamp->position),
+			new SubtaskDefinitions::TrainWorker(EWorkerRole::Soldier, time)
+			}
+		);
+
+		task->name = "Train soldier";
+
+		return task;
+	}
+
 	Task* BuildTask(Worker* worker, Building* building)
 	{
 		// Building task

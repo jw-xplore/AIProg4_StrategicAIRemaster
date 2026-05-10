@@ -22,7 +22,9 @@ Commander::Commander()
 
 	// Preplace buildings 
 	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}));
-	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 100 }));
+	entityManager->AddBuilding(new Building(EBuildingType::Smelter, { 120, 80 }));
+	entityManager->AddBuilding(new Building(EBuildingType::ArsmithsForge, { 160, 100 }));
+	entityManager->AddBuilding(new Building(EBuildingType::TrainingCamp, { 120, 180 }));
 
 	DefineAvailableTasks();
 }
@@ -40,6 +42,8 @@ void Commander::DefineAvailableTasks()
 	// Buildings
 	Building* coalMile = entityManager->FindBuildingOfType(EBuildingType::CoalMile);
 	Building* smelter = entityManager->FindBuildingOfType(EBuildingType::Smelter);
+	Building* forge = entityManager->FindBuildingOfType(EBuildingType::ArsmithsForge);
+	Building* camp = entityManager->FindBuildingOfType(EBuildingType::TrainingCamp);
 
 	// Material gathering
 	GoalStep* cutWood = new GoalStep(
@@ -93,9 +97,32 @@ void Commander::DefineAvailableTasks()
 
 	createCoal->roleConstrain = EWorkerRole::SmelterOperator;
 
+	int* createSwordAmounts = db->actionCostsResources[GameDB::EActionResource::MakeSword].capital.amounts;
+
+	GoalStep* createSword = new GoalStep(
+		"Cr sword",
+		{
+			TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::ArsmithsForge, 1, nullptr, true),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Coal, createSwordAmounts[Capital::ECapitalType::Coal], forge),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::IronBar, createSwordAmounts[Capital::ECapitalType::IronBar], forge),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::ArmsSmith, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Sword, 1, forge),
+		[*this, db](Worker* worker) { return  WorkerTasks::CreateItemTask(
+			worker,
+			entityManager->FindBuildingOfType(EBuildingType::ArsmithsForge),
+			db->actionCostsResources[GameDB::EActionResource::MakeSword],
+			Capital::ECapitalType::Sword
+		);
+		}
+	);
+
+	createSword->roleConstrain = EWorkerRole::ArmsSmith;
+
 	availableSteps.push_back(cutWood);
 	availableSteps.push_back(createCoal);
 	availableSteps.push_back(createIronBar);
+	availableSteps.push_back(createSword);
 
 	/*
 	availableSteps.push_back(new GoalStep(
@@ -136,6 +163,21 @@ void Commander::DefineAvailableTasks()
 		availableSteps.push_back(train);
 	}
 
+	// Train soldier
+	GoalStep* trainSoldier = new GoalStep(
+		"Train soldier",
+		{
+			TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::TrainingCamp, 1, nullptr, true),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Sword, 1, entityManager->FindBuildingOfType(EBuildingType::TrainingCamp)),
+		},
+		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Soldier, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::TrainForSoldierTask(worker, entityManager->FindBuildingOfType(EBuildingType::TrainingCamp)); }
+	);
+
+	trainSoldier->totalTasks = 20;
+
+	availableSteps.push_back(trainSoldier);
+
 	// Define delivery tasks
 	GoalStep* deliverItem = new GoalStep(
 		"Deliver",
@@ -167,6 +209,7 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::CoalMile)); }
 	);
 
+	buildCoalMile->roleConstrain = EWorkerRole::Builder;
 	buildCoalMile->doneEvaluateReality = true;
 
 	GoalStep* buildSmelter = new GoalStep(
@@ -179,7 +222,35 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::Smelter)); }
 	);
 
+	buildCoalMile->roleConstrain = EWorkerRole::Builder;
 	buildSmelter->doneEvaluateReality = true;
+
+	GoalStep* buildForge = new GoalStep(
+		"Build forge",
+		{
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::ArsmithsForge)),
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::IronBar, 3, entityManager->FindBuildingOfType(EBuildingType::ArsmithsForge)),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::ArsmithsForge, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::ArsmithsForge)); }
+	);
+
+	buildForge->roleConstrain = EWorkerRole::Builder;
+	buildForge->doneEvaluateReality = true;
+
+	GoalStep* buildCamp = new GoalStep(
+		"Build camp",
+		{
+			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 10, entityManager->FindBuildingOfType(EBuildingType::TrainingCamp)),
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr)
+		},
+		TaskAttribute(ETaskAttributeCategory::Building, EBuildingType::TrainingCamp, 1, nullptr),
+		[*this](Worker* worker) { return WorkerTasks::BuildTask(worker, entityManager->FindBuildingOfType(EBuildingType::TrainingCamp)); }
+	);
+
+	buildCamp->roleConstrain = EWorkerRole::Builder;
+	buildCamp->doneEvaluateReality = true;
 
 	availableSteps.push_back(buildCoalMile);
 	availableSteps.push_back(buildSmelter);
@@ -187,7 +258,9 @@ void Commander::DefineAvailableTasks()
 	// Goals definition
 	goals.push_back(new Goal(*buildCoalMile, availableSteps));
 	goals.push_back(new Goal(*buildSmelter, availableSteps));
-	goals.push_back(new Goal(*createIronBar, availableSteps));
+	goals.push_back(new Goal(*buildForge, availableSteps));
+	goals.push_back(new Goal(*buildCamp, availableSteps));
+	goals.push_back(new Goal(*trainSoldier, availableSteps));
 }
 
 void Commander::Update(float dTime)
@@ -256,6 +329,10 @@ void Commander::DebugDraw()
 		displayTask = 1;
 	if (IsKeyDown(KEY_THREE))
 		displayTask = 2;
+	if (IsKeyDown(KEY_FOUR))
+		displayTask = 3;
+	if (IsKeyDown(KEY_FIVE))
+		displayTask = 4;
 
 	if (goals[displayTask]->finalStep)
 		goals[displayTask]->DebugDraw(*goals[displayTask]->finalStep, 0, 0);
@@ -278,7 +355,11 @@ void Commander::DebugDraw()
 			}
 		}
 
-		workerStats += std::to_string(worker.id) + ". task: " + taskName + "\n";
+		std::string soldierStr = "";
+		if (worker.role == EWorkerRole::Soldier)
+			soldierStr = "[SOLDIER]";
+
+		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ") task: " + taskName + "\n";
 	}
 
 	DrawText(("Working: " + std::to_string(working)).c_str(), 20, 80, 10, YELLOW);
@@ -287,15 +368,38 @@ void Commander::DebugDraw()
 
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 {
+	// Find worker of exactly matching role
 	for (Worker& worker : entityManager->workers)
 	{
 		// Get free worker
 		if (workerTaskMap[&worker] == nullptr)
 		{
-			if (roleConstrain != EWorkerRole::General && worker.role != roleConstrain)
+			if (roleConstrain != EWorkerRole::General)
+				int a = 5;
+
+			if (worker.role != roleConstrain)
 				continue;
 
 			return &worker;
+		}
+	}
+
+	// Consider non-general worker for general task
+	if (roleConstrain == EWorkerRole::General)
+	{
+		for (Worker& worker : entityManager->workers)
+		{
+			// Get free worker
+			if (workerTaskMap[&worker] == nullptr)
+			{
+				if (roleConstrain != EWorkerRole::General)
+					int a = 5;
+
+				if (roleConstrain != EWorkerRole::General && worker.role != roleConstrain)
+					continue;
+
+				return &worker;
+			}
 		}
 	}
 
