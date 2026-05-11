@@ -69,6 +69,7 @@ void RunGame()
     World world = World("resources/WorldMap.txt");
     PathFinding pathfinding = PathFinding(world);
     EntityManager entityManager = EntityManager();
+    entityManager.world = &world;
     SystemsHolder::GetInstance()->Init(&world, &entityManager, &pathfinding);
     Commander commander = Commander();
     cam = CustomCamera();
@@ -78,7 +79,7 @@ void RunGame()
 
     std::map<Node*, NodeRecordAs> searchResult;
     std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-    std::vector<Node>* path = pathfinding.AStarDivided({ 1300, 64 }, { 1000, 640 }, searchResult, open);
+    //std::vector<Node>* path = pathfinding.AStarDivided({ 1300, 64 }, { 1000, 640 }, searchResult, open);
     //std::vector<Node>* path = {};
     int frameCount = 0;
 
@@ -99,6 +100,9 @@ void RunGame()
             ts = 0;
 
         float dt = GetFrameTime() * ts;
+        if (dt > 1.0)
+            dt = 1.0;
+
         world.Update(dt);
         commander.Update(dt);
 
@@ -110,8 +114,8 @@ void RunGame()
         world.Draw();
 
         //pathfinding.DrawGraph();
-        if (path)
-            DrawPath(path);
+        //if (path)
+            //DrawPath(path);
 
         entityManager.Update(dt);
 
@@ -126,7 +130,7 @@ void RunGame()
     }
 
     // Cleanup
-    delete path;
+    //delete path;
     delete GameDB::Database::Instance();
 }
 

@@ -40,6 +40,20 @@ PathFinding::PathFinding(World& world)
 				AddConnectionsToNode(&nodes[y][x], x, y);
 		}
 	}
+
+	// Discover starting area
+	int startTileX = GlobalVars::START_TILE_X;
+	int startTileY = GlobalVars::START_TILE_Y;
+	int endTileX = GlobalVars::START_TILE_X + 3;
+	int	endTileY = GlobalVars::START_TILE_Y + 3;
+
+	for (int x = startTileX; x < endTileX; x++)
+	{
+		for (int y = startTileY; y < endTileY; y++)
+		{
+			Discover(x, y);
+		}
+	}
 }
 
 PathFinding::~PathFinding()
@@ -78,23 +92,24 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	int w = width;
 	int h = height;
 
+	Connection link;
+	link.weight = UNDISCOVERED_WEIGHT;
+
 	// Top
 	if (y < h - 1 && nodes[y + 1][x].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
 
 	if (y < h - 1 && x < w - 1 && nodes[y + 1][x + 1].travelCost != -1 && nodes[y + 1][x].travelCost != -1 && nodes[y][x + 1].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x + 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -102,20 +117,18 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	// Right
 	if (x < w - 1 && nodes[y][x + 1].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y][x + 1];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
 
 	if (y > 0 && x < w - 1 && nodes[y - 1][x + 1].travelCost != -1 && nodes[y - 1][x].travelCost != -1 && nodes[y][x + 1].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x + 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -123,20 +136,18 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	// Bottom
 	if (y > 0 && nodes[y - 1][x].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
 
 	if (y > 0 && x > 0 && nodes[y - 1][x - 1].travelCost != -1 && nodes[y - 1][x].travelCost != -1 && nodes[y][x - 1].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x - 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -144,20 +155,18 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	// Left
 	if (x > 0 && nodes[y][x - 1].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y][x - 1];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
 
 	if (y < h - 1 && x > 0 && nodes[y + 1][x - 1].travelCost != -1 && nodes[y][x - 1].travelCost != -1 && nodes[y + 1][x].travelCost != -1)
 	{
-		Connection link;
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x - 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -226,6 +235,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	}
 
 	NodeRecordAs current;
+
+	if (open.size() == 0)
+	{
+		int a = 5;
+		return new std::vector<Node>;
+	}
 
 	// Visit nodes
 	while (open.size() != 0)
@@ -305,8 +320,8 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	}
 
 	// Return empty path if search wasn't finished
-	if (current.node != endNode)
-		return {};
+	//if (current.node != endNode)
+		//return {};
 
 	// Format path
 	std::vector<Node>* path = new std::vector<Node>;
@@ -340,6 +355,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 inline float PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
 {
 	float noSq = std::powf(end->x - start->x, 2) + std::powf(end->y - start->y, 2);
+	return std::sqrt(noSq);
+}
+
+inline float PathFinding::ManhattanHeuristic(const int startX, const int startY, const int endX, const int endY)
+{
+	float noSq = std::powf(endX - startX, 2) + std::powf(endY - startY, 2);
 	return std::sqrt(noSq);
 }
 
@@ -380,4 +401,101 @@ NodeRecordAs* PathFinding::FindAsRecordFromNode(std::vector<NodeRecordAs>& list,
 	}
 
 	return nullptr;
+}
+
+void PathFinding::Discover(int x, int y)
+{
+	int w = width;
+	int h = height;
+
+	world->discovered[x][y] = EDiscovetyState::Discovered;
+
+	// Update weights
+	for (auto& link : nodes[y][x].connections)
+	{
+
+		// Top
+		if (y < h - 1 && nodes[y + 1][x].travelCost != -1)
+		{
+			link.weight = link.node->travelCost;
+		}
+
+		if (y < h - 1 && x < w - 1 && nodes[y + 1][x + 1].travelCost != -1 && nodes[y + 1][x].travelCost != -1 && nodes[y][x + 1].travelCost != -1)
+		{
+			link.weight = 1.4f * link.node->travelCost;
+		}
+
+		// Right
+		if (x < w - 1 && nodes[y][x + 1].travelCost != -1)
+		{
+			link.weight = link.node->travelCost;
+		}
+
+		if (y > 0 && x < w - 1 && nodes[y - 1][x + 1].travelCost != -1 && nodes[y - 1][x].travelCost != -1 && nodes[y][x + 1].travelCost != -1)
+		{
+			link.weight = 1.4f * link.node->travelCost;
+		}
+
+		// Bottom
+		if (y > 0 && nodes[y - 1][x].travelCost != -1)
+		{
+			link.weight = link.node->travelCost;
+		}
+
+		if (y > 0 && x > 0 && nodes[y - 1][x - 1].travelCost != -1 && nodes[y - 1][x].travelCost != -1 && nodes[y][x - 1].travelCost != -1)
+		{
+			link.weight = 1.4f * link.node->travelCost;
+		}
+
+		// Left
+		if (x > 0 && nodes[y][x - 1].travelCost != -1)
+		{
+			link.weight = link.node->travelCost;
+		}
+
+		if (y < h - 1 && x > 0 && nodes[y + 1][x - 1].travelCost != -1 && nodes[y][x - 1].travelCost != -1 && nodes[y + 1][x].travelCost != -1)
+		{
+			link.weight = 1.4f * link.node->travelCost;
+		}
+	}
+
+	// Set next undiscovered
+	//nextUndiscovered.erase(std::find(nextUndiscovered.begin(), nextUndiscovered.end(), nodes[y][x]));
+
+	for (Connection& connection : nodes[y][x].connections)
+	{
+		Node* cNode = connection.node;
+		if (world->TileDiscoveryState(cNode->x, cNode->y) == EDiscovetyState::Undiscovered)
+		{
+			nextUndiscovered.push_back(cNode);
+			world->discovered[cNode->x][cNode->y] = EDiscovetyState::Planned;
+		}
+	}
+
+	//std::cout << "nextUndiscovered: " << nextUndiscovered.size() << "\n";
+}
+
+Node* PathFinding::ClosestUndiscovered(Vector2 pos)
+{
+	int x = pos.x / GlobalVars::TILE_SIZE;
+	int y = pos.y / GlobalVars::TILE_SIZE;
+	float closestHeuristics = 9999;
+	Node* closest = nullptr;
+
+	for (Node*& node : nextUndiscovered)
+	{
+		float heuristics = ManhattanHeuristic(x, y, node->x, node->y);
+		if (closestHeuristics > heuristics)
+		{
+			closestHeuristics = heuristics;
+			closest = node;
+		}
+	}
+
+	if (closest)
+		nextUndiscovered.erase(std::find(nextUndiscovered.begin(), nextUndiscovered.end(), closest));
+	else
+		int a = 5;
+
+	return closest;
 }

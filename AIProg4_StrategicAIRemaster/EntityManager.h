@@ -8,10 +8,12 @@ enum EBuildingType;
 class Worker;
 class Pickup;
 class Building;
+class World;
 
 class EntityManager
 {
 public:
+	World* world;
 	std::vector<Worker> workers;
 	std::vector<Worker*>* workersRoleFilter;
 

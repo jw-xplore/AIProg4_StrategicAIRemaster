@@ -20,6 +20,13 @@ enum ETerrainType
     ETerrainTypeCount
 };
 
+enum EDiscovetyState
+{
+    Undiscovered,
+    Planned,
+    Discovered
+};
+
 struct Vector2Int
 {
     int x, y;
@@ -73,7 +80,7 @@ public:
     int undiscoveredCount;
     ETerrainType** mapTerrain;
     std::vector<TreesTile> treeTiles;
-    bool** discovered; // Blocks discovered by NCPs, Undiscovered will be covered in fog
+    EDiscovetyState** discovered; // Blocks discovered by NCPs, Undiscovered will be covered in fog
 
     // Colors
     const Color cGrass = { 70, 100, 52, 255 };
@@ -89,6 +96,8 @@ public:
     bool LoadMap(const char* path);
     void Update(float dTime);
     void Draw();
+    //bool IsDiscovered(int x, int y);
+    EDiscovetyState TileDiscoveryState(int x, int y);
 
     TreesTile* ClosestTreeTile(Vector2Int currentTile);
     void RemoveTreeTile(TreesTile* tile);

@@ -20,6 +20,7 @@ struct Node;
 struct NodeRecordAs;
 struct NodeRecordAsCompare;
 class PathFinding;
+class World;
 
 class EntityManager;
 class DecisionTreeNode;
@@ -49,6 +50,8 @@ class Commander
 public:
 	CommnaderStateTracking stateTracking;
 	EntityManager* entityManager;
+	World* world;
+	PathFinding* pathfinding;
 
 	// Path finding
 	std::map<Node*, NodeRecordAs>* searchResult;
@@ -56,6 +59,9 @@ public:
 
 	std::map<Worker*, Task*> workerTaskMap;
 	//std::map<Worker*, CommanderGoals::CommanderGoal*> workerGoalMap;
+	int dedicatedScouts = 5;
+	int scoutsPos;
+	std::vector<Worker*> scouts;
 
 	// Plan
 	std::vector<GoalStep*> availableSteps;
@@ -71,6 +77,7 @@ public:
 	void Update(float dTime);
 	void UpdatePlan();
 	void DebugDraw();
+	void ScoutPos(float posX, float posY);
 
 	Worker* FindFreeWorker(EWorkerRole roleConstrain);
 	void AssignTask(Worker* worker, Task* task);

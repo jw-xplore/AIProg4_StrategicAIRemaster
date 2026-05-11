@@ -55,6 +55,8 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 	// Move to point
 	if (worker.PathTargetReached())
 		return ESubtaskState::Finnished;
+
+	DrawCircle(worker.target.x, worker.target.y, 10, PINK);
 	
 	return ESubtaskState::Running;
 }
@@ -197,4 +199,50 @@ ESubtaskState CreateItem::Execute(Worker& worker, float dTime)
 	// Run 
 	timer += dTime;
 	return ESubtaskState::Running;
+}
+
+ESubtaskState ScoutSubtask::Execute(Worker& worker, float dTime)
+{
+	// Find
+	if (!foundPath)
+	{
+		World* world = SystemsHolder::GetInstance()->world;
+		PathFinding* pf = SystemsHolder::GetInstance()->pathfinding;
+
+		//target = FindUndiscoveredTile(x, y, &pf, &world);
+		foundPath = FindUndiscoveredTile(x, y, *pf, *world);
+
+		return ESubtaskState::Running;
+	}
+
+	// Follow
+}
+
+bool ScoutSubtask::FindUndiscoveredTile(int x, int y, PathFinding& pf, World& world)
+{
+	Node* node = &pf.nodes[y][x];
+
+	for (Connection& connection : node->connections)
+	{
+		Node& cNode = *connection.node;
+		/*
+		if (world.IsDiscovered(cNode.x, cNode.y))
+		{
+			//target = Vector2(cNode.x * GlobalVars::TILE_SIZE, cNode.y * GlobalVars::TILE_SIZE);
+			//return true;
+			return FindUndiscoveredTile(cNode.x, cNode.y, pf, world);
+		}
+		*/
+	}
+
+	/*
+	for (Connection& connection : node->connections)
+	{
+		Node& cNode = *connection.node;
+		if (FindUndiscoveredTile(cNode.x, cNode.y, pf, world))
+			return true;
+	}
+	*/
+
+	return false;
 }

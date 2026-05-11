@@ -6,13 +6,19 @@
 #include "Pickup.h"
 #include "Capital.h"
 #include "Building.h"
+#include "World.h"
 
 EntityManager::EntityManager()
 {
 	GameDB::Database* db = GameDB::Database::Instance();
 
-	Vector2 startX = { 10 * GlobalVars::TILE_SIZE, 13 * GlobalVars::TILE_SIZE };
-	Vector2 startY = { 10 * GlobalVars::TILE_SIZE, 13 * GlobalVars::TILE_SIZE };
+	int startTileX = GlobalVars::START_TILE_X;
+	int startTileY = GlobalVars::START_TILE_Y;
+	int endTileX = GlobalVars::START_TILE_X + 3;
+	int	endTileY = GlobalVars::START_TILE_Y + 3;
+
+	Vector2 startX = { startTileX * GlobalVars::TILE_SIZE, endTileX * GlobalVars::TILE_SIZE };
+	Vector2 startY = { startTileY * GlobalVars::TILE_SIZE, endTileY * GlobalVars::TILE_SIZE };
 
 	// Setup worker role filter
 	for (size_t i = 0; i < EWorkerRole::EWorkerRoleCount; i++)
@@ -112,6 +118,10 @@ Building* EntityManager::FindBuildingOfType(EBuildingType type)
 {
 	for (Building*& building : buildings)
 	{
+		// Ignore undiscovered
+		if (world->TileDiscoveryState(building->position.x / GlobalVars::TILE_SIZE, building->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
+			continue;
+
 		if (building->type == type)
 			return building;
 	}
@@ -123,6 +133,10 @@ Building* EntityManager::FindFinishedBuildingOfType(EBuildingType type)
 {
 	for (Building*& building : buildings)
 	{
+		// Ignore undiscovered
+		if (world->TileDiscoveryState(building->position.x / GlobalVars::TILE_SIZE, building->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
+			continue;
+
 		if (building->type == type && building->state == EBuildingState::Finished)
 			return building;
 	}
@@ -146,7 +160,13 @@ Pickup* EntityManager::FindFreePickupOfType(Capital::ECapitalType type)
 	for (Pickup*& pickup : pickups)
 	{
 		if (pickup->type == type && !pickup->reserved)
+		{
+			// Ignore undiscovered
+			if (world->TileDiscoveryState(pickup->position.x / GlobalVars::TILE_SIZE, pickup->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
+				continue;
+
 			return pickup;
+		}
 	}
 
 	return nullptr;
@@ -164,6 +184,10 @@ Pickup* EntityManager::FindClosestPickup(Vector2 position, Capital::ECapitalType
 			continue;
 
 		if (pickup->reserved)
+			continue;
+
+		// Ignore undiscovered 
+		if (world->TileDiscoveryState(pickup->position.x / GlobalVars::TILE_SIZE, pickup->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
 			continue;
 
 		Vector2 diff = { pickup->position.x - position.x, pickup->position.y - position.y };

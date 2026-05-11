@@ -10,6 +10,8 @@ enum EWorkerRole;
 struct TreesTile;
 class Building;
 class Pickup;
+class World;
+class PathFinding;
 
 namespace Capital
 {
@@ -134,6 +136,21 @@ namespace SubtaskDefinitions
 
 		CreateItem(Building* building, float t, Capital::CapitalAmounts cost, Capital::ECapitalType gainItem) : building(building), delay(t), cost(cost), gainItem(gainItem) {}
 		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
+	/// <summary>
+	/// Go to closest undiscovered connection
+	/// </summary>
+	class ScoutSubtask : public Subtask
+	{
+	public:
+		int x, y;
+		bool foundPath = false;
+		Vector2 target;
+
+		ScoutSubtask(int x, int y): x(x), y(y) {}
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+		bool FindUndiscoveredTile(int x, int y, PathFinding& pf, World& world);
 	};
 };
 

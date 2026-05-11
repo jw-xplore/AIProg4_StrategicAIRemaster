@@ -9,6 +9,8 @@ struct Vector2;
 struct Node;
 class World;
 
+static int UNDISCOVERED_WEIGHT = 999;
+
 struct Connection
 {
 	Node* fromNode;
@@ -57,6 +59,7 @@ public:
 	World* world;
 
 	std::vector<Node> lastSearch;
+	std::vector<Node*> nextUndiscovered;
 	Node** nodes;
 	int width, height;
 	int visitsPerFrame = 100;
@@ -72,8 +75,10 @@ public:
 	std::vector<Node>* AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open);
 
 	inline float ManhattanHeuristic(const Node* start, const Node* end);
+	inline float ManhattanHeuristic(const int startX, const int startY, const int endX, const int endY);
 	NodeRecordAs SmallestAsRecord(std::vector<NodeRecordAs>& list);
 	bool ContainsAsRecord(const std::vector<NodeRecordAs>& list, Node* node, NodeRecordAs& outRecord);
 	NodeRecordAs* FindAsRecordFromNode(std::vector<NodeRecordAs>& list, Node* node);
-
+	void Discover(int x, int y);
+	Node* ClosestUndiscovered(Vector2 pos);
 };

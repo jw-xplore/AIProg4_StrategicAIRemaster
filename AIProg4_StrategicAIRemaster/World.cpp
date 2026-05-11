@@ -120,16 +120,17 @@ bool World::LoadMap(const char* path)
     // Define resources
     worldSize = width * height;
     mapTerrain = new ETerrainType*[width];
-    discovered = new bool* [width];
+    discovered = new EDiscovetyState*[width];
     treeTiles.reserve(treeTilesCount);
 
     for (size_t x = 0; x < height; x++)
     {
         mapTerrain[x] = new ETerrainType[height];
-        discovered[x] = new bool[height];
+        discovered[x] = new EDiscovetyState[height];
 
         for (size_t y = 0; y < height; y++)
         {
+            discovered[x][y] = EDiscovetyState::Undiscovered;
             // NOTE: map[y][x]
             // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
             // This is fixed for actual map data, which can be naturaly accessed as [x][y]
@@ -153,6 +154,20 @@ bool World::LoadMap(const char* path)
                 mapTerrain[x][y] = ETerrainType::Grass;
                 treeTiles.push_back(TreesTile(x, y, 5, GlobalVars::TILE_HALF_SIZE));
             }
+        }
+    }
+
+    // Discover starting area
+    int startTileX = GlobalVars::START_TILE_X;
+    int startTileY = GlobalVars::START_TILE_Y;
+    int endTileX = GlobalVars::START_TILE_X + 3;
+    int	endTileY = GlobalVars::START_TILE_Y + 3;
+
+    for (int x = startTileX; x < endTileX; x++)
+    {
+        for (int y = startTileY; y < endTileY; y++)
+        {
+            discovered[x][y] = EDiscovetyState::Discovered;
         }
     }
 
@@ -216,6 +231,11 @@ void World::Draw()
     }
 }
 
+EDiscovetyState World::TileDiscoveryState(int x, int y)
+{
+    return discovered[x][y];
+}
+
 /// <summary>
 /// Find closest tree tile based on selected tile coordinate
 /// </summary>
@@ -228,6 +248,10 @@ TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
 
     for (TreesTile& tile : treeTiles)
     {
+        // Ignore undiscovered 
+        if (TileDiscoveryState(tile.x, tile.y) != EDiscovetyState::Discovered)
+            continue;
+
         // Ignore tile that will be empty
         if (tile.amount - tile.reservations <= 0)
             continue;

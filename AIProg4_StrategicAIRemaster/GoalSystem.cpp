@@ -221,6 +221,9 @@ void GoalStep::AssignTask()
 			int a = 4;
 
 		Task* task = taskFunc(worker);
+		if (!task)
+			return;
+
 		task->parentGoalStep = this;
 		commander->AssignTask(worker, task);
 

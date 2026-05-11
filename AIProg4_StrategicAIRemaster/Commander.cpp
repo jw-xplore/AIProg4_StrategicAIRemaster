@@ -18,7 +18,10 @@ Commander::Commander()
 
 	SystemsHolder* systemsHolder = SystemsHolder::GetInstance();
 	systemsHolder->commander = this;
-	entityManager = SystemsHolder::GetInstance()->entityMananger;
+	entityManager = systemsHolder->entityMananger;
+
+	world = systemsHolder->world;
+	pathfinding = systemsHolder->pathfinding;
 
 	// Preplace buildings 
 	entityManager->AddBuilding(new Building(EBuildingType::CoalMile, {160, 160}));
@@ -27,6 +30,17 @@ Commander::Commander()
 	entityManager->AddBuilding(new Building(EBuildingType::TrainingCamp, { 120, 180 }));
 
 	DefineAvailableTasks();
+
+	// Scouts setup
+	int population = entityManager->workers.size();
+	scoutsPos = population - dedicatedScouts;
+
+	for (int i = scoutsPos; i < population; i++)
+	{
+		Worker* worker = &entityManager->workers.at(i);
+		scouts.push_back(worker);
+		AssignTask(worker, WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Scout));
+	}
 }
 
 Commander::~Commander()
@@ -284,7 +298,10 @@ void Commander::Update(float dTime)
 		{
 			// Finished - Remove
 			//*goals[currentGoal]->potentialCapital -= wTask.second->rewardCapital;
-			wTask.second->parentGoalStep->finishedTasks++;
+
+			if (wTask.second->parentGoalStep)
+				wTask.second->parentGoalStep->finishedTasks++;
+
 			wTask.second = nullptr;
 			continue;
 		}
@@ -292,11 +309,19 @@ void Commander::Update(float dTime)
 		wTask.second->Update(dTime);
 	}
 
+	// Scouting update
+	for (Worker*& scout : scouts)
+	{
+		ScoutPos(scout->position.x, scout->position.y);
+	}
+
 	DebugDraw();
 }
 
 void Commander::UpdatePlan()
 {
+	int i = 0;
+
 	for (Worker& worker : entityManager->workers)
 	{
 		for (Goal*& goal : goals)
@@ -305,6 +330,17 @@ void Commander::UpdatePlan()
 			if (step)
 				step->AssignTask();
 		}
+
+		i++;
+		if (i >= scoutsPos)
+			break;
+	}
+
+	// Scouts
+	for (Worker*& scout : scouts)
+	{
+		if (workerTaskMap[scout] == nullptr)
+			AssignTask(scout, WorkerTasks::ScoutTask(scout));
 	}
 }
 
@@ -366,9 +402,50 @@ void Commander::DebugDraw()
 	DrawText(workerStats.c_str(), 20, 100, 10, YELLOW);
 }
 
+void Commander::ScoutPos(float posX, float posY)
+{
+	int x = posX / GlobalVars::TILE_SIZE;
+	int y = posY / GlobalVars::TILE_SIZE;
+
+	if (x < 1 || x >= world->worldSize)
+		return;
+
+	if (y < 1 || y >= world->worldSize)
+		return;
+
+	//if (world->TileDiscoveryState(x, y) == EDiscovetyState::Discovered)
+		//return;
+
+	/*
+	world->discovered[x][y] = true;
+	pathfinding->Discover(x, y);
+
+	world->discovered[x + 1][y] = true;
+	pathfinding->Discover(x + 1, y);
+
+	world->discovered[x + 1][y + 1] = true;
+	pathfinding->Discover(x + 1, y + 1);
+
+	world->discovered[x - 1][y] = true;
+	pathfinding->Discover(x - 1, y);
+	*/
+
+	pathfinding->Discover(x, y);
+	pathfinding->Discover(x, y + 1);
+	pathfinding->Discover(x + 1, y + 1);
+	pathfinding->Discover(x + 1, y);
+	pathfinding->Discover(x + 1, y - 1);
+	pathfinding->Discover(x, y - 1);
+	pathfinding->Discover(x - 1, y - 1);
+	pathfinding->Discover(x - 1, y);
+	pathfinding->Discover(x - 1, y + 1);
+}
+
 Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 {
 	// Find worker of exactly matching role
+	int i = 0;
+
 	for (Worker& worker : entityManager->workers)
 	{
 		// Get free worker
@@ -382,11 +459,17 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 			return &worker;
 		}
+
+		i++;
+		if (i >= scoutsPos)
+			break;
 	}
 
 	// Consider non-general worker for general task
 	if (roleConstrain == EWorkerRole::General)
 	{
+		i = 0;
+
 		for (Worker& worker : entityManager->workers)
 		{
 			// Get free worker
@@ -400,6 +483,10 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 				return &worker;
 			}
+
+			i++;
+			if (i >= scoutsPos)
+				break;
 		}
 	}
 

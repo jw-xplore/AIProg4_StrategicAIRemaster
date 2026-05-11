@@ -99,6 +99,9 @@ namespace WorkerTasks
 		// Find closest tree
 		Vector2Int workerPos = World::PositionToTile(worker->position);
 		TreesTile* treesTile = systems->world->ClosestTreeTile(workerPos);
+		if (!treesTile)
+			return nullptr;
+
 		Vector2 treeTilePos = World::TileToCenterPosition({ treesTile->x, treesTile->y });
 		float time = GameDB::Database::Instance()->actionCostsResources[GameDB::EActionResource::FellTree].time;
 
@@ -128,9 +131,9 @@ namespace WorkerTasks
 
 		// Find closest item
 		Pickup* item = systems->entityMananger->FindClosestPickup(worker->position, itemType);
-		if (!item)
+		if (!item || !target)
 		{
-			throw std::runtime_error("World out of resources!");
+			//throw std::runtime_error("World out of resources!");
 			return nullptr;
 		}
 
@@ -254,6 +257,9 @@ namespace WorkerTasks
 
 	Task* BuildTask(Worker* worker, Building* building)
 	{
+		if (!building)
+			return nullptr;
+
 		// Building task
 		float time = GameDB::Database::Instance()->actionCostsBuilding[building->type].time;
 		building->state = EBuildingState::InProgress;
@@ -294,6 +300,34 @@ namespace WorkerTasks
 		);
 
 		task->name = "Cr coal";
+
+		return task;
+	}
+
+	Task* ScoutTask(Worker* worker)
+	{
+		// Find
+		//int x = worker->position.x / GlobalVars::TILE_SIZE;
+		//int y = worker->position.y / GlobalVars::TILE_SIZE;
+		//SubtaskDefinitions::ScoutSubtask scout = SubtaskDefinitions::ScoutSubtask(x, y);
+		//scout.Execute(*worker, 0);
+
+		Node* node = SystemsHolder::GetInstance()->pathfinding->ClosestUndiscovered(worker->position);
+		if (!node)
+			return nullptr;
+
+		Vector2 pos = { node->x * GlobalVars::TILE_SIZE, node->y * GlobalVars::TILE_SIZE };
+
+		// Setup task
+		Task* task = new Task(worker,
+			{
+			new SubtaskDefinitions::MoveToSubtask(pos)
+			//new SubtaskDefinitions::CreateItem(building, cost.time, cost.capital, gainItem)
+			//new SubtaskDefinitions::CreateBuilding(building, time)
+			}
+		);
+
+		task->name = "Scout";
 
 		return task;
 	}

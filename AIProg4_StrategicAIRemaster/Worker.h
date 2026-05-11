@@ -68,4 +68,5 @@ namespace WorkerTasks
 	Task* TrainForSoldierTask(Worker* worker, Building* trainingCamp);
 	Task* BuildTask(Worker* worker, Building* building);
 	Task* CreateItemTask(Worker* worker, Building* building, Capital::ActionCost cost, Capital::ECapitalType gainItem);
+	Task* ScoutTask(Worker* worker);
 };
