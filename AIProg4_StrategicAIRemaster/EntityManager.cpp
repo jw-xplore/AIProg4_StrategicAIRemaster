@@ -119,8 +119,8 @@ Building* EntityManager::FindBuildingOfType(EBuildingType type)
 	for (Building*& building : buildings)
 	{
 		// Ignore undiscovered
-		if (world->TileDiscoveryState(building->position.x / GlobalVars::TILE_SIZE, building->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
-			continue;
+		//if (world->TileDiscoveryState(building->position.x / GlobalVars::TILE_SIZE, building->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
+			//continue;
 
 		if (building->type == type)
 			return building;
@@ -134,8 +134,8 @@ Building* EntityManager::FindFinishedBuildingOfType(EBuildingType type)
 	for (Building*& building : buildings)
 	{
 		// Ignore undiscovered
-		if (world->TileDiscoveryState(building->position.x / GlobalVars::TILE_SIZE, building->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
-			continue;
+		//if (world->TileDiscoveryState(building->position.x / GlobalVars::TILE_SIZE, building->position.y / GlobalVars::TILE_SIZE) != EDiscovetyState::Discovered)
+			//continue;
 
 		if (building->type == type && building->state == EBuildingState::Finished)
 			return building;

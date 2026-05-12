@@ -191,13 +191,11 @@ void World::Draw()
         for (size_t y = 0; y < height; y++)
         {
             // Show fog 
-            /*
-            if (!discovered[i])
+            if (discovered[x][y] == EDiscovetyState::Undiscovered)
             {
-                DrawTexture(*fogTexture, x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, WHITE);
+                DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
                 continue;
             }
-            */
 
             // Show terrain
             Color col = cGrass;
@@ -221,6 +219,15 @@ void World::Draw()
     {
         for (size_t t = 0; t < treeTiles[i].amount; t++)
         {
+            int x = treeTiles[i].x;
+            int y = treeTiles[i].y;
+
+            if (discovered[x][y] == EDiscovetyState::Undiscovered)
+            {
+                DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
+                continue;
+            }
+
             Vector2 pos = { 
                 treeTiles[i].x * GlobalVars::TILE_SIZE + treeTiles[i].treePositions[t].x,
                 treeTiles[i].y * GlobalVars::TILE_SIZE + treeTiles[i].treePositions[t].y 

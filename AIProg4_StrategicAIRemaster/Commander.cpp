@@ -41,6 +41,11 @@ Commander::Commander()
 		scouts.push_back(worker);
 		AssignTask(worker, WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Scout));
 	}
+
+	/*
+	scouts[0]->position = Vector2(420, 300);
+	scouts[0]->target = Vector2(420, 300);
+	*/
 }
 
 Commander::~Commander()
@@ -109,7 +114,7 @@ void Commander::DefineAvailableTasks()
 		}
 	);
 
-	createCoal->roleConstrain = EWorkerRole::SmelterOperator;
+	createIronBar->roleConstrain = EWorkerRole::SmelterOperator;
 
 	int* createSwordAmounts = db->actionCostsResources[GameDB::EActionResource::MakeSword].capital.amounts;
 
@@ -395,11 +400,11 @@ void Commander::DebugDraw()
 		if (worker.role == EWorkerRole::Soldier)
 			soldierStr = "[SOLDIER]";
 
-		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ") task: " + taskName + "\n";
+		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ") task: " + taskName + " (car: " + std::to_string(worker.carriedMaterial) + ")\n";
 	}
 
-	DrawText(("Working: " + std::to_string(working)).c_str(), 20, 80, 10, YELLOW);
-	DrawText(workerStats.c_str(), 20, 100, 10, YELLOW);
+	DrawText(("Working: " + std::to_string(working)).c_str(), -20, 100, 10, YELLOW);
+	DrawText(workerStats.c_str(), -20, 120, 10, YELLOW);
 }
 
 void Commander::ScoutPos(float posX, float posY)
@@ -495,6 +500,9 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 void Commander::AssignTask(Worker* worker, Task* task)
 {
+	if (!task)
+		return;
+
 	workerTaskMap[worker] = task;
 	task->assignee = worker;
 

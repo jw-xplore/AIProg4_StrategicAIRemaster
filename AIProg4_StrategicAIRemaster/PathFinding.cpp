@@ -42,6 +42,8 @@ PathFinding::PathFinding(World& world)
 	}
 
 	// Discover starting area
+	nextUndiscovered.reserve(128);
+
 	int startTileX = GlobalVars::START_TILE_X;
 	int startTileY = GlobalVars::START_TILE_Y;
 	int endTileX = GlobalVars::START_TILE_X + 3;
@@ -185,6 +187,7 @@ void PathFinding::DrawGraph()
 
 	for (int y = 0; y < height; y++)
 	{
+		//break;
 		for (int x = 0; x < width; x++)
 		{
 			Vector2 nodePos = { x * tileSize + halfSize, y * tileSize + halfSize };
@@ -204,6 +207,11 @@ void PathFinding::DrawGraph()
 			}
 		}
 	}
+
+	for (auto& undisc : nextUndiscovered)
+	{
+		DrawCircleLines(undisc->x * tileSize, undisc->y * tileSize, 8, RED);
+	}
 }
 
 std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open)
@@ -213,15 +221,18 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 	// Find start and end
 	Node* startNode = nullptr;
 
-	int ex = (int)end.x / GlobalVars::TILE_SIZE;
-	int ey = (int)end.y / GlobalVars::TILE_SIZE;
-	Node* endNode = &nodes[ey][ex];;
+	int ex = ((int)end.x + GlobalVars::TILE_HALF_SIZE) / GlobalVars::TILE_SIZE;
+	int ey = ((int)end.y + GlobalVars::TILE_HALF_SIZE) / GlobalVars::TILE_SIZE;
+	Node* endNode = &nodes[ey][ex];
+
+	// TODO: Remove and tweak this for divided search
+	searchResult.clear();
 
 	if (searchResult.empty())
 	{
 		// Find start
-		int sx = (int)start.x / GlobalVars::TILE_SIZE;
-		int sy = (int)start.y / GlobalVars::TILE_SIZE;
+		int sx = ((int)start.x + GlobalVars::TILE_HALF_SIZE) / GlobalVars::TILE_SIZE;
+		int sy = ((int)start.y + GlobalVars::TILE_HALF_SIZE) / GlobalVars::TILE_SIZE;
 		startNode = &nodes[sy][sx];
 
 		// Initialize start node
@@ -332,14 +343,24 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 
 	if (!startNode)
 	{
-		int sx = (int)start.x / GlobalVars::TILE_SIZE;
-		int sy = (int)start.y / GlobalVars::TILE_SIZE;
+		int sx = ((int)start.x + GlobalVars::TILE_HALF_SIZE) / GlobalVars::TILE_SIZE;
+		int sy = ((int)start.y + GlobalVars::TILE_HALF_SIZE) / GlobalVars::TILE_SIZE;
 		startNode = &nodes[sy][sx];
+	}
+
+	if (startNode->connections.size() == 0)
+	{
+		//return new std::vector<Node>;
+		
 	}
 
 	// Track path
 	while (current.node != startNode)
 	{
+		// Hack timeout
+		if (path->size() > 1000)
+			return new std::vector<Node>;
+
 		path->push_back(*current.node);
 		current = searchResult[current.connection->fromNode];
 	}

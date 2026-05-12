@@ -124,6 +124,9 @@ namespace WorkerTasks
 
 	Task* DeliverItemTask(Worker* worker, Capital::ECapitalType itemType, Building* target)
 	{
+		if (itemType == Capital::ECapitalType::IronOre)
+			int a = 5;
+
 		SystemsHolder* systems = SystemsHolder::GetInstance();
 
 		if (itemType == Capital::ECapitalType::Coal)
@@ -148,7 +151,7 @@ namespace WorkerTasks
 		);
 
 		task->name = "W Deliver " + std::to_string(itemType);
-
+		item->reserved = true;
 		// Input - Output
 		/*
 		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, nullptr);
@@ -162,6 +165,9 @@ namespace WorkerTasks
 
 	Task* DeliverFromBuildingTask(Worker* worker, Capital::ECapitalType itemType, Building* from, Building* target)
 	{
+		if (!target)
+			return nullptr;
+
 		SystemsHolder* systems = SystemsHolder::GetInstance();
 
 		// Check availability

@@ -383,6 +383,9 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 	// Can perform this step?
 	if (currentStep.IsInputSatisfied())
 	{
+		//if (currentStep.name == "Cr coal")
+			//int a = 5;
+
 		// Is there work to be done? 
 		int assigned = currentStep.activeTasks.size() + currentStep.finishedTasks;
 		if (assigned < currentStep.totalTasks)
@@ -417,8 +420,10 @@ void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 
 	std::string outCTStr = std::to_string((int)step.output.category) + " - " + std::to_string(step.output.type);
 
+	std::string taskStr = " " + std::to_string(step.finishedTasks) + "(" + std::to_string(step.activeTasks.size()) + ")/" + std::to_string(step.totalTasks);
+
 	// Display string
-	std::string str = step.name + amount /* + "\n out bu:" + buildingStr */+ "\n out c/t:" + outCTStr;
+	std::string str = step.name + amount /* + "\n out bu:" + buildingStr */+ "\n out c/t:" + outCTStr  + taskStr;
 	char const* cZoom = str.c_str();
 
 	Color coloring = RED;
@@ -427,7 +432,7 @@ void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 	if (step.IsDone())
 		coloring = GREEN;
 
-	DrawText(cZoom, posX * 250, posY * 50, 20, coloring);
+	DrawText(cZoom, posX * 250, posY * 100, 20, coloring);
 
 	int addY = 0;
 

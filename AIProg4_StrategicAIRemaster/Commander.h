@@ -59,7 +59,7 @@ public:
 
 	std::map<Worker*, Task*> workerTaskMap;
 	//std::map<Worker*, CommanderGoals::CommanderGoal*> workerGoalMap;
-	int dedicatedScouts = 5;
+	int dedicatedScouts = 6;
 	int scoutsPos;
 	std::vector<Worker*> scouts;
 
