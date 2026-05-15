@@ -12,11 +12,16 @@
 #include "SystemsHolder.h"
 #include "Commander.h"
 #include "Camera.h"
+#include <thread>
+#include <atomic>
 
 extern float TIME_SCALE = 1;
 bool pause = false;
 
 CustomCamera cam;
+World world("resources/WorldMap.txt");
+std::atomic_bool frameDone = false;
+std::atomic_int frameTime = 0;
 
 /*
 Debug
@@ -66,9 +71,11 @@ void RunGame()
 {
     // Init
     //World world = World("resources/testMap.txt");
-    World world = World("resources/WorldMap.txt");
+    //world = World("resources/WorldMap.txt");
+    world.Init();
     PathFinding pathfinding = PathFinding(world);
     EntityManager entityManager = EntityManager();
+    entityManager.Init();
     entityManager.world = &world;
     SystemsHolder::GetInstance()->Init(&world, &entityManager, &pathfinding);
     Commander commander = Commander();
@@ -77,19 +84,7 @@ void RunGame()
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
 
-    std::map<Node*, NodeRecordAs> searchResult;
-    std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare> open;
-    //std::vector<Node>* path = pathfinding.AStarDivided({ 1300, 64 }, { 1000, 640 }, searchResult, open);
-    //std::vector<Node>* path = {};
     int frameCount = 0;
-
-    /*
-    Camera2D camera = { 0 };
-    camera.target = { 0,0};
-    camera.offset = { 0,0 };
-    camera.rotation = 0.0f;
-    camera.zoom = 1.0f;
-    */
 
     // Gameloop
     while (!WindowShouldClose())
@@ -123,10 +118,15 @@ void RunGame()
         //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
 
         // Debug drawing
-        commander.DebugDraw();
+        //commander.DebugDraw();
 
         EndDrawing();
         //return;
+
+        frameCount++;
+        float t = dt * 1000.0f;
+        frameTime = (int)(t);
+        frameDone = true;
     }
 
     // Cleanup
@@ -138,7 +138,7 @@ int main()
 {
     // Window setup
     InitWindow(GlobalVars::SCREEN_WIDTH, GlobalVars::SCREEN_HEIGHT, "My first RAYLIB program!");
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
     RunGame();
 

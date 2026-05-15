@@ -73,6 +73,9 @@ struct TreesTile
 //-----------------------------------------------
 class World
 {
+private:
+    Texture2D treeTileTextures[5];
+
 public:
     int worldSize, width, height;
 
@@ -93,6 +96,7 @@ public:
     World(const char* path);
     ~World();
 
+    void Init();
     bool LoadMap(const char* path);
     void Update(float dTime);
     void Draw();

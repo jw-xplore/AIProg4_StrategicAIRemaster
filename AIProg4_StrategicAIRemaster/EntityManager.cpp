@@ -68,16 +68,25 @@ EntityManager::~EntityManager()
 	//delete pickups;
 }
 
+void EntityManager::Init()
+{
+	Image workerImg = LoadImage("resources/worker.png");
+	workerTexture = LoadTextureFromImage(workerImg);
+	UnloadImage(workerImg);
+}
+
 void EntityManager::Update(float dTime)
 {
 	// Workers
-	for (size_t i = 0; i < workers.size(); i++)
+	for (Worker& worker : workers)
 	{
-		workers.at(i).Update(dTime);
-		workers.at(i).Render();
+		worker.Update(dTime);
+		//workers.at(i).Render();
+
+		DrawTexture(workerTexture, worker.position.x, worker.position.y, worker.coloring);
 
 		// Debug
-		DrawText(std::to_string(workers[i].id).c_str(), workers[i].position.x, workers[i].position.y, 4, BLACK);
+		DrawText(std::to_string(worker.id).c_str(), worker.position.x, worker.position.y, 4, BLACK);
 	}
 
 	// Render pickups

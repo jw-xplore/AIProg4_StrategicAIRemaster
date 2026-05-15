@@ -14,8 +14,6 @@
 
 World::World(const char* path)
 {
-    //entityManager = entManager;
-
     // World setup
     LoadMap(path);
 
@@ -42,6 +40,19 @@ World::~World()
     }
 
     treeTiles.clear();
+}
+
+void World::Init()
+{
+    // Texture setup
+    for (int i = 0; i < 5; i++)
+    {
+        std::string imgPath = "resources/trees" + std::to_string(i + 1) + ".png";
+        Image img = LoadImage(imgPath.c_str());
+
+        treeTileTextures[i] = LoadTexture(imgPath.c_str());
+        UnloadImage(img);
+    }
 }
 
 void World::Update(float dTime)
@@ -186,6 +197,10 @@ bool World::LoadMap(const char* path)
 
 void World::Draw()
 {
+    // Background grass
+    int size = 100 * GlobalVars::TILE_SIZE;
+    DrawRectangle(0, 0, size, size, cGrass);
+
     for (size_t x = 0; x < height; x++)
     {
         for (size_t y = 0; y < height; y++)
@@ -193,8 +208,8 @@ void World::Draw()
             // Show fog 
             if (discovered[x][y] == EDiscovetyState::Undiscovered)
             {
-                DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
-                continue;
+                //DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
+                //continue;
             }
 
             // Show terrain
@@ -202,7 +217,7 @@ void World::Draw()
 
             switch (mapTerrain[x][y])
             {
-            case ETerrainType::Grass: col = cGrass; break;
+            case ETerrainType::Grass: col = cGrass; continue;
             case ETerrainType::Swamp: col = cSwamp; break;
             case ETerrainType::Water: col = cWater; break;
             case ETerrainType::Rock: col = cRock; break;
@@ -217,25 +232,16 @@ void World::Draw()
     // Show trees
     for (size_t i = 0; i < treeTiles.size(); i++)
     {
-        for (size_t t = 0; t < treeTiles[i].amount; t++)
-        {
-            int x = treeTiles[i].x;
-            int y = treeTiles[i].y;
+        float x = treeTiles[i].x * GlobalVars::TILE_SIZE;
+        float y = treeTiles[i].y * GlobalVars::TILE_SIZE;
 
-            if (discovered[x][y] == EDiscovetyState::Undiscovered)
-            {
-                DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
-                continue;
-            }
-
-            Vector2 pos = { 
-                treeTiles[i].x * GlobalVars::TILE_SIZE + treeTiles[i].treePositions[t].x,
-                treeTiles[i].y * GlobalVars::TILE_SIZE + treeTiles[i].treePositions[t].y 
-            };
-
-            DrawCircle(pos.x, pos.y, 2, BROWN);
-        }
+        DrawTexture(treeTileTextures[treeTiles[i].amount - 1], x, y, BROWN);
     }
+}
+
+void DrawTrees()
+{
+
 }
 
 EDiscovetyState World::TileDiscoveryState(int x, int y)

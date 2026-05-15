@@ -334,8 +334,6 @@ void Commander::Update(float dTime)
 	{
 		ScoutPos(scout->position.x, scout->position.y);
 	}
-
-	DebugDraw();
 }
 
 void Commander::UpdatePlan()
