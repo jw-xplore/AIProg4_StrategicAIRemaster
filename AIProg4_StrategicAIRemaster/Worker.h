@@ -2,6 +2,7 @@
 #include "Capital.h"
 #include <vector>
 #include "raylib.h"
+#include "types.h"
 
 class PathFinding;
 class Pickup;
@@ -9,6 +10,7 @@ class Building;
 struct TreesTile;
 class Task;
 
+/*
 enum EWorkerRole
 {
 	None = -1,
@@ -21,6 +23,7 @@ enum EWorkerRole
 	Soldier,
 	EWorkerRoleCount
 };
+*/
 
 class Worker
 {

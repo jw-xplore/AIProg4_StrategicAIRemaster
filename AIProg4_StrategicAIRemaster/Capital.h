@@ -1,4 +1,7 @@
 #pragma once
+#include <stddef.h>
+#include "types.h"
+
 /*
 Capital represents exchangeable "gameplay" resources like trees and iron
 Capital types and operations are defined here
@@ -6,17 +9,6 @@ Capital types and operations are defined here
 
 namespace Capital
 {
-	enum ECapitalType
-	{
-		None = -1,
-		Tree,
-		Coal,
-		IronOre,
-		IronBar,
-		Sword,
-		ECapitalTypeCount
-	};
-
 	// Tracks amounts of the resources for each type
 	// Can be used for stored or defining how resources cost - e.g. how much wood and iron will cost to build a smelter
 	struct CapitalAmounts

@@ -29,7 +29,7 @@ void Worker::Update(float dTime)
 {
 	// Move
 	if (path.empty() || FollowPath())
-		position += SteeringBehavior::Seek(position, target, speed * dTime);
+		position = Vector2Add(position, SteeringBehavior::Seek(position, target, speed * dTime));
 }
 
 void Worker::Render()
@@ -59,7 +59,7 @@ bool Worker::FollowPath()
 	int y = path[currentPathNode].y;
 
 	Vector2 pos = { x, y };
-	Vector2 dist = pos - position;
+	Vector2 dist = Vector2Subtract(pos, position);
 
 	if (Vector2LengthSqr(dist) > pathNodeDistance)
 	{

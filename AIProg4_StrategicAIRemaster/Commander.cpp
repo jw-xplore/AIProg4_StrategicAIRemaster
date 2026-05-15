@@ -31,8 +31,17 @@ Commander::Commander()
 
 	DefineAvailableTasks();
 
-	// Scouts setup
 	int population = entityManager->workers.size();
+
+	// Setup active tasks
+	activeTasks.reserve(population);
+	for (int ti = 0; ti < population; ti++)
+	{
+		activeTasks.push_back(nullptr);
+		//activeTasks[ti] = nullptr;
+	}
+
+	// Scouts setup
 	scoutsPos = population - dedicatedScouts;
 
 	for (int i = scoutsPos; i < population; i++)
@@ -294,24 +303,30 @@ void Commander::Update(float dTime)
 	}
 
 	// Update tasks
-	for (auto& wTask : workerTaskMap)
+	//int sz = activeTasks.size();
+
+	for (int i = 0; i < 50; i++)
 	{
-		if (!wTask.second)
+		Task* wTask = activeTasks[i];
+		if (i > 44)
+			int a = 5;
+
+		if (!wTask)
 			continue;
 
-		if (wTask.second->finished)
+		if (wTask->finished)
 		{
 			// Finished - Remove
 			//*goals[currentGoal]->potentialCapital -= wTask.second->rewardCapital;
 
-			if (wTask.second->parentGoalStep)
-				wTask.second->parentGoalStep->finishedTasks++;
+			if (wTask->parentGoalStep != nullptr)
+				wTask->parentGoalStep->finishedTasks++;
 
-			wTask.second = nullptr;
+			activeTasks[i] = nullptr;
 			continue;
 		}
 
-		wTask.second->Update(dTime);
+		wTask->Update(dTime);
 	}
 
 	// Scouting update
@@ -342,10 +357,15 @@ void Commander::UpdatePlan()
 	}
 
 	// Scouts
-	for (Worker*& scout : scouts)
+	int end = dedicatedScouts + scoutsPos;
+	for (int i = scoutsPos; i < end; i++)
 	{
-		if (workerTaskMap[scout] == nullptr)
-			AssignTask(scout, WorkerTasks::ScoutTask(scout));
+		Task* active = 	activeTasks[i];
+		if (activeTasks[i] != nullptr)
+			continue;
+
+		int si = i - scoutsPos;
+		AssignTask(scouts[si], WorkerTasks::ScoutTask(scouts[si]));
 	}
 }
 
@@ -353,17 +373,6 @@ int displayTask = 0;
 
 void Commander::DebugDraw()
 {
-	/*
-	for (auto& wTask : workerTaskMap)
-	{
-		if (!wTask.second)
-			continue;
-
-		// Task debug
-		std::string str = wTask.second->name;
-		DrawText(str.c_str(), wTask.first->position.x, wTask.first->position.y, 5, WHITE);
-	}
-	*/
 	if (IsKeyDown(KEY_ONE))
 		displayTask = 0;
 	if (IsKeyDown(KEY_TWO))
@@ -374,6 +383,7 @@ void Commander::DebugDraw()
 		displayTask = 3;
 	if (IsKeyDown(KEY_FIVE))
 		displayTask = 4;
+		
 
 	if (goals[displayTask]->finalStep)
 		goals[displayTask]->DebugDraw(*goals[displayTask]->finalStep, 0, 0);
@@ -382,18 +392,15 @@ void Commander::DebugDraw()
 	std::string workerStats = "";
 	int working = 0;
 
+	int i = 0;
 	for (auto& worker : entityManager->workers)
 	{
 		std::string taskName = "Idle";
 
-		if (workerTaskMap.find(&worker) != workerTaskMap.end())
+		if (activeTasks[i])
 		{
-			Task* task = workerTaskMap.at(&worker);
-			if (task)
-			{
-				taskName = task->name;
-				working++;
-			}
+			taskName = activeTasks[i]->name;
+			working++;
 		}
 
 		std::string soldierStr = "";
@@ -401,6 +408,8 @@ void Commander::DebugDraw()
 			soldierStr = "[SOLDIER]";
 
 		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ") task: " + taskName + " (car: " + std::to_string(worker.carriedMaterial) + ")\n";
+	
+		i++;
 	}
 
 	DrawText(("Working: " + std::to_string(working)).c_str(), -20, 100, 10, YELLOW);
@@ -454,11 +463,8 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 	for (Worker& worker : entityManager->workers)
 	{
 		// Get free worker
-		if (workerTaskMap[&worker] == nullptr)
+		if (activeTasks[i] == nullptr)
 		{
-			if (roleConstrain != EWorkerRole::General)
-				int a = 5;
-
 			if (worker.role != roleConstrain)
 				continue;
 
@@ -478,11 +484,8 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 		for (Worker& worker : entityManager->workers)
 		{
 			// Get free worker
-			if (workerTaskMap[&worker] == nullptr)
+			if (activeTasks[i] == nullptr)
 			{
-				if (roleConstrain != EWorkerRole::General)
-					int a = 5;
-
 				if (roleConstrain != EWorkerRole::General && worker.role != roleConstrain)
 					continue;
 
@@ -503,7 +506,7 @@ void Commander::AssignTask(Worker* worker, Task* task)
 	if (!task)
 		return;
 
-	workerTaskMap[worker] = task;
+	activeTasks[worker->id] = task;
 	task->assignee = worker;
 
 	//*goals[currentGoal]->potentialCapital += task->rewardCapital;

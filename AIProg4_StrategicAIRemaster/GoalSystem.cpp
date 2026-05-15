@@ -36,6 +36,7 @@ Building* TaskAttribute::VariableSource(ETaskAttributeCategory category, int typ
 
 Task::Task(Worker* worker, std::initializer_list<Subtask*> subtasks)
 {
+	finished = false;
 	running = true;
 	currentSubTask = 0;
 	repeat = false;

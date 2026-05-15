@@ -77,15 +77,15 @@ struct TaskAttribute
 class Task
 {
 public:
-	bool finished;
-	bool running;
+	bool finished = false;
+	bool running = false;
 	int currentSubTask = 0;
-	bool repeat;
+	bool repeat = false;
 	std::string name = "";
 
-	Worker* assignee;
+	Worker* assignee = nullptr;
 	std::vector<Subtask*> subtasks;
-	GoalStep* parentGoalStep;
+	GoalStep* parentGoalStep = nullptr;
 	std::vector<std::function<void (Task*)>> onFinishedListeners;
 
 	Task() {}

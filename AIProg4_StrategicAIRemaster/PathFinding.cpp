@@ -5,6 +5,7 @@
 #include "World.h";
 #include "Constants.h"
 #include "Database.h"
+#include <math.h>
 
 PathFinding::PathFinding(World& world)
 {
@@ -375,13 +376,13 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 
 inline float PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
 {
-	float noSq = std::powf(end->x - start->x, 2) + std::powf(end->y - start->y, 2);
+	float noSq = std::pow(end->x - start->x, 2) + std::pow(end->y - start->y, 2);
 	return std::sqrt(noSq);
 }
 
 inline float PathFinding::ManhattanHeuristic(const int startX, const int startY, const int endX, const int endY)
 {
-	float noSq = std::powf(endX - startX, 2) + std::powf(endY - startY, 2);
+	float noSq = std::pow(endX - startX, 2) + std::pow(endY - startY, 2);
 	return std::sqrt(noSq);
 }
 

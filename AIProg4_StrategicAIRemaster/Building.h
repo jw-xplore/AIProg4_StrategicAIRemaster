@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "Capital.h"
 #include <vector>
+#include "types.h"
 
 class Worker;
 
@@ -10,6 +11,7 @@ namespace Capital
 	struct CapitalAmounts;
 }
 
+/*
 enum EBuildingType
 {
 	CoalMile,
@@ -18,6 +20,7 @@ enum EBuildingType
 	TrainingCamp,
 	EBuildingTypeCount
 };
+*/
 
 enum EBuildingState
 {

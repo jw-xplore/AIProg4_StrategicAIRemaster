@@ -40,7 +40,7 @@ EntityManager::EntityManager()
 		worker.id = i;
 		workers.push_back(worker);
 
-		workersRoleFilter[EWorkerRole::General].push_back(&worker);
+		//workersRoleFilter[EWorkerRole::General].push_back(&worker);
 	}
 
 	// Setup pickups

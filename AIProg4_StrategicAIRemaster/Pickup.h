@@ -1,12 +1,8 @@
 #pragma once
 #include "raylib.h"
+#include "types.h"
 
 class Worker;
-
-namespace Capital
-{
-	enum ECapitalType;
-}
 
 class Pickup
 {
