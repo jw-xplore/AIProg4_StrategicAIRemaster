@@ -7,6 +7,8 @@
 #include "Capital.h"
 #include "Building.h"
 #include "World.h"
+#include "SystemsHolder.h"
+#include "Commander.h"
 
 EntityManager::EntityManager()
 {
@@ -77,6 +79,8 @@ void EntityManager::Init()
 
 void EntityManager::Update(float dTime)
 {
+	Commander* commander = SystemsHolder::GetInstance()->commander;
+
 	// Workers
 	for (Worker& worker : workers)
 	{
@@ -86,7 +90,11 @@ void EntityManager::Update(float dTime)
 		DrawTexture(workerTexture, worker.position.x, worker.position.y, worker.coloring);
 
 		// Debug
-		DrawText(std::to_string(worker.id).c_str(), worker.position.x, worker.position.y, 4, BLACK);
+		Color col = BLACK;
+		if (commander->activeTasks[worker.id])
+			col = YELLOW;
+
+		DrawText(std::to_string(worker.id).c_str(), worker.position.x, worker.position.y, 4, col);
 	}
 
 	// Render pickups
@@ -108,6 +116,7 @@ void EntityManager::Update(float dTime)
 		buildStr += ", co: " + std::to_string(available[Capital::ECapitalType::Coal]) + " (" + std::to_string(reserved[Capital::ECapitalType::Coal]) + ")";
 		buildStr += ", io: " + std::to_string(available[Capital::ECapitalType::IronOre]) + " (" + std::to_string(reserved[Capital::ECapitalType::IronOre]) + ")";
 		buildStr += ", ib: " + std::to_string(available[Capital::ECapitalType::IronBar]) + " (" + std::to_string(reserved[Capital::ECapitalType::IronBar]) + ")";
+		
 		DrawText(buildStr.c_str(), building->position.x, building->position.y, 8, BLACK);
 	}
 }

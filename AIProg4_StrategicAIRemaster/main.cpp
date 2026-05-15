@@ -20,8 +20,10 @@ bool pause = false;
 
 CustomCamera cam;
 World world("resources/WorldMap.txt");
-std::atomic_bool frameDone = false;
-std::atomic_int frameTime = 0;
+int frameCount = 0;
+const int fpsStatsSize = 300;
+float fpsStats[fpsStatsSize];
+float avgFps = 0;
 
 /*
 Debug
@@ -56,7 +58,7 @@ void AdjustTimeScale()
     DrawText(cTime, 50 + cam.camera.target.x, 10 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
 
     // Show FPS
-    std::string strFPS = "FPS: " + std::to_string(1 / GetFrameTime());
+    std::string strFPS = "FPS: " + std::to_string(1 / GetFrameTime()) + "(avg: " + std::to_string(avgFps) + ")";
     char const* cFPS = strFPS.c_str();
     DrawText(cFPS, 50 + cam.camera.target.x, 30 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
 
@@ -83,8 +85,6 @@ void RunGame()
 
     //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
     //return;
-
-    int frameCount = 0;
 
     // Gameloop
     while (!WindowShouldClose())
@@ -118,15 +118,37 @@ void RunGame()
         //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
 
         // Debug drawing
-        //commander.DebugDraw();
+        commander.DebugDraw();
+        //pathfinding.DrawGraph();
 
         EndDrawing();
         //return;
+        
+        // Calculate avg
+        if (frameCount < fpsStatsSize)
+        {
+            fpsStats[frameCount] = 1 / GetFrameTime();
+        }
+        else
+        {
+            for (int i = 1; i < fpsStatsSize; i++)
+            {
+                fpsStats[i - 1] = fpsStats[i];
+            }
 
-        frameCount++;
-        float t = dt * 1000.0f;
-        frameTime = (int)(t);
-        frameDone = true;
+            fpsStats[fpsStatsSize - 1] = 1 / GetFrameTime();
+        }
+
+        int fpsTotal = 0;
+        for (int i = 0; i < fpsStatsSize; i++)
+        {
+            fpsTotal += fpsStats[i];
+        }
+
+        if (frameCount < fpsStatsSize)
+            frameCount++;
+
+        avgFps = fpsTotal / frameCount;
     }
 
     // Cleanup
@@ -138,7 +160,7 @@ int main()
 {
     // Window setup
     InitWindow(GlobalVars::SCREEN_WIDTH, GlobalVars::SCREEN_HEIGHT, "My first RAYLIB program!");
-    SetTargetFPS(120);
+    //SetTargetFPS(120);
 
     RunGame();
 

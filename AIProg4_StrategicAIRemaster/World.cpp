@@ -141,7 +141,7 @@ bool World::LoadMap(const char* path)
 
         for (size_t y = 0; y < height; y++)
         {
-            discovered[x][y] = EDiscovetyState::Undiscovered;
+            discovered[x][y] = EDiscovetyState::Discovered;
             // NOTE: map[y][x]
             // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
             // This is fixed for actual map data, which can be naturaly accessed as [x][y]

@@ -393,7 +393,7 @@ void Commander::DebugDraw()
 	int i = 0;
 	for (auto& worker : entityManager->workers)
 	{
-		std::string taskName = "Idle";
+		std::string taskName = "";
 
 		if (activeTasks[i])
 		{
@@ -474,6 +474,7 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 			break;
 	}
 
+	/*
 	// Consider non-general worker for general task
 	if (roleConstrain == EWorkerRole::General)
 	{
@@ -495,6 +496,7 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 				break;
 		}
 	}
+	*/
 
 	return nullptr;
 }
