@@ -286,6 +286,7 @@ void Commander::DefineAvailableTasks()
 	// Goals definition
 	goals.push_back(new Goal(*buildCoalMile, availableSteps));
 	goals.push_back(new Goal(*buildSmelter, availableSteps));
+	//return;
 	goals.push_back(new Goal(*buildForge, availableSteps));
 	goals.push_back(new Goal(*buildCamp, availableSteps));
 	goals.push_back(new Goal(*trainSoldier, availableSteps));
@@ -303,13 +304,11 @@ void Commander::Update(float dTime)
 	}
 
 	// Update tasks
-	//int sz = activeTasks.size();
+	int sz = activeTasks.size();
 
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < sz; i++)
 	{
 		Task* wTask = activeTasks[i];
-		if (i > 44)
-			int a = 5;
 
 		if (!wTask)
 			continue;
@@ -346,7 +345,10 @@ void Commander::UpdatePlan()
 		{
 			GoalStep* step = goal->NextAvailableStep();
 			if (step)
+			{
 				step->AssignTask();
+				break;
+			}
 		}
 
 		i++;
@@ -461,7 +463,7 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 	for (Worker& worker : entityManager->workers)
 	{
 		// Get free worker
-		if (activeTasks[i] == nullptr)
+		if (activeTasks[worker.id] == nullptr)
 		{
 			if (worker.role != roleConstrain)
 				continue;
@@ -503,8 +505,8 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 void Commander::AssignTask(Worker* worker, Task* task)
 {
-	if (!task)
-		return;
+	if (activeTasks[worker->id])
+		int a = 4;
 
 	activeTasks[worker->id] = task;
 	task->assignee = worker;

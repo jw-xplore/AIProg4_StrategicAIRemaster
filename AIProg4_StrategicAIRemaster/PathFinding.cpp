@@ -103,7 +103,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -112,7 +112,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x + 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -131,7 +131,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x + 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -141,7 +141,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -150,7 +150,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x - 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -160,7 +160,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y][x - 1];
-		link.weight = link.node->travelCost;
+		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -169,7 +169,7 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x - 1];
-		link.weight = 1.4f * link.node->travelCost;
+		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}

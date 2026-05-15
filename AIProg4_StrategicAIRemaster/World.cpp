@@ -141,7 +141,8 @@ bool World::LoadMap(const char* path)
 
         for (size_t y = 0; y < height; y++)
         {
-            discovered[x][y] = EDiscovetyState::Discovered;
+            discovered[x][y] = EDiscovetyState::Undiscovered;
+            //discovered[x][y] = EDiscovetyState::Discovered;
             // NOTE: map[y][x]
             // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
             // This is fixed for actual map data, which can be naturaly accessed as [x][y]
@@ -206,10 +207,10 @@ void World::Draw()
         for (size_t y = 0; y < height; y++)
         {
             // Show fog 
-            if (discovered[x][y] == EDiscovetyState::Undiscovered)
+            if (discovered[x][y] != EDiscovetyState::Discovered)
             {
-                //DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
-                //continue;
+                DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
+                continue;
             }
 
             // Show terrain
@@ -234,6 +235,13 @@ void World::Draw()
     {
         float x = treeTiles[i].x * GlobalVars::TILE_SIZE;
         float y = treeTiles[i].y * GlobalVars::TILE_SIZE;
+
+        // Show fog 
+        if (discovered[treeTiles[i].x][treeTiles[i].y] != EDiscovetyState::Discovered)
+        {
+            DrawRectangle(x, y, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
+            continue;
+        }
 
         DrawTexture(treeTileTextures[treeTiles[i].amount - 1], x, y, BROWN);
     }
