@@ -209,7 +209,7 @@ void World::Draw()
             // Show fog 
             if (discovered[x][y] != EDiscovetyState::Discovered)
             {
-                //DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
+                DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
                 continue;
             }
 

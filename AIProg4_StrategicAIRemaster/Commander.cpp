@@ -419,8 +419,11 @@ void Commander::UpdatePlan()
 	else
 	{
 		// Scouts
-		int si = workerToPlan - scoutsPos;
-		AssignTask(scouts[si], WorkerTasks::ScoutTask(scouts[si]));
+		if (!pathfinding->nextUndiscovered.empty())
+		{
+			int si = workerToPlan - scoutsPos;
+			AssignTask(scouts[si], WorkerTasks::ScoutTask(scouts[si]));
+		}
 	}
 
 	// Move to next
