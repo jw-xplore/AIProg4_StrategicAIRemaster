@@ -118,7 +118,7 @@ void RunGame()
         //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
 
         // Debug drawing
-        //commander.DebugDraw();
+        commander.DebugDraw();
         //pathfinding.DrawGraph();
 
         EndDrawing();

@@ -38,6 +38,7 @@ struct TreesTile
     int x, y, amount;
     int reservations = 0;
     Vector2Int* treePositions;
+    std::vector<int> committedWorkers;
 
     TreesTile(int tileX, int tileY, int count, int range)
     {

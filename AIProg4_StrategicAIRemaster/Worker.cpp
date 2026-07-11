@@ -116,6 +116,13 @@ namespace WorkerTasks
 
 		task->name = "FellTree";
 		treesTile->reservations++;
+		treesTile->committedWorkers.push_back(worker->id);
+
+		if (treesTile->reservations > treesTile->amount)
+		{
+			std::string err = "Tree over reservation!";
+			throw std::runtime_error(err);
+		}
 
 		// Input - Output
 		//task->output = TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr);

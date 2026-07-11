@@ -141,8 +141,8 @@ bool World::LoadMap(const char* path)
 
         for (size_t y = 0; y < height; y++)
         {
-            discovered[x][y] = EDiscovetyState::Undiscovered;
-            //discovered[x][y] = EDiscovetyState::Discovered;
+            //discovered[x][y] = EDiscovetyState::Undiscovered;
+            discovered[x][y] = EDiscovetyState::Discovered;
             // NOTE: map[y][x]
             // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
             // This is fixed for actual map data, which can be naturaly accessed as [x][y]
@@ -163,6 +163,12 @@ bool World::LoadMap(const char* path)
             // Trees
             if (map[y][x] == db->terrains[ETerrainType::Trees].charIdentifier)
             {
+                if (treeTiles.size() >= 100)
+                {
+                    mapTerrain[x][y] = ETerrainType::Grass;
+                    continue;
+                }
+
                 mapTerrain[x][y] = ETerrainType::Trees;
                 treeTiles.push_back(TreesTile(x, y, 5, GlobalVars::TILE_HALF_SIZE));
             }
@@ -230,6 +236,9 @@ void World::Draw()
     // Show trees
     for (size_t i = 0; i < treeTiles.size(); i++)
     {
+        if (treeTiles[i].amount <= 0)
+            continue;
+
         float x = treeTiles[i].x * GlobalVars::TILE_SIZE;
         float y = treeTiles[i].y * GlobalVars::TILE_SIZE;
 
@@ -247,8 +256,15 @@ void World::Draw()
 
         DrawTexture(treeTileTextures[treeTiles[i].amount - 1], x, y, BROWN);
 
-        //std::string pos = std::to_string(treeTiles[i].amount) + "\n(" + std::to_string(treeTiles[i].reservations) + ")";
-        //DrawText(pos.c_str(), x, y, 1, WHITE);
+        std::string pos = std::to_string(treeTiles[i].amount) + "\n(" + std::to_string(treeTiles[i].reservations) + ")";
+
+        pos += "\ncm: ";
+        for (int a = 0; a < treeTiles[i].committedWorkers.size(); a++)
+        {
+            pos += std::to_string(treeTiles[i].committedWorkers[a]) + "\n";
+        }
+
+        DrawText(pos.c_str(), x, y, 1, WHITE);
     }
 }
 
@@ -278,6 +294,9 @@ TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
         if (TileDiscoveryState(tile.x, tile.y) != EDiscovetyState::Discovered)
             continue;
 
+        if (tile.amount <= 0)
+            continue;
+
         // Ignore tile that will be empty
         if (tile.amount - tile.reservations <= 0)
             continue;
@@ -302,5 +321,5 @@ TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
 /// <param name="tile"></param>
 void World::RemoveTreeTile(TreesTile* tile)
 {
-    treeTiles.erase(std::find(treeTiles.begin(), treeTiles.end(), *tile));
+    //treeTiles.erase(std::find(treeTiles.begin(), treeTiles.end(), *tile));
 }

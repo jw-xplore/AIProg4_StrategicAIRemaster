@@ -86,14 +86,20 @@ ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 
 		// Remove empty tree tile
 		if (treesTile->amount <= 0)
+		{
 			SystemsHolder::GetInstance()->world->RemoveTreeTile(treesTile);
+			return ESubtaskState::Finnished;
+		}
 
 		treesTile->reservations--;
+		if (treesTile->reservations < 0)
+		{
+			std::string err = "negative reservation!";
+			throw std::runtime_error(err);
+		}
+
 		return ESubtaskState::Finnished;
 	}
-
-	if (treesTile->y > 30)
-		int a = 5;
 
 	// Run 
 	timer += dTime;

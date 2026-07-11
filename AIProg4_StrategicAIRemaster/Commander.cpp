@@ -382,7 +382,7 @@ void Commander::UpdatePlan()
 	*/
 
 	int size = entityManager->workers.size();
-	int limit = 10;
+	int limit = size;
 	int checks = 0;
 
 	// Move to next if work is taken
@@ -458,11 +458,11 @@ void Commander::DebugDraw()
 	int i = 0;
 	for (auto& worker : entityManager->workers)
 	{
-		std::string taskName = "";
+		std::string taskName = "idle";
 
 		if (activeTasks[i])
 		{
-			taskName = activeTasks[i]->name;
+			taskName = "task: " + activeTasks[i]->name;
 			working++;
 		}
 
@@ -470,7 +470,7 @@ void Commander::DebugDraw()
 		if (worker.role == EWorkerRole::Soldier)
 			soldierStr = "[SOLDIER]";
 
-		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ") task: " + taskName + " (car: " + std::to_string(worker.carriedMaterial) + ")\n";
+		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ")" + taskName + " (car: " + std::to_string(worker.carriedMaterial) + ")\n";
 	
 		i++;
 	}
