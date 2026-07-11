@@ -106,6 +106,17 @@ namespace SubtaskDefinitions
 		ESubtaskState Execute(Worker& worker, float dTime) override;
 	};
 
+	class TrainSoldier : public Subtask
+	{
+	public:
+		Building* targetBuilding;
+		float timer = 0;
+		float delay;
+
+		TrainSoldier(Building* target, float t);
+		ESubtaskState Execute(Worker& worker, float dTime) override;
+	};
+
 	/// <summary>
 	/// Finish pre-place building after certain delay
 	/// </summary>

@@ -150,6 +150,11 @@ bool GoalStep::IsAttributeSatisfied(TaskAttribute& attribute, EntityManager* ent
 		}
 		else
 		{
+			if (attribute.type == Capital::ECapitalType::Sword)
+				int a = 5;
+			else
+				int a = 5;
+
 			// For building
 			return attribute.source->GetAvailableCapital()[type] >= attribute.amount;
 		}
@@ -158,6 +163,13 @@ bool GoalStep::IsAttributeSatisfied(TaskAttribute& attribute, EntityManager* ent
 	// Worker
 	if (attribute.category == ETaskAttributeCategory::Worker)
 	{
+		// Soldiers counts
+		if (attribute.type == EWorkerRole::Soldier)
+		{
+			int count = entityMngr->CountOfRole(EWorkerRole::Soldier);
+			return count > attribute.amount;
+		}
+
 		return entityMngr->FindWorkerOfRole((EWorkerRole)attribute.type);
 	}
 
@@ -214,7 +226,7 @@ bool GoalStep::IsDone()
 void GoalStep::AssignTask(Worker* worker)
 {
 	Commander* commander = SystemsHolder::GetInstance()->commander;
-	//Worker* worker = commander->FindFreeWorker(roleConstrain);
+	worker = commander->FindFreeWorker(roleConstrain);
 
 	if (worker && worker->role == roleConstrain)
 	{
@@ -378,11 +390,16 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 	if (currentStep.IsDone())
 		return nullptr;
 
+	if (currentStep.output.type == EWorkerRole::Soldier)
+		int a = 5;
+
 	// Can perform this step?
 	if (currentStep.IsInputSatisfied())
 	{
 		//if (currentStep.name == "Cr coal")
 			//int a = 5;
+
+		// TODO: Be able to limit amount of soldier tasks based on already created swords 
 
 		// Is there work to be done? 
 		int assigned = currentStep.activeTasks.size() + currentStep.finishedTasks;

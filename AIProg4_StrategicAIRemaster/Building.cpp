@@ -17,6 +17,8 @@ Building::Building(EBuildingType type, Vector2 startPos, EBuildingState state)
 	}
 
 	//storedCapital.amounts[1] = 10;
+	//FinishBuilding();
+	//storedCapital.amounts[Capital::ECapitalType::Sword] = 1;
 }
 
 void Building::StartBuilding()

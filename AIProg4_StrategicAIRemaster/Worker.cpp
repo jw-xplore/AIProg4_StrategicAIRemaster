@@ -260,7 +260,7 @@ namespace WorkerTasks
 		Task* task = new Task(nullptr,
 			{
 			new SubtaskDefinitions::MoveToSubtask(trainingCamp->position),
-			new SubtaskDefinitions::TrainWorker(EWorkerRole::Soldier, time)
+			new SubtaskDefinitions::TrainSoldier(trainingCamp, time)
 			}
 		);
 

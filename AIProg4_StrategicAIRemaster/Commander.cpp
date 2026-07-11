@@ -202,9 +202,20 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return WorkerTasks::TrainForSoldierTask(worker, entityManager->FindBuildingOfType(EBuildingType::TrainingCamp)); }
 	);
 
-	trainSoldier->totalTasks = 20;
+	//trainSoldier->totalTasks = 1;
 
 	availableSteps.push_back(trainSoldier);
+
+	GoalStep* createArmy = new GoalStep(
+		"Create army",
+		{
+			TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Soldier, 20, nullptr),
+		},
+		TaskAttribute(ETaskAttributeCategory::Worker, -1, 1, nullptr),
+		[*this](Worker* worker) { return nullptr; }
+		);
+
+	//availableSteps.push_back(trainSoldier);
 
 	// Define delivery tasks
 	GoalStep* deliverItem = new GoalStep(
@@ -289,7 +300,8 @@ void Commander::DefineAvailableTasks()
 	//return;
 	goals.push_back(new Goal(*buildForge, availableSteps));
 	goals.push_back(new Goal(*buildCamp, availableSteps));
-	goals.push_back(new Goal(*trainSoldier, availableSteps));
+	//goals.push_back(new Goal(*trainSoldier, availableSteps));
+	goals.push_back(new Goal(*createArmy, availableSteps));
 }
 
 void Commander::Update(float dTime)
@@ -406,7 +418,12 @@ void Commander::UpdatePlan()
 			GoalStep* step = goal->NextAvailableStep();
 			if (step)
 			{
+				// Debug
+				if (step->output.type == -1)
+					goal->NextAvailableStep();
+
 				step->AssignTask(&entityManager->workers[workerToPlan]);
+
 				break;
 			}
 			else
@@ -454,6 +471,7 @@ void Commander::DebugDraw()
 	// Worker stats
 	std::string workerStats = "";
 	int working = 0;
+	int soldierCount = 0;
 
 	int i = 0;
 	for (auto& worker : entityManager->workers)
@@ -468,7 +486,10 @@ void Commander::DebugDraw()
 
 		std::string soldierStr = "";
 		if (worker.role == EWorkerRole::Soldier)
-			soldierStr = "[SOLDIER]";
+		{
+			soldierStr = "[SOLDIER] ";
+			soldierCount++;
+		}
 
 		workerStats += soldierStr + std::to_string(worker.id) + ". (" + std::to_string(worker.role) + ")" + taskName + " (car: " + std::to_string(worker.carriedMaterial) + ")\n";
 	
@@ -476,7 +497,8 @@ void Commander::DebugDraw()
 	}
 
 	DrawText(("Working: " + std::to_string(working)).c_str(), -20, 100, 10, YELLOW);
-	DrawText(workerStats.c_str(), -20, 120, 10, YELLOW);
+	DrawText(("Soldiers: " + std::to_string(soldierCount)).c_str(), -20, 120, 10, YELLOW);
+	DrawText(workerStats.c_str(), -20, 140, 10, YELLOW);
 }
 
 void Commander::ScoutPos(float posX, float posY)

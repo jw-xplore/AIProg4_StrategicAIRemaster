@@ -167,6 +167,35 @@ ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
 	return ESubtaskState::Running;
 }
 
+TrainSoldier::TrainSoldier(Building* target, float t) : targetBuilding(target), timer(0), delay(t)
+{
+	targetBuilding->reservedCapital.amounts[Capital::ECapitalType::Sword]++;
+}
+
+ESubtaskState TrainSoldier::Execute(Worker& worker, float dTime)
+{
+	//delay = 1;
+	if (timer >= delay)
+	{
+		// Done
+		worker.role = EWorkerRole::Soldier;
+
+		// Change coloring
+		worker.coloring = LIME;
+
+		targetBuilding->storedCapital.amounts[Capital::ECapitalType::Sword]--;
+		targetBuilding->reservedCapital.amounts[Capital::ECapitalType::Sword]--;
+
+		worker.trainedRole = EWorkerRole::None;
+		return ESubtaskState::Finnished;
+	}
+
+	// Run 
+	timer += dTime;
+	worker.coloring = BLACK;
+	return ESubtaskState::Running;
+}
+
 ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
 {
 	//delay = 1;

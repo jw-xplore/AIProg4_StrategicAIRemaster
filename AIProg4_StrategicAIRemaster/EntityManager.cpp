@@ -30,7 +30,7 @@ EntityManager::EntityManager()
 
 	// Setup workers
 	int population = db->startingPopulation;
-	population = 10;
+	//population = 10;
 
 	//workers = new std::vector<Worker>();
 	workers.reserve(population);
@@ -116,6 +116,7 @@ void EntityManager::Update(float dTime)
 		buildStr += ", co: " + std::to_string(available[Capital::ECapitalType::Coal]) + " (" + std::to_string(reserved[Capital::ECapitalType::Coal]) + ")";
 		buildStr += ", io: " + std::to_string(available[Capital::ECapitalType::IronOre]) + " (" + std::to_string(reserved[Capital::ECapitalType::IronOre]) + ")";
 		buildStr += ", ib: " + std::to_string(available[Capital::ECapitalType::IronBar]) + " (" + std::to_string(reserved[Capital::ECapitalType::IronBar]) + ")";
+		buildStr += ", sw: " + std::to_string(available[Capital::ECapitalType::Sword]) + " (" + std::to_string(reserved[Capital::ECapitalType::Sword]) + ")";
 		
 		DrawText(buildStr.c_str(), building->position.x, building->position.y, 8, BLACK);
 	}
@@ -130,6 +131,19 @@ Worker* EntityManager::FindWorkerOfRole(EWorkerRole role)
 	}
 
 	return nullptr;
+}
+
+int EntityManager::CountOfRole(EWorkerRole role)
+{
+	int count = 0;
+
+	for (Worker& worker : workers)
+	{
+		if (worker.role == role)
+			count++;
+	}
+
+	return count;
 }
 
 Building* EntityManager::FindBuildingOfType(EBuildingType type)

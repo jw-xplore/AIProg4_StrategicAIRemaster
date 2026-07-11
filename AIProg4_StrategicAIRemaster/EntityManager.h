@@ -30,6 +30,7 @@ public:
 	void Update(float dTime);
 
 	Worker* FindWorkerOfRole(EWorkerRole role);
+	int CountOfRole(EWorkerRole role);
 
 	void AddBuilding(Building* building);
 	Building* FindBuildingOfType(EBuildingType type);
