@@ -141,8 +141,8 @@ bool World::LoadMap(const char* path)
 
         for (size_t y = 0; y < height; y++)
         {
-            //discovered[x][y] = EDiscovetyState::Undiscovered;
-            discovered[x][y] = EDiscovetyState::Discovered;
+            discovered[x][y] = EDiscovetyState::Undiscovered;
+            //discovered[x][y] = EDiscovetyState::Discovered;
             // NOTE: map[y][x]
             // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
             // This is fixed for actual map data, which can be naturaly accessed as [x][y]
@@ -163,12 +163,6 @@ bool World::LoadMap(const char* path)
             // Trees
             if (map[y][x] == db->terrains[ETerrainType::Trees].charIdentifier)
             {
-                if (treeTiles.size() >= 100)
-                {
-                    mapTerrain[x][y] = ETerrainType::Grass;
-                    continue;
-                }
-
                 mapTerrain[x][y] = ETerrainType::Trees;
                 treeTiles.push_back(TreesTile(x, y, 5, GlobalVars::TILE_HALF_SIZE));
             }
@@ -216,6 +210,10 @@ void World::Draw()
             if (discovered[x][y] != EDiscovetyState::Discovered)
             {
                 DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
+
+                if (discovered[x][y] == EDiscovetyState::Planned)
+                    DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, PINK);
+
                 continue;
             }
 
