@@ -94,7 +94,7 @@ void EntityManager::Update(float dTime)
 		if (commander->activeTasks[worker.id])
 			col = YELLOW;
 
-		//DrawText(std::to_string(worker.id).c_str(), worker.position.x, worker.position.y, 4, col);
+		DrawText(std::to_string(worker.id).c_str(), worker.position.x - 1, worker.position.y - 1, 2, col);
 	}
 
 	// Render pickups
@@ -183,7 +183,6 @@ void EntityManager::AddPickup(Pickup* pickup)
 
 void EntityManager::RemovePickup(Pickup* pickup)
 {
-	//pickups.erase(find(pickups.begin(), pickups.end(), *pickup));
 	pickups.erase(std::remove(pickups.begin(), pickups.end(), pickup), pickups.end());
 }
 

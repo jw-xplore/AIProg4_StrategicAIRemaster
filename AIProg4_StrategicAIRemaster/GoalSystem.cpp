@@ -223,7 +223,7 @@ bool GoalStep::IsDone()
 	return finishedTasks == totalTasks;
 }
 
-void GoalStep::AssignTask(Worker* worker)
+bool GoalStep::AssignTask(Worker* worker)
 {
 	Commander* commander = SystemsHolder::GetInstance()->commander;
 	worker = commander->FindFreeWorker(roleConstrain);
@@ -232,7 +232,7 @@ void GoalStep::AssignTask(Worker* worker)
 	{
 		Task* task = taskFunc(worker);
 		if (!task)
-			return;
+			return false;
 
 		task->parentGoalStep = this;
 		commander->AssignTask(worker, task);
@@ -242,7 +242,11 @@ void GoalStep::AssignTask(Worker* worker)
 		task->onFinishedListeners.push_back(
 			[&](Task* task) { OnTaskFinished(task); }
 		);
+
+		return true;
 	}
+
+	return false;
 }
 
 void GoalStep::OnTaskFinished(Task* task)

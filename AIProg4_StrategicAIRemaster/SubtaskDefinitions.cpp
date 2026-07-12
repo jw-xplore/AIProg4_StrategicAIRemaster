@@ -15,13 +15,6 @@ using namespace SubtaskDefinitions;
 
 ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 {
-	// DEBUG teleport
-	/*
-	worker.position = position;
-	worker.target = position;
-	return ESubtaskState::Finnished;
-	*/
-
 	// Find path
 	if (!pathAssigned)
 	{
@@ -56,8 +49,6 @@ ESubtaskState MoveToSubtask::Execute(Worker& worker, float dTime)
 	if (worker.PathTargetReached())
 		return ESubtaskState::Finnished;
 
-	//DrawCircle(worker.target.x, worker.target.y, 10, PINK);
-	
 	return ESubtaskState::Running;
 }
 
@@ -70,14 +61,9 @@ FellTreeSubtask::FellTreeSubtask(TreesTile* tile, float t) :
 
 ESubtaskState FellTreeSubtask::Execute(Worker& worker, float dTime)
 {
-	//delay = 1;
 	if (timer >= delay)
 	{
-		//Vector2 pos = { treesTile->x * GlobalVars::TILE_SIZE, treesTile->y * GlobalVars::TILE_SIZE };
 		Vector2 pos = worker.position; // Hot fix for faulty tile (11,37)
-
-		//std::cout << "feel tree tile: (" << treesTile->x << ", " << treesTile->y << ") - ";
-		//std::cout << "pos: (" << pos.x << ", " << pos.y << ") \n";
 
 		// Done
 		treesTile->FellTree();
@@ -149,13 +135,8 @@ ESubtaskState TrainWorker::Execute(Worker& worker, float dTime)
 		// Change coloring
 		switch (role)
 		{
-		case EWorkerRole::Builder: worker.coloring = YELLOW; break;
+			case EWorkerRole::Builder: worker.coloring = YELLOW; break;
 		}
-
-		// TODO: Check filter logic
-		//EntityManager* entMngr = SystemsHolder::GetInstance()->entityMananger;
-		//entMngr->workersRoleFilter[EWorkerRole::General].erase(std::remove(entMngr->workersRoleFilter->begin(), entMngr->workersRoleFilter->end(), &worker));
-		//entMngr->workersRoleFilter[role].push_back(&worker);
 
 		worker.trainedRole = EWorkerRole::None;
 		return ESubtaskState::Finnished;
@@ -174,7 +155,6 @@ TrainSoldier::TrainSoldier(Building* target, float t) : targetBuilding(target), 
 
 ESubtaskState TrainSoldier::Execute(Worker& worker, float dTime)
 {
-	//delay = 1;
 	if (timer >= delay)
 	{
 		// Done
@@ -198,7 +178,6 @@ ESubtaskState TrainSoldier::Execute(Worker& worker, float dTime)
 
 ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
 {
-	//delay = 1;
 	if (!started)
 	{
 		building->StartBuilding();
@@ -219,7 +198,6 @@ ESubtaskState CreateBuilding::Execute(Worker& worker, float dTime)
 
 ESubtaskState CreateItem::Execute(Worker& worker, float dTime)
 {
-	//delay = 1;
 	if (!started)
 	{
 		building->reservedCapital += cost;
@@ -238,50 +216,4 @@ ESubtaskState CreateItem::Execute(Worker& worker, float dTime)
 	// Run 
 	timer += dTime;
 	return ESubtaskState::Running;
-}
-
-ESubtaskState ScoutSubtask::Execute(Worker& worker, float dTime)
-{
-	// Find
-	if (!foundPath)
-	{
-		World* world = SystemsHolder::GetInstance()->world;
-		PathFinding* pf = SystemsHolder::GetInstance()->pathfinding;
-
-		//target = FindUndiscoveredTile(x, y, &pf, &world);
-		foundPath = FindUndiscoveredTile(x, y, *pf, *world);
-
-		return ESubtaskState::Running;
-	}
-
-	// Follow
-}
-
-bool ScoutSubtask::FindUndiscoveredTile(int x, int y, PathFinding& pf, World& world)
-{
-	Node* node = &pf.nodes[y][x];
-
-	for (Connection& connection : node->connections)
-	{
-		Node& cNode = *connection.node;
-		/*
-		if (world.IsDiscovered(cNode.x, cNode.y))
-		{
-			//target = Vector2(cNode.x * GlobalVars::TILE_SIZE, cNode.y * GlobalVars::TILE_SIZE);
-			//return true;
-			return FindUndiscoveredTile(cNode.x, cNode.y, pf, world);
-		}
-		*/
-	}
-
-	/*
-	for (Connection& connection : node->connections)
-	{
-		Node& cNode = *connection.node;
-		if (FindUndiscoveredTile(cNode.x, cNode.y, pf, world))
-			return true;
-	}
-	*/
-
-	return false;
 }

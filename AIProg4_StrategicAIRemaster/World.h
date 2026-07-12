@@ -100,7 +100,6 @@ public:
 
     void Init();
     bool LoadMap(const char* path);
-    void Update(float dTime);
     void Draw();
     //bool IsDiscovered(int x, int y);
 

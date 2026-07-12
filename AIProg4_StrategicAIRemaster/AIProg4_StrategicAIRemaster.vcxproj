@@ -144,7 +144,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PathFinding.cpp" />
     <ClCompile Include="Pickup.cpp" />
-    <ClCompile Include="ScoutManager.cpp" />
     <ClCompile Include="SteeringBehavior.cpp" />
     <ClCompile Include="SubtaskDefinitions.cpp" />
     <ClCompile Include="SystemsHolder.cpp" />
@@ -163,7 +162,6 @@
     <ClInclude Include="Json.hpp" />
     <ClInclude Include="PathFinding.h" />
     <ClInclude Include="Pickup.h" />
-    <ClInclude Include="ScoutManager.h" />
     <ClInclude Include="SteeringBehavior.h" />
     <ClInclude Include="SubtaskDefinitions.h" />
     <ClInclude Include="SystemsHolder.h" />

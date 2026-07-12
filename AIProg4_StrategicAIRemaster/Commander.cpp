@@ -415,6 +415,9 @@ void Commander::UpdatePlan()
 		// Workers
 		for (Goal*& goal : goals)
 		{
+			if (goal->finalStep->name == "Build camp")
+				int a = 5;
+
 			GoalStep* step = goal->NextAvailableStep();
 			if (step)
 			{
@@ -422,12 +425,16 @@ void Commander::UpdatePlan()
 				if (step->output.type == -1)
 					goal->NextAvailableStep();
 
-				step->AssignTask(&entityManager->workers[workerToPlan]);
+				bool assigned = step->AssignTask(&entityManager->workers[workerToPlan]);
 
-				break;
+				if (assigned)
+					break;
 			}
 			else
 			{
+				if (goal->finalStep->name == "Build forge")
+					int a = 5;
+
 				// Debug
 				goal->NextAvailableStep();
 			}

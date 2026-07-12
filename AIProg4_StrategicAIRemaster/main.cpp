@@ -68,6 +68,34 @@ void AdjustTimeScale()
     DrawText(cZoom, 50 + cam.camera.target.x, 50 + cam.camera.target.y, 16 / cam.camera.zoom, YELLOW);
 }
 
+void CalculateFPSAvarage()
+{
+    if (frameCount < fpsStatsSize)
+    {
+        fpsStats[frameCount] = 1 / GetFrameTime();
+    }
+    else
+    {
+        for (int i = 1; i < fpsStatsSize; i++)
+        {
+            fpsStats[i - 1] = fpsStats[i];
+        }
+
+        fpsStats[fpsStatsSize - 1] = 1 / GetFrameTime();
+    }
+
+    int fpsTotal = 0;
+    for (int i = 0; i < fpsStatsSize; i++)
+    {
+        fpsTotal += fpsStats[i];
+    }
+
+    if (frameCount < fpsStatsSize)
+        frameCount++;
+
+    avgFps = fpsTotal / frameCount;
+}
+
 // Game functionality
 void RunGame()
 {
@@ -98,61 +126,28 @@ void RunGame()
         if (dt > 1.0)
             dt = 1.0;
 
-        world.Update(dt);
         commander.Update(dt);
 
         // Rendering
         BeginDrawing();
-        //BeginMode2D(camera);
         cam.Update(dt);
         ClearBackground(BLACK);
         world.Draw();
 
-        //pathfinding.DrawGraph();
-        //if (path)
-            //DrawPath(path);
-
         entityManager.Update(dt);
 
         AdjustTimeScale();
-        //std::cout << "Path calculation FPS: " << 1 / GetFrameTime() << "\n";
 
         // Debug drawing
         commander.DebugDraw();
         //pathfinding.DrawGraph();
 
         EndDrawing();
-        //return;
-        
-        // Calculate avg
-        if (frameCount < fpsStatsSize)
-        {
-            fpsStats[frameCount] = 1 / GetFrameTime();
-        }
-        else
-        {
-            for (int i = 1; i < fpsStatsSize; i++)
-            {
-                fpsStats[i - 1] = fpsStats[i];
-            }
 
-            fpsStats[fpsStatsSize - 1] = 1 / GetFrameTime();
-        }
-
-        int fpsTotal = 0;
-        for (int i = 0; i < fpsStatsSize; i++)
-        {
-            fpsTotal += fpsStats[i];
-        }
-
-        if (frameCount < fpsStatsSize)
-            frameCount++;
-
-        avgFps = fpsTotal / frameCount;
+        CalculateFPSAvarage();
     }
 
     // Cleanup
-    //delete path;
     delete GameDB::Database::Instance();
 }
 

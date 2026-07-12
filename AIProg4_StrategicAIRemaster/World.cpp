@@ -55,29 +55,6 @@ void World::Init()
     }
 }
 
-void World::Update(float dTime)
-{
-    /*
-    // Discover world
-    Vector2 pos;
-
-    for (int i = 0; i < entityManager->workers.size(); i++)
-    {
-        pos = entityManager->workers[i]->position;
-        pos.x = pos.x / GlobalVars::TILE_SIZE;
-        pos.y = pos.y / GlobalVars::TILE_SIZE;
-
-        i = (int)pos.y * width + (int)pos.x;
-
-        // Discover
-        if (!discovered[i])
-            undiscoveredCount--;
-
-        discovered[i] = true;
-    }
-    */
-}
-
 /*
 Load map data and create world setup
 */
@@ -142,7 +119,7 @@ bool World::LoadMap(const char* path)
         for (size_t y = 0; y < height; y++)
         {
             discovered[x][y] = EDiscovetyState::Undiscovered;
-            //discovered[x][y] = EDiscovetyState::Discovered;
+
             // NOTE: map[y][x]
             // Temporary map data are stored as Y first, X second, due to file reading getting the height first.
             // This is fixed for actual map data, which can be naturaly accessed as [x][y]
@@ -222,8 +199,6 @@ void World::Draw()
 
             switch (mapTerrain[x][y])
             {
-            //case ETerrainType::Grass: col = cGrass; continue;
-            //case ETerrainType::Trees: col = cGrass; continue;
             case ETerrainType::Swamp: DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, cSwamp); break;
             case ETerrainType::Water: DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, cWater); break;
             case ETerrainType::Rock: DrawRectangle(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, cRock); break;
@@ -240,35 +215,12 @@ void World::Draw()
         float x = treeTiles[i].x * GlobalVars::TILE_SIZE;
         float y = treeTiles[i].y * GlobalVars::TILE_SIZE;
 
-        // Show fog 
+        // Ignore undiscovered trees
         if (discovered[treeTiles[i].x][treeTiles[i].y] != EDiscovetyState::Discovered)
-        {
-            //DrawRectangle(x, y, GlobalVars::TILE_SIZE, GlobalVars::TILE_SIZE, GRAY);
             continue;
-        }
-
-        /*
-        if (treeTiles[i].amount - treeTiles[i].reservations <= 0)
-            DrawCircle(x, y, 6, PINK);
-        */
 
         DrawTexture(treeTileTextures[treeTiles[i].amount - 1], x, y, BROWN);
-
-        std::string pos = std::to_string(treeTiles[i].amount) + "\n(" + std::to_string(treeTiles[i].reservations) + ")";
-
-        pos += "\ncm: ";
-        for (int a = 0; a < treeTiles[i].committedWorkers.size(); a++)
-        {
-            pos += std::to_string(treeTiles[i].committedWorkers[a]) + "\n";
-        }
-
-        DrawText(pos.c_str(), x, y, 1, WHITE);
     }
-}
-
-void DrawTrees()
-{
-
 }
 
 void World::Discover(int x, int y, EDiscovetyState state)
