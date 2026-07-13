@@ -49,6 +49,10 @@ Commander::Commander()
 		Worker* worker = &entityManager->workers.at(i);
 		scouts.push_back(worker);
 		AssignTask(worker, WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Scout));
+
+		// Test pos
+		//worker->position = Vector2(8, 8);
+		//worker->target = worker->position;
 	}
 
 	/*

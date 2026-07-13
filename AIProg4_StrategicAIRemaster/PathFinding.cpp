@@ -215,6 +215,45 @@ void PathFinding::DrawGraph()
 	}
 }
 
+bool PathFinding::IsPositionTraversable(Vector2 position)
+{
+	int x = (int)position.x / GlobalVars::TILE_SIZE;
+	int y = (int)position.y / GlobalVars::TILE_SIZE;
+
+	// Has at least one connnection?
+	return nodes[y][x].connections.size() > 0;
+}
+
+Vector2 PathFinding::ClosestTraversablePosition(Vector2 position)
+{
+	float closestDist = 99999999;
+	Vector2 target = Vector2(-1, -1);
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			Vector2 pos = Vector2(x * GlobalVars::TILE_SIZE, y * GlobalVars::TILE_SIZE);
+
+			Vector2 diff = position - pos;
+			float dist = diff.x * diff.x + diff.y * diff.y;
+
+			// Found shorter distance?
+			if (dist >= closestDist)
+				continue;
+
+			if (!IsPositionTraversable(pos))
+				continue;
+
+			// Update
+			closestDist = dist;
+			target = pos;
+		}
+	}
+
+	return target;
+}
+
 std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open)
 {
 	int visitsCounter = 0;

@@ -72,6 +72,8 @@ public:
 	void AddConnectionsToNode(Node* node, int x, int y);
 	void DrawGraph();
 
+	bool IsPositionTraversable(Vector2 position);
+	Vector2 ClosestTraversablePosition(Vector2 position);
 	std::vector<Node>* AStarDivided(Vector2 start, Vector2 end, std::map<Node*, NodeRecordAs>& searchResult, std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>& open);
 
 	inline float ManhattanHeuristic(const Node* start, const Node* end);

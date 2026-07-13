@@ -31,6 +31,20 @@ void Worker::Update(float dTime)
 	// Move
 	if (path.empty() || FollowPath())
 		position = Vector2Add(position, SteeringBehavior::Seek(position, target, speed * dTime));
+
+	if (path.empty())
+	{
+		if (!pathfinding)
+		{
+			pathfinding = SystemsHolder::GetInstance()->pathfinding;
+		}
+
+		// Fix standing on invalid tile 
+		if (!pathfinding->IsPositionTraversable(position))
+		{
+			target = pathfinding->ClosestTraversablePosition(position);
+		}
+	}
 }
 
 void Worker::Render()

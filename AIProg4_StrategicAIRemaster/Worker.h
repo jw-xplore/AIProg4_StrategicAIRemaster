@@ -47,6 +47,7 @@ public:
 	float speed;
 
 	// Path
+	PathFinding* pathfinding;
 	float pathNodeDistance = 10;
 
 	Worker(){}
