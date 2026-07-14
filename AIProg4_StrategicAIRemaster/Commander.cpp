@@ -351,6 +351,9 @@ void Commander::Update(float dTime)
 	// Scouting update
 	for (Worker*& scout : scouts)
 	{
+		if (scout->role != EWorkerRole::Scout)
+			continue;
+
 		ScoutPos(scout->position.x, scout->position.y);
 	}
 }

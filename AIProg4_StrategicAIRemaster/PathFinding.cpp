@@ -530,7 +530,6 @@ void PathFinding::Discover(int x, int y)
 		if (world->TileDiscoveryState(cNode->x, cNode->y) == EDiscovetyState::Undiscovered)
 		{
 			nextUndiscovered.push_back(cNode);
-			//world->discovered[cNode->x][cNode->y] = EDiscovetyState::Planned;
 			world->Discover(cNode->x, cNode->y, EDiscovetyState::Planned);
 		}
 	}
