@@ -37,8 +37,8 @@ enum ENodeRecordState
 
 struct NodeRecordAs
 {
-	Node* node;
-	Connection* connection;
+	Node* node = nullptr;
+	Connection* connection = nullptr;
 	float costSoFar;
 	float costEstimated;
 	ENodeRecordState state;

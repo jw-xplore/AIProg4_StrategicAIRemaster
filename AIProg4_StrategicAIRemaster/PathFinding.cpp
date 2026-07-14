@@ -407,6 +407,9 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		if (path->size() > 1000)
 			return new std::vector<Node>;
 
+		if (current.node == nullptr)
+			return new std::vector<Node>;
+		
 		path->push_back(*current.node);
 		current = searchResult[current.connection->fromNode];
 	}
