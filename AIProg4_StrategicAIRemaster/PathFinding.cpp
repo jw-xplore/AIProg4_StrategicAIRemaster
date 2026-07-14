@@ -103,7 +103,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x];
-		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -112,7 +111,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y + 1][x + 1];
-		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -122,7 +120,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y][x + 1];
-		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -131,7 +128,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x + 1];
-		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -141,7 +137,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x];
-		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -150,7 +145,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y - 1][x - 1];
-		//link.weight = 1.4f * link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -160,7 +154,6 @@ void PathFinding::AddConnectionsToNode(Node* node, int x, int y)
 	{
 		link.fromNode = node;
 		link.node = &nodes[y][x - 1];
-		//link.weight = link.node->travelCost;
 
 		node->connections.push_back(link);
 	}
@@ -307,7 +300,6 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 
 	if (open.size() == 0)
 	{
-		int a = 5;
 		return new std::vector<Node>;
 	}
 
@@ -387,10 +379,6 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		current.state = ENodeRecordState::Closed;
 		searchResult[current.node] = current;
 	}
-
-	// Return empty path if search wasn't finished
-	//if (current.node != endNode)
-		//return {};
 
 	// Format path
 	std::vector<Node>* path = new std::vector<Node>;
@@ -543,8 +531,6 @@ void PathFinding::Discover(int x, int y)
 	}
 
 	// Set next undiscovered
-	//nextUndiscovered.erase(std::find(nextUndiscovered.begin(), nextUndiscovered.end(), nodes[y][x]));
-
 	for (Connection& connection : nodes[y][x].connections)
 	{
 		Node* cNode = connection.node;
@@ -554,8 +540,6 @@ void PathFinding::Discover(int x, int y)
 			world->Discover(cNode->x, cNode->y, EDiscovetyState::Planned);
 		}
 	}
-
-	//std::cout << "nextUndiscovered: " << nextUndiscovered.size() << "\n";
 }
 
 Node* PathFinding::ClosestUndiscovered(Vector2 pos)
@@ -577,8 +561,6 @@ Node* PathFinding::ClosestUndiscovered(Vector2 pos)
 
 	if (closest)
 		nextUndiscovered.erase(std::find(nextUndiscovered.begin(), nextUndiscovered.end(), closest));
-	else
-		int a = 5;
 
 	return closest;
 }

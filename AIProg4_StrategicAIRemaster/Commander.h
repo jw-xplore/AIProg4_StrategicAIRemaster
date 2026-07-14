@@ -57,9 +57,7 @@ public:
 	std::map<Node*, NodeRecordAs>* searchResult;
 	std::priority_queue<NodeRecordAs, std::vector<NodeRecordAs>, NodeRecordAsCompare>* open;
 
-	//std::map<Worker*, Task*> workerTaskMap;
 	std::vector<Task*> activeTasks;
-	//std::map<Worker*, CommanderGoals::CommanderGoal*> workerGoalMap;
 	int dedicatedScouts = 10;
 	int scoutsPos;
 	std::vector<Worker*> scouts;

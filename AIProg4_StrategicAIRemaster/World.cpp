@@ -146,20 +146,6 @@ bool World::LoadMap(const char* path)
         }
     }
 
-    // Discover starting area
-    int startTileX = GlobalVars::START_TILE_X;
-    int startTileY = GlobalVars::START_TILE_Y;
-    int endTileX = GlobalVars::START_TILE_X + 3;
-    int	endTileY = GlobalVars::START_TILE_Y + 3;
-
-    for (int x = startTileX; x < endTileX; x++)
-    {
-        for (int y = startTileY; y < endTileY; y++)
-        {
-            //discovered[x][y] = EDiscovetyState::Discovered;
-        }
-    }
-
     // Clearup
     for (int y = 0; y < height; y++)
     {
@@ -271,5 +257,7 @@ TreesTile* World::ClosestTreeTile(Vector2Int currentTile)
 /// <param name="tile"></param>
 void World::RemoveTreeTile(TreesTile* tile)
 {
+    // Note: This was removed as hotfix for memory issues with trees
+
     //treeTiles.erase(std::find(treeTiles.begin(), treeTiles.end(), *tile));
 }

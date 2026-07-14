@@ -26,27 +26,14 @@ namespace GameDB
 		EActionTrainingCount
 	};
 
-	/*
-	enum EActionBuilding
-	{
-		BuildCoalMile,
-		BuildForge,
-		BuildSmelter,
-		BuildTrainingCamp,
-		EActionBuildingCount
-	};
-	*/
-
 	//--------------------------------------------------
 	// Database structures
 	//--------------------------------------------------
 
 	struct TerrainData
 	{
-		//ETerrainType type;
-		//const char* name;
 		char charIdentifier;
-		float cost;
+		float cost; // cost of traversing tile, value use directly in pathfinding
 	};
 
 	//--------------------------------------------------
@@ -58,6 +45,7 @@ namespace GameDB
 		static Database* instance;
 
 	public:
+		float tileMeterSize;
 		int startingPopulation;
 		int ironOreAmount;
 
@@ -66,6 +54,7 @@ namespace GameDB
 		Capital::ActionCost* actionCostsTraining;
 		Capital::ActionCost* actionCostsBuilding;
 
+		// All data loaded on contructor
 		Database();
 		~Database();
 

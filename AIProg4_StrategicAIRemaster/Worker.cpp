@@ -14,7 +14,7 @@
 
 Worker::Worker(Vector2 starPos)
 {
-	speed = (1.0 / 10.0) * GlobalVars::TILE_SIZE;
+	speed = (1.0 / GameDB::Database::Instance()->tileMeterSize) * GlobalVars::TILE_SIZE;
 	//speed = 20;
 	position = starPos;
 	target = position;
@@ -82,14 +82,8 @@ void Worker::SetupTerrainSpeed()
 	if (baseSpeed <= 0)
 		return;
 
-	if (baseSpeed < 1 || baseSpeed > 1)
-		int a = 5;
-
 	// Calculate speed based on tile size
-	speed = (baseSpeed / 10.0) * GlobalVars::TILE_SIZE;
-
-	if (speed < 0)
-		int a = 5;
+	speed = (baseSpeed / GameDB::Database::Instance()->tileMeterSize) * GlobalVars::TILE_SIZE;
 }
 
 void Worker::SetNewPath(std::vector<Vector2>& newPath)
@@ -118,7 +112,6 @@ bool Worker::FollowPath()
 	if (Vector2LengthSqr(dist) > pathNodeDistance)
 	{
 		target = pos;
-		//DrawCircle(pos.x, pos.y, 4, ORANGE);
 	}
 	else
 	{
@@ -177,21 +170,12 @@ namespace WorkerTasks
 			throw std::runtime_error(err);
 		}
 
-		// Input - Output
-		//task->output = TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr);
-
 		return task;
 	}
 
 	Task* DeliverItemTask(Worker* worker, Capital::ECapitalType itemType, Building* target)
 	{
-		if (itemType == Capital::ECapitalType::IronOre)
-			int a = 5;
-
 		SystemsHolder* systems = SystemsHolder::GetInstance();
-
-		if (itemType == Capital::ECapitalType::Coal)
-			int a = 5;
 
 		// Find closest item
 		Pickup* item = systems->entityMananger->FindClosestPickup(worker->position, itemType);
@@ -213,13 +197,6 @@ namespace WorkerTasks
 
 		task->name = "W Deliver " + std::to_string(itemType);
 		item->reserved = true;
-		// Input - Output
-		/*
-		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, nullptr);
-		task->input.push_back(input);
-
-		task->output = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, target);
-		*/
 
 		return task;
 	}
@@ -244,9 +221,6 @@ namespace WorkerTasks
 		}
 
 		// Reserve capital
-		if (itemType == Capital::ECapitalType::Coal)
-			int a = 4;
-
 		from->reservedCapital.amounts[itemType] += 1;
 
 		// Setup subtasks
@@ -260,14 +234,6 @@ namespace WorkerTasks
 		);
 
 		task->name = "Deliver " + std::to_string(itemType);
-
-		// Input - Output
-		/*
-		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, from);
-		task->input.push_back(input);
-
-		task->output = TaskAttribute(ETaskAttributeCategory::Capital, itemType, 1, target);
-		*/
 
 		return task;
 	}
@@ -294,13 +260,6 @@ namespace WorkerTasks
 		);
 
 		task->name = "Train " + std::to_string(role);
-
-		// Input - Output
-		/*
-		task->output.category = ETaskAttributeCategory::Worker;
-		task->output.type = role;
-		task->output.amount = 1;
-		*/
 
 		return task;
 	}
@@ -341,14 +300,6 @@ namespace WorkerTasks
 
 		task->name = "Build " + std::to_string(building->type);
 
-		// Input - Output
-		/*
-		TaskAttribute input = TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Builder, 1, nullptr);
-		task->input.push_back(input);
-
-		task->output = TaskAttribute(ETaskAttributeCategory::Building, building->type, 1, nullptr);
-		*/
-
 		return task;
 	}
 
@@ -374,11 +325,6 @@ namespace WorkerTasks
 	Task* ScoutTask(Worker* worker)
 	{
 		// Find
-		//int x = worker->position.x / GlobalVars::TILE_SIZE;
-		//int y = worker->position.y / GlobalVars::TILE_SIZE;
-		//SubtaskDefinitions::ScoutSubtask scout = SubtaskDefinitions::ScoutSubtask(x, y);
-		//scout.Execute(*worker, 0);
-
 		Node* node = SystemsHolder::GetInstance()->pathfinding->ClosestUndiscovered(worker->position);
 		if (!node)
 			return nullptr;
@@ -389,8 +335,6 @@ namespace WorkerTasks
 		Task* task = new Task(worker,
 			{
 			new SubtaskDefinitions::MoveToSubtask(pos)
-			//new SubtaskDefinitions::CreateItem(building, cost.time, cost.capital, gainItem)
-			//new SubtaskDefinitions::CreateBuilding(building, time)
 			}
 		);
 

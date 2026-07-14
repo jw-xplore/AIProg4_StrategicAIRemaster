@@ -49,16 +49,8 @@ Commander::Commander()
 		Worker* worker = &entityManager->workers.at(i);
 		scouts.push_back(worker);
 		AssignTask(worker, WorkerTasks::TrainForRoleTask(worker, EWorkerRole::Scout));
-
-		// Test pos
-		//worker->position = Vector2(8, 8);
-		//worker->target = worker->position;
 	}
 
-	/*
-	scouts[0]->position = Vector2(420, 300);
-	scouts[0]->target = Vector2(420, 300);
-	*/
 }
 
 Commander::~Commander()
@@ -69,7 +61,6 @@ Commander::~Commander()
 void Commander::DefineAvailableTasks()
 {
 	GameDB::Database* db = GameDB::Database::Instance();
-	//db->actionCostsResources[EActionResource::MakeCoal];
 
 	// Buildings
 	Building* coalMile = entityManager->FindBuildingOfType(EBuildingType::CoalMile);
@@ -156,16 +147,6 @@ void Commander::DefineAvailableTasks()
 	availableSteps.push_back(createIronBar);
 	availableSteps.push_back(createSword);
 
-	/*
-	availableSteps.push_back(new GoalStep(
-		"Deliver wood",
-		{
-			TaskAttribute(ETaskAttributeCategory::Capital, Capital::ECapitalType::Tree, 1, nullptr)
-		},
-		TaskAttribute(ETaskAttributeCategory::Worker, EWorkerRole::Scout, 1, nullptr)
-	));
-	*/
-
 	//--------------
 
 	// Goals final tasks
@@ -219,8 +200,6 @@ void Commander::DefineAvailableTasks()
 		[*this](Worker* worker) { return nullptr; }
 		);
 
-	//availableSteps.push_back(trainSoldier);
-
 	// Define delivery tasks
 	GoalStep* deliverItem = new GoalStep(
 		"Deliver",
@@ -229,11 +208,6 @@ void Commander::DefineAvailableTasks()
 		},
 		TaskAttribute(ETaskAttributeCategory::Capital, -1, 0, nullptr),
 		nullptr
-		/*
-		[*this](Worker* worker) {
-			return WorkerTasks::DeliverItemTask(worker, Capital::ECapitalType::Tree, nullptr);
-		}
-		*/
 	);
 
 	deliverItem->variableInOut = true;
@@ -301,10 +275,8 @@ void Commander::DefineAvailableTasks()
 	// Goals definition
 	goals.push_back(new Goal(*buildCoalMile, availableSteps));
 	goals.push_back(new Goal(*buildSmelter, availableSteps));
-	//return;
 	goals.push_back(new Goal(*buildForge, availableSteps));
 	goals.push_back(new Goal(*buildCamp, availableSteps));
-	//goals.push_back(new Goal(*trainSoldier, availableSteps));
 	goals.push_back(new Goal(*createArmy, availableSteps));
 }
 
@@ -312,14 +284,6 @@ void Commander::Update(float dTime)
 {
 	// Assigne new tasks
 	replanTimer += dTime;
-
-	/*
-	if (replanTimer >= replanDelay)
-	{
-		UpdatePlan();
-		replanTimer = 0;
-	}
-	*/
 
 	UpdatePlan();
 
@@ -335,9 +299,7 @@ void Commander::Update(float dTime)
 
 		if (wTask->finished)
 		{
-			// Finished - Remove
-			//*goals[currentGoal]->potentialCapital -= wTask.second->rewardCapital;
-
+			// Finished - Cleanup the task
 			if (wTask->parentGoalStep != nullptr)
 				wTask->parentGoalStep->finishedTasks++;
 
@@ -360,46 +322,6 @@ void Commander::Update(float dTime)
 
 void Commander::UpdatePlan()
 {
-	//int i = 0;
-
-	/*
-	for (Worker& worker : entityManager->workers)
-	{
-		if (activeTasks[i])
-			continue;
-
-		for (Goal*& goal : goals)
-		{
-			GoalStep* step = goal->NextAvailableStep();
-			if (step)
-			{
-				step->AssignTask();
-				break;
-			}
-			else
-			{
-				goal->NextAvailableStep();
-			}
-		}
-
-		i++;
-		if (i >= scoutsPos)
-			break;
-	}
-
-	// Scouts
-	int end = dedicatedScouts + scoutsPos;
-	for (int i = scoutsPos; i < end; i++)
-	{
-		Task* active = activeTasks[i];
-		if (activeTasks[i] != nullptr)
-			continue;
-
-		int si = i - scoutsPos;
-		AssignTask(scouts[si], WorkerTasks::ScoutTask(scouts[si]));
-	}
-	*/
-
 	int size = entityManager->workers.size();
 	int limit = size;
 	int checks = 0;
@@ -422,28 +344,13 @@ void Commander::UpdatePlan()
 		// Workers
 		for (Goal*& goal : goals)
 		{
-			if (goal->finalStep->name == "Build camp")
-				int a = 5;
-
 			GoalStep* step = goal->NextAvailableStep();
 			if (step)
 			{
-				// Debug
-				if (step->output.type == -1)
-					goal->NextAvailableStep();
-
 				bool assigned = step->AssignTask(&entityManager->workers[workerToPlan]);
 
 				if (assigned)
 					break;
-			}
-			else
-			{
-				if (goal->finalStep->name == "Build forge")
-					int a = 5;
-
-				// Debug
-				goal->NextAvailableStep();
 			}
 		}
 	}
@@ -467,6 +374,7 @@ int displayTask = 0;
 
 void Commander::DebugDraw()
 {
+	// Select goal to display - e.g. building forge, creating army
 	if (IsKeyDown(KEY_ONE))
 		displayTask = 0;
 	if (IsKeyDown(KEY_TWO))
@@ -478,7 +386,6 @@ void Commander::DebugDraw()
 	if (IsKeyDown(KEY_FIVE))
 		displayTask = 4;
 		
-
 	if (goals[displayTask]->finalStep)
 		goals[displayTask]->DebugDraw(*goals[displayTask]->finalStep, 0, 0);
 
@@ -492,12 +399,14 @@ void Commander::DebugDraw()
 	{
 		std::string taskName = "idle";
 
+		// Show active task if any
 		if (activeTasks[i])
 		{
 			taskName = "task: " + activeTasks[i]->name;
 			working++;
 		}
 
+		// Display is soldier
 		std::string soldierStr = "";
 		if (worker.role == EWorkerRole::Soldier)
 		{
@@ -513,6 +422,12 @@ void Commander::DebugDraw()
 	DrawText(("Working: " + std::to_string(working)).c_str(), -20, 100, 10, YELLOW);
 	DrawText(("Soldiers: " + std::to_string(soldierCount)).c_str(), -20, 120, 10, YELLOW);
 	DrawText(workerStats.c_str(), -20, 140, 10, YELLOW);
+
+	// Draw finished notification
+	if (soldierCount >= 20)
+	{
+		DrawText("All work done", 600, 500, 40, WHITE);
+	}
 }
 
 void Commander::ScoutPos(float posX, float posY)
@@ -526,23 +441,7 @@ void Commander::ScoutPos(float posX, float posY)
 	if (y < 1 || y >= world->worldSize)
 		return;
 
-	//if (world->TileDiscoveryState(x, y) == EDiscovetyState::Discovered)
-		//return;
-
-	/*
-	world->discovered[x][y] = true;
-	pathfinding->Discover(x, y);
-
-	world->discovered[x + 1][y] = true;
-	pathfinding->Discover(x + 1, y);
-
-	world->discovered[x + 1][y + 1] = true;
-	pathfinding->Discover(x + 1, y + 1);
-
-	world->discovered[x - 1][y] = true;
-	pathfinding->Discover(x - 1, y);
-	*/
-
+	// Discover standing tiles and all tiles around
 	pathfinding->Discover(x, y);
 	pathfinding->Discover(x, y + 1);
 	pathfinding->Discover(x + 1, y + 1);
@@ -575,8 +474,8 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 			break;
 	}
 
-	/*
 	// Consider non-general worker for general task
+	/*
 	if (roleConstrain == EWorkerRole::General)
 	{
 		i = 0;
@@ -604,11 +503,6 @@ Worker* Commander::FindFreeWorker(EWorkerRole roleConstrain)
 
 void Commander::AssignTask(Worker* worker, Task* task)
 {
-	if (activeTasks[worker->id])
-		int a = 4;
-
 	activeTasks[worker->id] = task;
 	task->assignee = worker;
-
-	//*goals[currentGoal]->potentialCapital += task->rewardCapital;
 }

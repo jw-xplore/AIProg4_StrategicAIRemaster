@@ -100,8 +100,6 @@ void CalculateFPSAvarage()
 void RunGame()
 {
     // Init
-    //World world = World("resources/testMap.txt");
-    //world = World("resources/WorldMap.txt");
     world.Init();
     PathFinding pathfinding = PathFinding(world);
     EntityManager entityManager = EntityManager();
@@ -110,9 +108,6 @@ void RunGame()
     SystemsHolder::GetInstance()->Init(&world, &entityManager, &pathfinding);
     Commander commander = Commander();
     cam = CustomCamera();
-
-    //std::vector<Node>* path = pathfinding.AStar({ 64, 64 }, { 640, 640 });
-    //return;
 
     // Gameloop
     while (!WindowShouldClose())

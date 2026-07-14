@@ -6,19 +6,17 @@ Building::Building(EBuildingType type, Vector2 startPos, EBuildingState state)
 	position = startPos;
 
 	this->type = type;
-	color = GREEN;
+	color = BLACK;
 	creationTarget = GameDB::Database::Instance()->actionCostsBuilding[type].time;
 
 	this->state = state;
+
+	// Finish building?
 	if (state == EBuildingState::Finished)
 	{
 		creationCounter = creationTarget;
 		ProgressBuilding(0);
 	}
-
-	//storedCapital.amounts[1] = 10;
-	//FinishBuilding();
-	//storedCapital.amounts[Capital::ECapitalType::Sword] = 1;
 }
 
 void Building::StartBuilding()

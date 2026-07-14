@@ -20,6 +20,7 @@ Database::Database()
 	// Store data--------------------------------
 
 	// Basic data
+	tileMeterSize = jsonRes["worldData"]["tileMeterSize"];
 	startingPopulation = jsonRes["worldData"]["population"];
 	ironOreAmount = jsonRes["worldData"]["ironOreAmount"];
 

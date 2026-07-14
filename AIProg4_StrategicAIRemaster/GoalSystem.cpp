@@ -83,7 +83,6 @@ void Task::Update(float dTime)
 	}
 
 	// Run and progress subtask
-	//ESubtaskState state = subtasks[currentSubTask](*assignee, dTime);
 	ESubtaskState state = subtasks[currentSubTask]->Execute(*assignee, dTime);
 
 	if (state == ESubtaskState::Canceled)
@@ -120,9 +119,6 @@ GoalStep::GoalStep(GoalStep& source)
 	this->variableInOut = source.variableInOut;
 	this->isDelivery = source.isDelivery;
 	this->doneEvaluateReality = source.doneEvaluateReality;
-
-	if (this->output.category == ETaskAttributeCategory::Worker && this->output.type == EWorkerRole::Soldier)
-		int a = 5;
 }
 
 GoalStep::GoalStep(std::string name, std::initializer_list<TaskAttribute> requirements, TaskAttribute output, std::function<Task* (Worker*)> taskFunc)
@@ -150,11 +146,6 @@ bool GoalStep::IsAttributeSatisfied(TaskAttribute& attribute, EntityManager* ent
 		}
 		else
 		{
-			if (attribute.type == Capital::ECapitalType::Sword)
-				int a = 5;
-			else
-				int a = 5;
-
 			// For building
 			return attribute.source->GetAvailableCapital()[type] >= attribute.amount;
 		}
@@ -216,9 +207,6 @@ bool GoalStep::IsDone()
 	// Check tasks fullfilment
 	if (totalTasks == 0)
 		return false;
-
-	//if (finishedTasks > totalTasks)
-		//throw std::runtime_error("Goal step finished tasks overflow!");
 
 	return finishedTasks == totalTasks;
 }
@@ -301,9 +289,6 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 			{
 				GoalStep* newStep = new GoalStep(*step);
 
-				if (input.blocker)
-					int a = 5;
-
 				newStep->blocker = input.blocker;
 
 				if (newStep->variableInOut)
@@ -337,16 +322,12 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 					// Dynamic task assign for deliver step
 					if (newStep->isDelivery)
 					{
-						if (input.type == Capital::ECapitalType::Coal)
-							int a = 5;
-
 						Building* from = TaskAttribute::VariableSource(input.category, input.type);
 
 						if (from)
 						{
 							// Getting resources from building
 							newStep->taskFunc = [*this, &input, from](Worker* worker) {
-								//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
 								Building* building = input.source;
 								return WorkerTasks::DeliverFromBuildingTask(worker, static_cast<Capital::ECapitalType>(input.type), from, building);
 								};
@@ -355,7 +336,6 @@ void Goal::DefineTaskChain(GoalStep& currentStep, std::vector<GoalStep*>& availa
 						{
 							// Getting resources from world
 							newStep->taskFunc = [*this, &input](Worker* worker) {
-								//Building* building = TaskAttribute::VariableSource(newStep->output.category, newStep->output.type);
 								Building* building = input.source;
 								return WorkerTasks::DeliverItemTask(worker, static_cast<Capital::ECapitalType>(input.type), building);
 								};
@@ -394,17 +374,9 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 	if (currentStep.IsDone())
 		return nullptr;
 
-	if (currentStep.output.type == EWorkerRole::Soldier)
-		int a = 5;
-
 	// Can perform this step?
 	if (currentStep.IsInputSatisfied())
 	{
-		//if (currentStep.name == "Cr coal")
-			//int a = 5;
-
-		// TODO: Be able to limit amount of soldier tasks based on already created swords 
-
 		// Is there work to be done? 
 		int assigned = currentStep.activeTasks.size() + currentStep.finishedTasks;
 		if (assigned < currentStep.totalTasks)
@@ -431,18 +403,22 @@ GoalStep* Goal::NextAvailableStep(GoalStep& currentStep)
 void Goal::DebugDraw(GoalStep& step, int posX, int posY)
 {
 	// Helper stats
-	std::string amount = " (" + std::to_string(step.totalTasks) + ")";
+	std::string deliveryItem = "";
+
+	if (step.name == "Deliver")
+		deliveryItem = " (item: " + std::to_string(step.output.type) + ")";
 
 	std::string buildingStr = "Non";
 	if (step.output.source)
 		buildingStr = std::to_string(step.output.source->type);
 
-	std::string outCTStr = std::to_string((int)step.output.category) + " - " + std::to_string(step.output.type);
+	std::string outCTStr = "cat: " + std::to_string((int)step.output.category) + ", typ: " + std::to_string(step.output.type);
+	outCTStr = " ";
 
-	std::string taskStr = " " + std::to_string(step.finishedTasks) + "(" + std::to_string(step.activeTasks.size()) + ")/" + std::to_string(step.totalTasks);
+	std::string taskStr = "done: " + std::to_string(step.finishedTasks) + "(" + std::to_string(step.activeTasks.size()) + ")/" + std::to_string(step.totalTasks);
 
 	// Display string
-	std::string str = step.name + amount /* + "\n out bu:" + buildingStr */+ "\n out c/t:" + outCTStr  + taskStr;
+	std::string str = step.name + deliveryItem + "\n " + outCTStr  + taskStr;
 	char const* cZoom = str.c_str();
 
 	Color coloring = RED;
