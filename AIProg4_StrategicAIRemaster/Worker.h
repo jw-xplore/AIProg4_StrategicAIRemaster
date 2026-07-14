@@ -9,6 +9,7 @@ class Pickup;
 class Building;
 struct TreesTile;
 class Task;
+class World;
 
 /*
 enum EWorkerRole
@@ -48,6 +49,7 @@ public:
 
 	// Path
 	PathFinding* pathfinding;
+	World* world;
 	float pathNodeDistance = 10;
 
 	Worker(){}
@@ -57,6 +59,7 @@ public:
 	void Update(float dTime);
 	void Render();
 
+	void SetupTerrainSpeed();
 	void SetNewPath(std::vector<Vector2>& newPath);
 	bool FollowPath();
 	void ClearPath();

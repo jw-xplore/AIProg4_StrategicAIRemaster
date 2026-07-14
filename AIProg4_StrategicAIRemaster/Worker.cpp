@@ -28,6 +28,9 @@ Worker::~Worker()
 
 void Worker::Update(float dTime)
 {
+	// Adjust speed
+	SetupTerrainSpeed();
+
 	// Move
 	if (path.empty() || FollowPath())
 		position = Vector2Add(position, SteeringBehavior::Seek(position, target, speed * dTime));
@@ -51,6 +54,42 @@ void Worker::Render()
 {
 	Vector2 pos = position;
 	DrawCircle(pos.x, pos.y, Worker::WORKER_SIZE, coloring);
+}
+
+void Worker::SetupTerrainSpeed()
+{
+	if (!world)
+		world = SystemsHolder::GetInstance()->world;
+
+	if (!world)
+		return;
+
+	int x = position.x / GlobalVars::TILE_SIZE;
+	int y = position.y / GlobalVars::TILE_SIZE;
+
+	// Check validity
+	if (x < 0 || y < 0)
+		return;
+
+	if (x >= world->width || y >= world->height)
+		return;
+
+	ETerrainType terrain = world->mapTerrain[x][y];
+	float baseSpeed = 1.0f;
+
+	// Base speed based on terrain
+	baseSpeed = 1.0f / GameDB::Database::Instance()->terrains[terrain].cost;
+	if (baseSpeed <= 0)
+		return;
+
+	if (baseSpeed < 1 || baseSpeed > 1)
+		int a = 5;
+
+	// Calculate speed based on tile size
+	speed = (baseSpeed / 10.0) * GlobalVars::TILE_SIZE;
+
+	if (speed < 0)
+		int a = 5;
 }
 
 void Worker::SetNewPath(std::vector<Vector2>& newPath)

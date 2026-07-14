@@ -220,6 +220,12 @@ bool PathFinding::IsPositionTraversable(Vector2 position)
 	int x = (int)position.x / GlobalVars::TILE_SIZE;
 	int y = (int)position.y / GlobalVars::TILE_SIZE;
 
+	if (x < 0 || y < 0)
+		return false;
+
+	if (x >= width || y >= height)
+		return false;
+
 	// Has at least one connnection?
 	return nodes[y][x].connections.size() > 0;
 }
@@ -263,6 +269,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 
 	int ex = (int)end.x / GlobalVars::TILE_SIZE;
 	int ey = (int)end.y / GlobalVars::TILE_SIZE;
+	if (ex < 0 || ey < 0)
+		return new std::vector<Node>;
+
+	if (ex >= width || ey >= height)
+		return new std::vector<Node>;
+
 	Node* endNode = &nodes[ey][ex];
 
 	// TODO: Remove and tweak this for divided search
@@ -273,6 +285,12 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 		// Find start
 		int sx = (int)start.x / GlobalVars::TILE_SIZE;
 		int sy = (int)start.y / GlobalVars::TILE_SIZE;
+		if (sx < 0 || sy < 0)
+			return new std::vector<Node>;
+
+		if (sx >= width || sy >= height)
+			return new std::vector<Node>;
+
 		startNode = &nodes[sy][sx];
 
 		// Initialize start node
@@ -415,6 +433,9 @@ std::vector<Node>* PathFinding::AStarDivided(Vector2 start, Vector2 end, std::ma
 
 inline float PathFinding::ManhattanHeuristic(const Node* start, const Node* end)
 {
+	if (!start || !end)
+		return 0;
+
 	float noSq = std::pow(end->x - start->x, 2) + std::pow(end->y - start->y, 2);
 	return std::sqrt(noSq);
 }
